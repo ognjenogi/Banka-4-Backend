@@ -1,0 +1,6 @@
+This directory contains Docker Compose configuration for a development
+environment, as well as scripts for building a image for each microservice.
+
+;; Local Variables:
+;; mode: text
+;; End:

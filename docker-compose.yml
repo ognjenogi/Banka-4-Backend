@@ -1,0 +1,54 @@
+# Brief file description
+# Copyright (C) 2025  Arsen Arsenović <aarsenovic@raf.rs>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+services:
+  user_service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-java
+    ports:
+      - "8080:8080"
+    command:
+      - /code/build/libs/user-service-0.0.1-SNAPSHOT.jar
+      - --spring.profiles.active=dev
+    depends_on:
+      user_service_db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./user-service/src
+          target: /code/src
+        - action: sync+restart
+          path: ./user-service/build.gradle.kts
+          target: /code/build.gradle.kts
+        - action: sync+restart
+          path: ./user-service/settings.gradle.kts
+          target: /code/settings.gradle.kts
+
+  user_service_db:
+    image: postgres:17
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: lmaolmao123
+      POSTGRES_DB: user-service
+      POSTGRES_USER: user-service
+    healthcheck:
+      test: "pg_isready -d user-service -U user-service"
+      interval: 3s
+      start_period: 3s

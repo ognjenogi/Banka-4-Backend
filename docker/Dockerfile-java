@@ -1,0 +1,30 @@
+# Dockerfile for the Gradle and Java-based backend services -*- dockerfile -*-
+# Copyright (C) 2025  Arsen Arsenović <aarsenovic@raf.rs>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+FROM eclipse-temurin:21-jdk AS build
+
+RUN useradd -m service
+
+RUN mkdir /service && chown service: /service
+WORKDIR /service
+
+ADD --chmod=755 docker/run-service.sh /run-service.sh
+ADD --chown=service:service user-service /code
+
+USER service
+ENTRYPOINT ["/run-service.sh"]
+CMD []
