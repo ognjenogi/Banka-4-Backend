@@ -22,3 +22,7 @@ spring:
     # Default credentials used in the dev Compose file.
     username: guest
     password: guest
+
+jwt:
+  secret:
+    key: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
