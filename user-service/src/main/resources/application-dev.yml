@@ -18,3 +18,7 @@
 spring:
   datasource:
     url: 'jdbc:postgresql://user_service_db/user-service?user=user-service&password=lmaolmao123'
+  rabbitmq:
+    # Default credentials used in the dev Compose file.
+    username: guest
+    password: guest

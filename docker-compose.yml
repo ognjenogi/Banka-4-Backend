@@ -16,10 +16,13 @@
 
 
 services:
+  # User service and its state
   user_service:
     build:
       context: .
       dockerfile: docker/Dockerfile-java
+      args:
+        SERVICE: user-service
     ports:
       - "8080:8080"
     command:
@@ -28,6 +31,8 @@ services:
     depends_on:
       user_service_db:
         condition: service_healthy
+      broker:
+        condition: service_started
     develop:
       watch:
         - action: sync+restart
@@ -52,3 +57,52 @@ services:
       test: "pg_isready -d user-service -U user-service"
       interval: 3s
       start_period: 3s
+
+  # Notification service and its state
+  notification_service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-java
+      args:
+        SERVICE: notification-service
+    command:
+      - /code/build/libs/notification-service-0.0.1-SNAPSHOT.jar
+      - --spring.profiles.active=dev
+    depends_on:
+      notification_service_db:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./notification-service/src
+          target: /code/src
+        - action: sync+restart
+          path: ./notification-service/build.gradle.kts
+          target: /code/build.gradle.kts
+        - action: sync+restart
+          path: ./notification-service/settings.gradle.kts
+          target: /code/settings.gradle.kts
+
+  notification_service_db:
+    image: postgres:17
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: lmaolmao123
+      POSTGRES_DB: notification-service
+      POSTGRES_USER: notification-service
+    healthcheck:
+      test: "pg_isready -d notification-service -U notification-service"
+      interval: 3s
+      start_period: 3s
+
+  # Central message broker.  The version below provides the management
+  # interface to ease development.  Uses default credentials of guest / guest.
+  # Good enough for dev.
+  broker:
+    image: rabbitmq:4.0-management
+    ports:
+      # Management interface.
+      - "15672:15672"
