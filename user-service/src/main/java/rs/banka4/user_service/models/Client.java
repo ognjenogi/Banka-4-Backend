@@ -12,8 +12,9 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Stream;
 
 @Entity(name = "clients")
 @Data
@@ -53,27 +54,33 @@ public class Client implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String saltPassword;
+    private boolean enabled;
 
     @Column(nullable = false)
-    private boolean enabled;
+    private long permissionBits;
 
     @ElementCollection
     @CollectionTable(name = "client_account_links", joinColumns = @JoinColumn(name = "client_id"))
     @Column(name = "account_link")
     private List<String> linkedAccounts;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "client_prvilege",
-            joinColumns = @JoinColumn(name = "client_id"),
-            inverseJoinColumns = @JoinColumn(name = "privilege_id")
-    )
-    private Set<Privilege> permissions;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return permissions;
+        return getPrivileges();
+    }
+
+    public EnumSet<Privilege> getPrivileges() {
+        return EnumSet.copyOf(
+                Stream.of(Privilege.values())
+                        .filter(p -> (permissionBits & p.bit()) != 0)
+                        .toList()
+        );
+    }
+
+    public void setPrivileges(Collection<Privilege> privileges) {
+        permissionBits = privileges.stream()
+                .map(Privilege::bit)
+                .reduce(0L, (x, y) -> x | y);
     }
 
     @Override

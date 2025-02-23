@@ -12,7 +12,10 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity(name = "employees")
 @Data
@@ -51,9 +54,6 @@ public class Employee implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String saltPassword;
-
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -66,17 +66,12 @@ public class Employee implements UserDetails {
     @Column(nullable = false)
     private boolean enabled;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "employee_prvilege",
-            joinColumns = @JoinColumn(name = "employee_id"),
-            inverseJoinColumns = @JoinColumn(name = "privilege_id")
-    )
-    private Set<Privilege> permissions;
+    @Column(nullable = false)
+    private long permissionBits;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return permissions;
+        return getPrivileges();
     }
 
     @Override
@@ -94,4 +89,17 @@ public class Employee implements UserDetails {
         return this.enabled;
     }
 
+    public EnumSet<Privilege> getPrivileges() {
+        return EnumSet.copyOf(
+            Stream.of(Privilege.values())
+                    .filter(p -> (permissionBits & p.bit()) != 0)
+                    .toList()
+        );
+    }
+
+    public void setPrivileges(Collection<Privilege> privileges) {
+         permissionBits = privileges.stream()
+                .map(Privilege::bit)
+                .reduce(0L, (x, y) -> x | y);
+    }
 }
