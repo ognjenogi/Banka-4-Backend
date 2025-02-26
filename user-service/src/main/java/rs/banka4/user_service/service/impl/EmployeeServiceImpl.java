@@ -161,7 +161,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
     public ResponseEntity<Void> updateEmployee(String id, EmployeeUpdateDto employeeUpdateDto) {
 
-        var employee = employeeRepository.findById(id).orElseThrow(()->new UserNotFound(id));
+        var employee = employeeRepository.findById(id).orElseThrow(() -> new UserNotFound(id));
 
         if (employeeRepository.existsByEmail(employeeUpdateDto.email())) {
             throw new DuplicateEmail(employeeUpdateDto.email());
@@ -171,7 +171,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new DuplicateUsername(employeeUpdateDto.username());
         }
 
-        employeeMapper.updateEmployeeFromDto(employeeUpdateDto,employee,passwordEncoder);
+        employeeMapper.updateEmployeeFromDto(employeeUpdateDto, employee, passwordEncoder);
         employeeRepository.save(employee);
 
         return ResponseEntity.ok().build();
