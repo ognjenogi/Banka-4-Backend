@@ -37,8 +37,7 @@ public class EmployeeController {
                                                           @RequestParam(required = false) String email,
                                                           @RequestParam(required = false) String position,
                                                           @RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size,
-                                                          @RequestHeader("Authorization") String authorization) {
+                                                          @RequestParam(defaultValue = "10") int size) {
         return employeeService.getAll(firstName, lastName, email, position, PageRequest.of(page, size));
     }
 }
