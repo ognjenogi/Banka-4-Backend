@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import rs.banka4.user_service.dto.LogoutDto;
 import rs.banka4.user_service.dto.RefreshTokenResponseDto;
 import rs.banka4.user_service.exceptions.IncorrectCredentials;
-import rs.banka4.user_service.exceptions.RefreshTokenExpired;
+import rs.banka4.user_service.exceptions.jwt.RefreshTokenRevoked;
 import rs.banka4.user_service.models.Employee;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.service.abstraction.AuthService;
@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
         String username = jwtUtil.extractUsername(token);
 
         if (jwtUtil.isTokenInvalidated(token)) {
-            throw new RefreshTokenExpired();
+            throw new RefreshTokenRevoked();
         }
 
         Employee employee = employeeRepository.findByEmail(username).orElseThrow(IncorrectCredentials::new);

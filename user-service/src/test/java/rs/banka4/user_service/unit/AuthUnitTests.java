@@ -12,7 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import rs.banka4.user_service.dto.*;
 import rs.banka4.user_service.exceptions.IncorrectCredentials;
 import rs.banka4.user_service.exceptions.NotAuthenticated;
-import rs.banka4.user_service.exceptions.RefreshTokenExpired;
+import rs.banka4.user_service.exceptions.jwt.RefreshTokenRevoked;
 import rs.banka4.user_service.models.Employee;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.service.abstraction.AuthService;
@@ -142,7 +142,7 @@ public class AuthUnitTests {
         when(jwtUtil.isTokenInvalidated(refreshToken)).thenReturn(true);
 
         // Act & Assert
-        assertThrows(RefreshTokenExpired.class, () -> authService.refreshToken(token));
+        assertThrows(RefreshTokenRevoked.class, () -> authService.refreshToken(token));
     }
 
     @Test

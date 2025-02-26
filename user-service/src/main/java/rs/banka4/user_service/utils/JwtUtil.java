@@ -1,14 +1,16 @@
 package rs.banka4.user_service.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rs.banka4.user_service.exceptions.jwt.ExpiredJwt;
+import rs.banka4.user_service.exceptions.jwt.IllegalArgumentJwt;
+import rs.banka4.user_service.exceptions.jwt.MalformedJwt;
+import rs.banka4.user_service.exceptions.jwt.UnsupportedJwt;
 import rs.banka4.user_service.models.Client;
 import rs.banka4.user_service.models.Employee;
 import rs.banka4.user_service.models.SecuredUser;
@@ -53,7 +55,21 @@ public class JwtUtil {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token).getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw new ExpiredJwt();
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwt();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentJwt();
+        } catch (Exception e) {
+            throw new UnsupportedJwt();
+        }
     }
 
     public String generateToken(Client client) {
@@ -102,7 +118,7 @@ public class JwtUtil {
     }
 
     public boolean isTokenInvalidated(String token) {
-        return tokenService.findByToken(token).isPresent() || isTokenExpired(token);
+        return tokenService.findByToken(token).isPresent();
     }
 
     private Key getSignInKey() {

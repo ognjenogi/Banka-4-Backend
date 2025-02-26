@@ -35,12 +35,12 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<RefreshTokenResponseDto> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
+    public ResponseEntity<RefreshTokenResponseDto> refreshToken(@RequestBody @Valid RefreshTokenDto refreshTokenDto) {
         return authService.refreshToken(refreshTokenDto.refreshToken());
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody LogoutDto logoutDto, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<Void> logout(@RequestBody @Valid LogoutDto logoutDto) {
         return authService.logout(logoutDto);
     }
 
