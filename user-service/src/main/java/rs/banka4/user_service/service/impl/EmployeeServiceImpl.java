@@ -109,13 +109,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeRepository.existsByUsername(dto.username())) {
             throw new DuplicateUsername(dto.username());
         }
-        Set<Privilege> validPrivileges = EnumSet.allOf(Privilege.class);
-        dto.privilege().forEach(privilege -> {
-            if (!validPrivileges.contains(privilege)) {
-                throw new PrivilegeDoesNotExist(privilege);
-            }
-        });
-
 
         Employee employee = basicEmployeeMapper.toEntity(dto);
         employeeRepository.save(employee);

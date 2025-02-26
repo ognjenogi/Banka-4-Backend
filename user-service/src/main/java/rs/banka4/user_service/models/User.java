@@ -45,7 +45,7 @@ public abstract class User {
     @Column(nullable = false)
     public String address;
 
-    @Column(nullable = false)
+    @Column()
     public String password;
 
     @Column(nullable = false)

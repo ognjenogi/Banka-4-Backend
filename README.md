@@ -18,6 +18,14 @@ By convention, for each of the services, the `dev` profile is activated.  This
 means that one can store development-specific properties in
 `application-dev.EXT`, where `EXT` is `yml` or `properties`.
 
+### Getting to the PSQL CLI
+
+Use one of these two commands:
+```
+docker compose exec user_service_db psql -U user-service user-service
+docker compose exec notification_service_db psql -U notification-service notification-service
+```
+
 ## Writing migrations
 This project uses
 [Flyway](https://documentation.red-gate.com/fd/migrations-271585107.html)

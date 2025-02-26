@@ -17,7 +17,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping("/privileges")
-    public ResponseEntity<PrivilegesDto> getPrivileges(@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<PrivilegesDto> getPrivileges() {
         return employeeService.getPrivileges();
     }
 

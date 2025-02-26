@@ -6,7 +6,7 @@ import rs.banka4.user_service.models.Privilege;
 import java.util.Map;
 
 public class PrivilegeDoesNotExist extends BaseApiException {
-    public PrivilegeDoesNotExist(Privilege privilege) {
+    public PrivilegeDoesNotExist(String privilege) {
         super(HttpStatus.BAD_REQUEST, Map.of("privilege", privilege));
     }
 }

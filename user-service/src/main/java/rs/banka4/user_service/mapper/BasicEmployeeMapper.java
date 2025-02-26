@@ -3,7 +3,11 @@ package rs.banka4.user_service.mapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import rs.banka4.user_service.dto.CreateEmployeeDto;
+import rs.banka4.user_service.exceptions.PrivilegeDoesNotExist;
 import rs.banka4.user_service.models.Employee;
+import rs.banka4.user_service.models.Privilege;
+
+import java.util.stream.Collectors;
 
 @Component
 public class BasicEmployeeMapper {
@@ -23,9 +27,17 @@ public class BasicEmployeeMapper {
         employee.setEmail(dto.email());
         employee.setPhone(dto.phone());
         employee.setAddress(dto.address());
-        employee.setPassword(passwordEncoder.encode(dto.password()));
-        employee.setPrivileges(dto.privilege());
-        employee.setPosition(dto.position());
+        employee.setPrivileges(
+                dto.privilege().stream()
+                        .map(privilege -> {
+                            try {
+                                return Privilege.valueOf(privilege);
+                            } catch (IllegalArgumentException e) {
+                                throw new PrivilegeDoesNotExist(privilege);
+                            }
+                        })
+                        .collect(Collectors.toSet())
+        );        employee.setPosition(dto.position());
         employee.setDepartment(dto.department());
         employee.setEnabled(false);
         return employee;

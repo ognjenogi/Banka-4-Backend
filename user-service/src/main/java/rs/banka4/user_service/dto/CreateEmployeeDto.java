@@ -6,11 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import rs.banka4.user_service.models.Privilege;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 public record CreateEmployeeDto(
-        //not blank annotations should handle the invalid data
-
         @NotBlank(message = "First name is required")
         String firstName,
 
@@ -36,11 +35,8 @@ public record CreateEmployeeDto(
         @NotBlank(message = "Address is required")
         String address,
 
-        @NotBlank(message = "Password is required")
-        String password,
-
         @NotNull(message = "Privileges are required")
-        Set<Privilege> privilege,
+        List<String> privilege,
 
         @NotBlank(message = "Position is required")
         String position,
