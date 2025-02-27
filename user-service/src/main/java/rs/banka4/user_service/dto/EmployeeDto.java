@@ -13,5 +13,6 @@ public record EmployeeDto (
         String address,
         String username,
         String position,
-        String department
+        String department,
+        boolean active
 ){ }

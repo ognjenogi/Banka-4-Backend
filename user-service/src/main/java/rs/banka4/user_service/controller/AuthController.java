@@ -37,7 +37,7 @@ public class AuthController {
         return authService.verifyAccount(request);
     }
 
-    @GetMapping("/forgot-password/{email}")
+    @PostMapping("/forgot-password/{email}")
     public ResponseEntity<Void> forgotPassword(@PathVariable("email") String email) {
         return authService.forgotPassword(email);
     }

@@ -39,11 +39,34 @@ public class TestDataRunner implements CommandLineRunner {
                     .username("johndoe")
                     .position("Developer")
                     .department("IT")
+                    .active(true)
                     .enabled(true)
                     .permissionBits(1L)
                     .build();
 
             employeeRepository.save(employee);
+        }
+
+        String newUsername = "marko";
+        if (!employeeRepository.existsByUsername(newUsername)) {
+            Employee newUser = Employee.builder()
+                    .firstName("Marko")
+                    .lastName("Markovic")
+                    .dateOfBirth(LocalDate.of(2001, 1, 1))
+                    .gender("Male")
+                    .email("markovicmarko@example.com")
+                    .phone("987-654-3210")
+                    .address("456 Elm St")
+                    .password(passwordEncoder.encode("securepassword"))
+                    .username(newUsername)
+                    .position("Software Engineer")
+                    .department("Development")
+                    .active(true)
+                    .enabled(true)
+                    .permissionBits(1L)
+                    .build();
+
+            employeeRepository.save(newUser);
         }
     }
 }

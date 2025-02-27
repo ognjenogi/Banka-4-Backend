@@ -69,7 +69,7 @@ public class EmployeeServiceTests {
         employeeDto = new EmployeeDto(
                 "1", "John", "Doe", LocalDate.of(1990, 1, 1), "Male",
                 "john.doe@example.com", "123-456-7890", "123 Street",
-                "john.doe@example.com", "Developer", "IT"
+                "john.doe@example.com", "Developer", "IT", true
         );
     }
 

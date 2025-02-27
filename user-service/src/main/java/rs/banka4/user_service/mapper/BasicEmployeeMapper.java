@@ -39,7 +39,8 @@ public class BasicEmployeeMapper {
                         .collect(Collectors.toSet())
         );        employee.setPosition(dto.position());
         employee.setDepartment(dto.department());
-        employee.setEnabled(false);
+        employee.setEnabled(dto.active());
+        employee.setActive(dto.active());
         return employee;
     }
 }

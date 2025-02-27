@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import rs.banka4.user_service.dto.EmployeeUpdateDto;
+import rs.banka4.user_service.dto.UpdateEmployeeDto;
 import rs.banka4.user_service.mapper.EmployeeMapper;
 import rs.banka4.user_service.models.Employee;
 import rs.banka4.user_service.models.Privilege;
@@ -37,7 +37,7 @@ public class EditEmployeeTest {
     private EmployeeServiceImpl employeeService;
 
     private Employee existingEmployee;
-    private EmployeeUpdateDto employeeUpdateDto;
+    private UpdateEmployeeDto updateEmployeeDto;
 
     @BeforeEach
     void setUp() {
@@ -50,9 +50,9 @@ public class EditEmployeeTest {
         existingEmployee.setPassword("encodedOldPassword");
         existingEmployee.setPrivileges(EnumSet.of(Privilege.SEARCH));
 
-        employeeUpdateDto = new EmployeeUpdateDto("jon", "jonon",
+        updateEmployeeDto = new UpdateEmployeeDto("jon", "jonon",
                 LocalDate.now(), "Male", "new.email@example.com", "newPassword", "newUsername",
-                "+12324335", "abc 12", List.of("SEARCH","FILTER"),"Nz","12");
+                "+12324335", "abc 12", List.of("SEARCH","FILTER"),"Nz","12", true);
 
     }
 
@@ -60,17 +60,17 @@ public class EditEmployeeTest {
     void shouldUpdateEmployeeSuccessfully() {
         when(employeeRepository.findById("123")).thenReturn(Optional.of(existingEmployee));
 
-        when(employeeRepository.existsByEmail(employeeUpdateDto.email())).thenReturn(false);
-        when(employeeRepository.existsByUsername(employeeUpdateDto.username())).thenReturn(false);
+        when(employeeRepository.existsByEmail(updateEmployeeDto.email())).thenReturn(false);
+        when(employeeRepository.existsByUsername(updateEmployeeDto.username())).thenReturn(false);
 
-        when(passwordEncoder.matches(employeeUpdateDto.password(), existingEmployee.getPassword())).thenReturn(false);
-        when(passwordEncoder.encode(employeeUpdateDto.password())).thenReturn("encodedNewPassword");
+        when(passwordEncoder.matches(updateEmployeeDto.password(), existingEmployee.getPassword())).thenReturn(false);
+        when(passwordEncoder.encode(updateEmployeeDto.password())).thenReturn("encodedNewPassword");
 
-        employeeService.updateEmployee("123", employeeUpdateDto);
+        employeeService.updateEmployee("123", updateEmployeeDto);
 
         verify(passwordEncoder, times(1)).encode("newPassword");
 
-        verify(employeeMapper).updateEmployeeFromDto(employeeUpdateDto, existingEmployee, passwordEncoder);
+        verify(employeeMapper).updateEmployeeFromDto(updateEmployeeDto, existingEmployee, passwordEncoder);
 
         assertEquals("new.email@example.com", existingEmployee.getEmail());
         assertEquals("encodedNewPassword", existingEmployee.getPassword());
@@ -85,27 +85,27 @@ public class EditEmployeeTest {
         when(employeeRepository.findById("123")).thenReturn(Optional.empty());
 
         assertThrows(UserNotFound.class, () -> {
-            employeeService.updateEmployee("123", employeeUpdateDto);
+            employeeService.updateEmployee("123", updateEmployeeDto);
         });
     }
 
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         when(employeeRepository.findById("123")).thenReturn(Optional.of(existingEmployee));
-        when(employeeRepository.existsByEmail(employeeUpdateDto.email())).thenReturn(true);
+        when(employeeRepository.existsByEmail(updateEmployeeDto.email())).thenReturn(true);
 
         assertThrows(DuplicateEmail.class, () -> {
-            employeeService.updateEmployee("123", employeeUpdateDto);
+            employeeService.updateEmployee("123", updateEmployeeDto);
         });
     }
 
     @Test
     void shouldThrowExceptionWhenUsernameAlreadyExists() {
         when(employeeRepository.findById("123")).thenReturn(Optional.of(existingEmployee));
-        when(employeeRepository.existsByUsername(employeeUpdateDto.username())).thenReturn(true);
+        when(employeeRepository.existsByUsername(updateEmployeeDto.username())).thenReturn(true);
 
         assertThrows(DuplicateUsername.class, () -> {
-            employeeService.updateEmployee("123", employeeUpdateDto);
+            employeeService.updateEmployee("123", updateEmployeeDto);
         });
     }
 

@@ -58,9 +58,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         Employee employee = employeeRepository.findByEmail(loginDto.email())
-                .orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(loginDto.email()));
 
-        if (!employee.isEnabled()) {
+        if (!employee.isActive() || employee.getPassword() == null) {
             throw new NotActivated();
         }
 
@@ -92,7 +92,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.getUsername(),
                 employee.getPosition(),
                 employee.getDepartment(),
-                employee.getPrivileges()
+                employee.getPrivileges(),
+                employee.isActive()
         );
 
         return ResponseEntity.ok(response);
@@ -151,7 +152,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.getAddress(),
                 employee.getUsername(),
                 employee.getPosition(),
-                employee.getDepartment()
+                employee.getDepartment(),
+                employee.isActive()
         ));
 
         return ResponseEntity.ok(dtos);
@@ -164,22 +166,23 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void activateEmployeeAccount(Employee employee, String password) {
         employee.setEnabled(true);
+        employee.setActive(true);
         employee.setPassword(passwordEncoder.encode(password));
         employeeRepository.save(employee);
     }
-    public ResponseEntity<Void> updateEmployee(String id, EmployeeUpdateDto employeeUpdateDto) {
+    public ResponseEntity<Void> updateEmployee(String id, UpdateEmployeeDto updateEmployeeDto) {
 
         var employee = employeeRepository.findById(id).orElseThrow(() -> new UserNotFound(id));
 
-        if (employeeRepository.existsByEmail(employeeUpdateDto.email())) {
-            throw new DuplicateEmail(employeeUpdateDto.email());
+        if (employeeRepository.existsByEmail(updateEmployeeDto.email())) {
+            throw new DuplicateEmail(updateEmployeeDto.email());
         }
 
-        if (employeeRepository.existsByUsername(employeeUpdateDto.username())) {
-            throw new DuplicateUsername(employeeUpdateDto.username());
+        if (employeeRepository.existsByUsername(updateEmployeeDto.username())) {
+            throw new DuplicateUsername(updateEmployeeDto.username());
         }
 
-        employeeMapper.updateEmployeeFromDto(employeeUpdateDto, employee, passwordEncoder);
+        employeeMapper.updateEmployeeFromDto(updateEmployeeDto, employee, passwordEncoder);
         employeeRepository.save(employee);
 
         return ResponseEntity.ok().build();

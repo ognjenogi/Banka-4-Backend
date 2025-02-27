@@ -42,7 +42,9 @@ public record CreateEmployeeDto(
         String position,
 
         @NotBlank(message = "Department is required")
-        String department
+        String department,
 
+        @NotNull(message = "Active is required")
+        boolean active
 ) {
 }
