@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/employee/search").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/employee/privileges").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/employee").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/employee/{id}").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
