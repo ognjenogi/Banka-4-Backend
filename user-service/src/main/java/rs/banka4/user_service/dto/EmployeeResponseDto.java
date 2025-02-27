@@ -5,7 +5,7 @@ import rs.banka4.user_service.models.Privilege;
 import java.time.LocalDate;
 import java.util.EnumSet;
 
-public record MeResponseDto(
+public record EmployeeResponseDto(
         String id,
         String firstName,
         String lastName,

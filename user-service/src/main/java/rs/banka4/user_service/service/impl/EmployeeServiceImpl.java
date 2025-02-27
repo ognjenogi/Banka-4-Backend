@@ -71,7 +71,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ResponseEntity<MeResponseDto> getMe(String authorization) {
+    public ResponseEntity<EmployeeResponseDto> getMe(String authorization) {
         String token = authorization.replace("Bearer ", "");
         String username = jwtUtil.extractUsername(token);
         if (jwtUtil.isTokenExpired(token)) {
@@ -80,7 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee employee = employeeRepository.findByEmail(username).orElseThrow(NotAuthenticated::new);
 
-        MeResponseDto response = new MeResponseDto(
+        EmployeeResponseDto response = new EmployeeResponseDto(
                 employee.getId(),
                 employee.getFirstName(),
                 employee.getLastName(),
@@ -187,6 +187,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return ResponseEntity.ok().build();
 
+    }
+
+    @Override
+    public ResponseEntity<EmployeeResponseDto> getEmployee(String id) {
+        var employee = employeeRepository.findById(id).orElseThrow(() -> new UserNotFound(id));
+
+        EmployeeResponseDto response = new EmployeeResponseDto(
+                employee.getId(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getDateOfBirth(),
+                employee.getGender(),
+                employee.getEmail(),
+                employee.getPhone(),
+                employee.getAddress(),
+                employee.getUsername(),
+                employee.getPosition(),
+                employee.getDepartment(),
+                employee.getPrivileges(),
+                employee.isActive()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     private void sendVerificationEmailToEmployee(String firstName, String email) {

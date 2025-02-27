@@ -10,11 +10,12 @@ import java.util.Optional;
 
 public interface EmployeeService {
     ResponseEntity<LoginResponseDto> login(LoginDto loginDto);
-    ResponseEntity<MeResponseDto> getMe(String authorization);
+    ResponseEntity<EmployeeResponseDto> getMe(String authorization);
     ResponseEntity<PrivilegesDto> getPrivileges();
     ResponseEntity<Void> createEmployee(CreateEmployeeDto dto);
     ResponseEntity<Page<EmployeeDto>> getAll(String firstName, String lastName, String email, String position, PageRequest pageRequest);
     void activateEmployeeAccount(Employee employee, String password);
     Optional<Employee> findEmployeeByEmail(String email);
     ResponseEntity<Void> updateEmployee(String id, UpdateEmployeeDto updateEmployeeDto);
+    ResponseEntity<EmployeeResponseDto> getEmployee(String id);
 }

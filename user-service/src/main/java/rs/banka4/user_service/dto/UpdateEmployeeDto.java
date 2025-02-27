@@ -14,7 +14,6 @@ public record UpdateEmployeeDto(
     String gender,
     @Email
     String email,
-    String password,
     String username,
     String phone,
     String address,

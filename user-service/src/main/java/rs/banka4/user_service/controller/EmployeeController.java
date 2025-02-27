@@ -22,8 +22,13 @@ public class EmployeeController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MeResponseDto> me(@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<EmployeeResponseDto> me(@RequestHeader("Authorization") String authorization) {
         return employeeService.getMe(authorization);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EmployeeResponseDto> getEmployee(@PathVariable String id) {
+        return employeeService.getEmployee(id);
     }
 
     @PostMapping()
