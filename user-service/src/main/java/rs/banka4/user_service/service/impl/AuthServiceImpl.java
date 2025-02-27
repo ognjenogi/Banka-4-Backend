@@ -66,13 +66,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(NotFound::new);
 
         employeeService.activateEmployeeAccount(employee, request.password());
-
-        rabbitTemplate.convertAndSend(
-                RabbitMqConfig.EXCHANGE_NAME,
-                RabbitMqConfig.ROUTING_KEY,
-                MessageHelper.createAccountActivationMessage(
-                        employee.getEmail(), employee.getFirstName(), verificationCode.getCode())
-        );
         verificationCodeService.markCodeAsUsed(verificationCode);
 
         return ResponseEntity.ok().build();
@@ -91,11 +84,11 @@ public class AuthServiceImpl implements AuthService {
                 employee.get().getFirstName(),
                 verificationCode.getCode());
 
-        rabbitTemplate.convertAndSend(
-                RabbitMqConfig.EXCHANGE_NAME,
-                RabbitMqConfig.ROUTING_KEY,
-                message
-        );
+//        rabbitTemplate.convertAndSend(
+//                RabbitMqConfig.EXCHANGE_NAME,
+//                RabbitMqConfig.ROUTING_KEY,
+//                message
+//        );
 
         return ResponseEntity.ok().build();
     }

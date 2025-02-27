@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<Void> verifyEmployeeAccount(@RequestBody EmployeeVerificationRequestDto request) {
+    public ResponseEntity<Void> verifyEmployeeAccount(@RequestBody @Valid EmployeeVerificationRequestDto request) {
         return authService.verifyAccount(request);
     }
 

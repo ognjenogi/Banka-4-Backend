@@ -118,7 +118,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = basicEmployeeMapper.toEntity(dto);
         employeeRepository.save(employee);
 
-        sendVerificationEmailToEmployee(employee.getFirstName(), employee.getEmail());
+//        sendVerificationEmailToEmployee(employee.getFirstName(), employee.getEmail());
 
         return ResponseEntity.ok().build();
     }
