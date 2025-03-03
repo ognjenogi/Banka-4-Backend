@@ -1,9 +1,9 @@
 package rs.banka4.user_service.generator;
 
-import rs.banka4.user_service.dto.CreateEmployeeDto;
 import rs.banka4.user_service.dto.LoginDto;
-import rs.banka4.user_service.dto.UpdateEmployeeDto;
+import rs.banka4.user_service.dto.requests.UpdateEmployeeDto;
 import rs.banka4.user_service.models.Employee;
+import rs.banka4.user_service.dto.requests.CreateEmployeeDto;
 import rs.banka4.user_service.models.Privilege;
 
 import java.time.LocalDate;
