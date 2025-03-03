@@ -1,25 +1,27 @@
 package rs.banka4.user_service.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.With;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity(name = "clients")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Validated
-@NoArgsConstructor
 @AllArgsConstructor
 @With
 @SuperBuilder
 public class Client extends User {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Set<Account> accounts;
 
     @ManyToMany
@@ -28,6 +30,22 @@ public class Client extends User {
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "contact_id")
     )
+    @ToString.Exclude
     private Set<Client> contacts;
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Client client = (Client) o;
+        return getId() != null && Objects.equals(getId(), client.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }
