@@ -15,7 +15,6 @@ import rs.banka4.user_service.exceptions.VerificationCodeExpiredOrInvalid;
 import rs.banka4.user_service.exceptions.jwt.RefreshTokenRevoked;
 import rs.banka4.user_service.models.Client;
 import rs.banka4.user_service.models.Employee;
-import rs.banka4.user_service.models.User;
 import rs.banka4.user_service.models.VerificationCode;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
@@ -54,6 +53,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String newAccessToken;
+
+        if (role.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         if (role.equals("employee")) {
             Employee employee = employeeRepository.findByEmail(username).orElseThrow(IncorrectCredentials::new);
