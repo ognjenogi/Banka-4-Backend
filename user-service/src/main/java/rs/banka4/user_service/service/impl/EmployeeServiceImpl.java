@@ -67,7 +67,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         String accessToken = jwtUtil.generateToken(employee);
-        String refreshToken = jwtUtil.generateRefreshToken(userDetailsService.loadUserByUsername(loginDto.email()));
+        String refreshToken = jwtUtil.generateRefreshToken(userDetailsService.loadUserByUsername(loginDto.email()), "employee");
 
         return ResponseEntity.ok(new LoginResponseDto(accessToken, refreshToken));
     }

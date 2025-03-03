@@ -56,7 +56,7 @@ public class EmployeeServiceTests {
         when(authenticationManager.authenticate(any())).thenReturn(null);
         when(employeeRepository.findByEmail("user@example.com")).thenReturn(Optional.of(employee));
         when(jwtUtil.generateToken(employee)).thenReturn("access-token");
-        when(jwtUtil.generateRefreshToken(any())).thenReturn("refresh-token");
+        when(jwtUtil.generateRefreshToken(any(), any())).thenReturn("refresh-token");
         when(userDetailsService.loadUserByUsername("user@example.com")).thenReturn(null);
 
         // Act

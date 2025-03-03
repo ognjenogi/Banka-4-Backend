@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.ResponseEntity;
 import rs.banka4.user_service.dto.*;
+import rs.banka4.user_service.dto.requests.CreateEmployeeDto;
 import rs.banka4.user_service.exceptions.DuplicateEmail;
 import rs.banka4.user_service.exceptions.DuplicateUsername;
 import rs.banka4.user_service.generator.EmployeeObjectMother;

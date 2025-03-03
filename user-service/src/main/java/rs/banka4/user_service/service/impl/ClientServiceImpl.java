@@ -20,7 +20,6 @@ import rs.banka4.user_service.exceptions.NotAuthenticated;
 import rs.banka4.user_service.exceptions.NotFound;
 import rs.banka4.user_service.mapper.BasicClientMapper;
 import rs.banka4.user_service.models.Client;
-import rs.banka4.user_service.models.Employee;
 import rs.banka4.user_service.models.Privilege;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.service.abstraction.ClientService;
@@ -60,7 +59,7 @@ public class ClientServiceImpl implements ClientService {
         }
 
         String accessToken = jwtUtil.generateToken(client);
-        String refreshToken = jwtUtil.generateRefreshToken(userDetailsService.loadUserByUsername(loginDto.email()));
+        String refreshToken = jwtUtil.generateRefreshToken(userDetailsService.loadUserByUsername(loginDto.email()), "client");
 
         return ResponseEntity.ok(new LoginResponseDto(accessToken, refreshToken));
     }
