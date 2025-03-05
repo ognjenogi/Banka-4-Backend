@@ -52,55 +52,47 @@ public class TestDataRunner implements CommandLineRunner {
         }
 
         String newUsername = "marko";
-        Optional<Employee> newEmployeeMarko = employeeRepository.findByUsername(newUsername);
-
-        if (newEmployeeMarko.isEmpty()) {
-            Employee newUser = Employee.builder()
-                    .firstName("Marko")
-                    .lastName("Markovic")
-                    .dateOfBirth(LocalDate.of(2001, 1, 1))
-                    .gender("Male")
-                    .email("markovicmarko@example.com")
-                    .phone("987-654-3210")
-                    .address("456 Elm St")
-                    .password(passwordEncoder.encode("securepassword"))
-                    .username(newUsername)
-                    .position("Software Engineer")
-                    .department("Development")
-                    .active(true)
-                    .enabled(true)
-                    .permissionBits(1L)
-                    .build();
-
-            employeeRepository.save(newUser);
-        }
-
-        newEmployeeMarko = employeeRepository.findByUsername(newUsername);
+        Employee newEmployeeMarko = employeeRepository.findByUsername(newUsername)
+                .orElseGet(() -> {
+                    Employee newUser = Employee.builder()
+                            .firstName("Marko")
+                            .lastName("Markovic")
+                            .dateOfBirth(LocalDate.of(2001, 1, 1))
+                            .gender("Male")
+                            .email("markovicmarko@example.com")
+                            .phone("987-654-3210")
+                            .address("456 Elm St")
+                            .password(passwordEncoder.encode("securepassword"))
+                            .username(newUsername)
+                            .position("Software Engineer")
+                            .department("Development")
+                            .active(true)
+                            .enabled(true)
+                            .permissionBits(1L)
+                            .build();
+                    return employeeRepository.save(newUser);
+                });
 
         String newClientEmail = "mkarisik@raf.rs";
         String newClientEmailSecond = "iatanas@raf.rs";
 
-        Optional<Client> newClientMehmedalija = clientRepository.findByEmail(newClientEmail);
-
-        if (newClientMehmedalija.isEmpty()) {
-            Client newClient = Client.builder()
-                    .firstName("Mehmedalija")
-                    .lastName("Karisik")
-                    .dateOfBirth(LocalDate.of(2001, 1, 1))
-                    .gender("Male")
-                    .email(newClientEmail)
-                    .phone("381062323929292")
-                    .address("456 Elm St")
-                    .password(passwordEncoder.encode("qwerty123"))
-                    .accounts(Set.of())
-                    .contacts(Set.of())
-                    .enabled(true)
-                    .build();
-
-            clientRepository.save(newClient);
-        }
-
-        newClientMehmedalija = clientRepository.findByEmail(newClientEmail);
+        Client newClientMehmedalija = clientRepository.findByEmail(newClientEmail)
+                .orElseGet(() -> {
+                    Client newClient = Client.builder()
+                            .firstName("Mehmedalija")
+                            .lastName("Karisik")
+                            .dateOfBirth(LocalDate.of(2001, 1, 1))
+                            .gender("Male")
+                            .email(newClientEmail)
+                            .phone("381062323929292")
+                            .address("456 Elm St")
+                            .password(passwordEncoder.encode("qwerty123"))
+                            .accounts(Set.of())
+                            .contacts(Set.of())
+                            .enabled(true)
+                            .build();
+                    return clientRepository.save(newClient);
+                });
 
         if (!clientRepository.existsByEmail(newClientEmailSecond)) {
             Client newClient = Client.builder()
@@ -120,51 +112,6 @@ public class TestDataRunner implements CommandLineRunner {
             clientRepository.save(newClient);
         }
 
-        String accountNumber = "102-39483947329";
-        String accountNumber1 = "102-39483947559";
 
-        if (!accountRepository.existsByAccountNumber(accountNumber)) {
-            Account account1 = Account.builder()
-                    .id(UUID.randomUUID())
-                    .accountNumber(accountNumber)
-                    .balance(BigDecimal.valueOf(5000.00))
-                    .availableBalance(BigDecimal.valueOf(4500.00))
-                    .accountMaintenance(BigDecimal.valueOf(100.00))
-                    .createdDate(LocalDate.now())
-                    .expirationDate(LocalDate.now().plusYears(5))
-                    .active(true)
-                    .accountType(AccountType.STANDARD)
-                    .dailyLimit(BigDecimal.valueOf(1000.00))
-                    .monthlyLimit(BigDecimal.valueOf(5000.00))
-                    .employee(newEmployeeMarko.get())
-                    .client(newClientMehmedalija.get())
-                    .company(null)
-                    .currency(currencyRepository.findByCode(Currency.Code.EUR))
-                    .build();
-
-            accountRepository.save(account1);
-        }
-
-        if (!accountRepository.existsByAccountNumber(accountNumber1)) {
-            Account account1 = Account.builder()
-                    .id(UUID.randomUUID())
-                    .accountNumber(accountNumber1)
-                    .balance(BigDecimal.valueOf(5000.00))
-                    .availableBalance(BigDecimal.valueOf(4500.00))
-                    .accountMaintenance(BigDecimal.valueOf(100.00))
-                    .createdDate(LocalDate.now())
-                    .expirationDate(LocalDate.now().plusYears(5))
-                    .active(true)
-                    .accountType(AccountType.STANDARD)
-                    .dailyLimit(BigDecimal.valueOf(1000.00))
-                    .monthlyLimit(BigDecimal.valueOf(5000.00))
-                    .employee(newEmployeeMarko.get())
-                    .client(newClientMehmedalija.get())
-                    .company(null)
-                    .currency(currencyRepository.findByCode(Currency.Code.RSD))
-                    .build();
-
-            accountRepository.save(account1);
-        }
     }
 }
