@@ -33,11 +33,11 @@ public class AccountController {
             Authentication auth,
             @RequestParam(required = false) @Parameter(description = "First name of client") String firstName,
             @RequestParam(required = false) @Parameter(description = "Last name of client") String lastName,
-            @RequestParam(required = false) @Parameter(description = "Account id") String id,
+            @RequestParam(required = false) @Parameter(description = "Account number") String accountNumber,
             @RequestParam(defaultValue = "0") @Parameter(description = "Page number") int page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Number of employees per page") int size
-    ){
-        return this.accountService.getAll(firstName, lastName, id, PageRequest.of(page, size));
+    ) {
+        return this.accountService.getAll(auth, firstName, lastName, accountNumber, PageRequest.of(page, size));
     }
 
     @Operation(

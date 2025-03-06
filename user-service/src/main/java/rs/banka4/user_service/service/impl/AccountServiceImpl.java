@@ -8,11 +8,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import rs.banka4.user_service.dto.*;
 import rs.banka4.user_service.dto.requests.CreateAccountDto;
 import rs.banka4.user_service.dto.requests.CreateCompanyDto;
 import rs.banka4.user_service.exceptions.*;
+import rs.banka4.user_service.mapper.AccountMapper;
 import rs.banka4.user_service.mapper.CompanyMapper;
 import rs.banka4.user_service.models.*;
 import rs.banka4.user_service.models.Currency;
@@ -21,6 +23,8 @@ import rs.banka4.user_service.service.abstraction.AccountService;
 import rs.banka4.user_service.service.abstraction.ClientService;
 import rs.banka4.user_service.service.abstraction.CompanyService;
 import rs.banka4.user_service.utils.JwtUtil;
+import rs.banka4.user_service.utils.specification.AccountSpecification;
+import rs.banka4.user_service.utils.specification.SpecificationCombinator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,17 +36,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AccountServiceImpl implements AccountService {
 
     private final ClientService clientService;
-
     private final CompanyService companyService;
-
     private final CurrencyRepository currencyRepository;
-
     private final CompanyMapper companyMapper;
-
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
     private final JwtUtil jwtUtil;
     private final EmployeeRepository employeeRepository;
+    private final AccountMapper accountMapper;
 
     CurrencyDto currencyDto = new CurrencyDto(
             "11111111-2222-3333-4444-555555555555",
@@ -235,10 +236,28 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResponseEntity<Page<AccountDto>> getAll(String firstName, String lastName, String id, PageRequest pageRequest) {
-        List<AccountDto> accountDtos = List.of(account1, account2);
-        Page<AccountDto> accountPage = new PageImpl<>(accountDtos, pageRequest, accountDtos.size());
-        return ResponseEntity.ok(accountPage);
+    public ResponseEntity<Page<AccountDto>> getAll(Authentication auth, String firstName, String lastName, String accountNumber, PageRequest pageRequest) {
+        String email = jwtUtil.extractUsername(auth.getCredentials().toString());
+        String role = jwtUtil.extractRole(auth.getCredentials().toString());
+
+        SpecificationCombinator<Account> combinator = new SpecificationCombinator<>();
+
+        if (firstName != null && !firstName.isEmpty()) {
+            combinator.and(AccountSpecification.hasFirstName(firstName));
+        }
+        if (lastName != null && !lastName.isEmpty()) {
+            combinator.and(AccountSpecification.hasLastName(lastName));
+        }
+        if (accountNumber != null && !accountNumber.isEmpty()) {
+            combinator.and(AccountSpecification.hasAccountNumber(accountNumber));
+        }
+        if (role.equals("client")) {
+            combinator.and(AccountSpecification.hasEmail(email));
+        }
+
+        Page<Account> accounts = accountRepository.findAll(combinator.build(), pageRequest);
+
+        return ResponseEntity.ok(accounts.map(accountMapper::toDto));
     }
 
     @Override
