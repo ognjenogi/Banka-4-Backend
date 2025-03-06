@@ -26,6 +26,7 @@ import rs.banka4.user_service.utils.JwtUtil;
 import rs.banka4.user_service.utils.specification.AccountSpecification;
 import rs.banka4.user_service.utils.specification.SpecificationCombinator;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
@@ -106,8 +107,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResponseEntity<AccountDto> getAccount(String token, String id) {
-        return ResponseEntity.ok(account1);
+    public ResponseEntity<AccountDto> getAccount(String token, String accoutNumber) {
+        Optional<Account> account = accountRepository.findAccountByAccountNumber(accoutNumber);
+        return ResponseEntity.ok(account.map(accountMapper::toDto).orElseThrow(AccountNotFound::new));
     }
 
     private void connectCompanyToAccount(Account account, CreateAccountDto createAccountDto) {
