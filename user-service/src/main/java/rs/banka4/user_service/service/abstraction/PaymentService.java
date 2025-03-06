@@ -14,5 +14,6 @@ import java.time.LocalDate;
 
 public interface PaymentService {
     ResponseEntity<TransactionDto> createPayment(Authentication authentication, CreatePaymentDto createPaymentDto);
+    ResponseEntity<TransactionDto> createTransfer(Authentication authentication, CreatePaymentDto createPaymentDto);
     ResponseEntity<Page<TransactionDto>> getPaymentsForClient(String token, PaymentStatus paymentStatus, BigDecimal amount, LocalDate paymentDate, PageRequest pageRequest);
 }

@@ -87,6 +87,50 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
+    public ResponseEntity<TransactionDto> createTransfer(Authentication authentication, CreatePaymentDto createPaymentDto) {
+        String email = jwtUtil.extractUsername(authentication.getCredentials().toString());
+
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new ClientNotFound(email));
+
+        Account fromAccount = accountRepository.findAccountByAccountNumber(createPaymentDto.fromAccount())
+                .orElseThrow(AccountNotFound::new);
+
+        Account toAccount = accountRepository.findAccountByAccountNumber(createPaymentDto.toAccount())
+                .orElseThrow(AccountNotFound::new);
+
+        if (!client.getAccounts().containsAll(List.of(fromAccount, toAccount))) {
+            throw new NotAccountOwner();
+        }
+
+        if (fromAccount.getBalance().subtract(createPaymentDto.fromAmount()).compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientFunds();
+        }
+
+        // TODO: handle in future exchange rates and reserved amounts
+        fromAccount.setBalance(fromAccount.getBalance().subtract(createPaymentDto.fromAmount()));
+        toAccount.setBalance(toAccount.getBalance().add(createPaymentDto.fromAmount()));
+
+        Transaction transaction = Transaction.builder()
+                .transactionNumber(UUID.randomUUID().toString())
+                .fromAccount(fromAccount)
+                .toAccount(toAccount)
+                .from(new MonetaryAmount(createPaymentDto.fromAmount(), fromAccount.getCurrency()))
+                .to(new MonetaryAmount(createPaymentDto.fromAmount(), toAccount.getCurrency()))
+                .fee(new MonetaryAmount(BigDecimal.valueOf(0L), fromAccount.getCurrency()))
+                .recipient(createPaymentDto.recipient())
+                .paymentCode(createPaymentDto.paymentCode())
+                .referenceNumber(createPaymentDto.referenceNumber())
+                .paymentPurpose(createPaymentDto.paymentPurpose())
+                .paymentDateTime(LocalDateTime.now())
+                .build();
+
+        transactionRepository.save(transaction);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Override
     public ResponseEntity<Page<TransactionDto>> getPaymentsForClient(String token, PaymentStatus aymentStatus, BigDecimal amount, LocalDate paymentDate, PageRequest pageRequest){
         TransactionDto transactionDto1 = new TransactionDto(
         "e2a1f6f3-9f74-4b8a-bc9a-2f3a5c6d7e8f",

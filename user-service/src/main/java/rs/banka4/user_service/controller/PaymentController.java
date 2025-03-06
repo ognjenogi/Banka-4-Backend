@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/transaction")
 @RequiredArgsConstructor
 @Tag(name = "PaymentController", description = "Endpoints for payments")
 public class PaymentController {
@@ -32,19 +32,36 @@ public class PaymentController {
 
     @Operation(
             summary = "Create a new Payment",
-            description = "Creates a new client with the provided details and a list of account details.",
+            description = "Creates a new payment with the provided details.",
             responses = {
                     @ApiResponse(responseCode = "201", description = "Successfully created new payment"),
                     @ApiResponse(responseCode = "400", description = "Bad request - Invalid data")
             }
     )
-    @PostMapping
+    @PostMapping("/payment")
     public ResponseEntity<TransactionDto> createPayment(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Details of the new client to create", required = true)
             Authentication authentication,
             @RequestBody @Valid CreatePaymentDto createPaymentDto) {
         return paymentService.createPayment(authentication, createPaymentDto);
+    }
+
+    @Operation(
+            summary = "Create a new Transfer",
+            description = "Creates a new transfer. The client can only transfer using their own account.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Successfully created new payment"),
+                    @ApiResponse(responseCode = "400", description = "Bad request - Invalid data")
+            }
+    )
+    @PostMapping("/transfer")
+    public ResponseEntity<TransactionDto> createTransfer(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Details of the new client to create", required = true)
+            Authentication authentication,
+            @RequestBody @Valid CreatePaymentDto createPaymentDto) {
+        return paymentService.createTransfer(authentication, createPaymentDto);
     }
 
     @Operation(
