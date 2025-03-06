@@ -28,7 +28,6 @@ public class AccountController {
 
     private final AccountService accountService;
 
-
     @Operation(
             summary = "Search for accounts",
             description = "Search for accounts based on client information such as first name, last name, account number. Supports pagination.",

@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -102,9 +103,24 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public ResponseEntity<List<AccountDto>> getAccountsForClient(String token) {
-        List<AccountDto> accounts = List.of(account1, account2);
-        return ResponseEntity.ok(accounts);
+        String email = jwtUtil.extractUsername(token);
+
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new ClientNotFound(email));
+
+        List<Account> accounts = accountRepository.findAllByClient(client);
+
+        if (accounts.isEmpty()) {
+            throw new AccountNotFound();
+        }
+
+        List<AccountDto> accountDtos = accounts.stream()
+                .map(accountMapper::toDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(accountDtos);
     }
+
 
     @Override
     public ResponseEntity<AccountDto> getAccount(String token, String accoutNumber) {
