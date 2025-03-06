@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import rs.banka4.user_service.config.RabbitMqConfig;
@@ -53,6 +54,7 @@ public class ClientServiceImpl implements ClientService {
     private final BasicClientMapperForGetAll basicClientMapperForGetAll = new BasicClientMapperForGetAll();
     private final StandardServletMultipartResolver standardServletMultipartResolver;
     private final ContactMapper contactMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -238,6 +240,12 @@ public class ClientServiceImpl implements ClientService {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @Override
+    public void activateClientAccount(Client client, String password) {
+        client.setEnabled(true);
+        client.setPassword(passwordEncoder.encode(password));
+        clientRepository.save(client);
+    }
 
     private void sendVerificationEmailToClient(String firstName, String email) {
         VerificationCode verificationCode = verificationCodeService.createVerificationCode(email);
