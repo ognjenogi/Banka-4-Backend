@@ -61,7 +61,8 @@ public class AccountServiceImpl implements AccountService {
             "Acme Corp",
             "123456789",
             "987654321",
-            "123 Main St"
+            "123 Main St",
+            "441100"
     );
 
     AccountDto account1 = new AccountDto(
