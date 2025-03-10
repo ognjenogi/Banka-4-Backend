@@ -3,15 +3,15 @@ package rs.banka4.user_service.integration.generator;
 import java.time.LocalDate;
 import java.util.HashSet;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
-import rs.banka4.user_service.dto.LoginDto;
-import rs.banka4.user_service.dto.LoginResponseDto;
-import rs.banka4.user_service.models.Client;
-import rs.banka4.user_service.models.Employee;
-import rs.banka4.user_service.models.User;
+import rs.banka4.user_service.domain.auth.dtos.LoginDto;
+import rs.banka4.user_service.domain.auth.dtos.LoginResponseDto;
+import rs.banka4.user_service.domain.user.Gender;
+import rs.banka4.user_service.domain.user.User;
+import rs.banka4.user_service.domain.user.client.db.Client;
+import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.service.abstraction.EmployeeService;
@@ -71,7 +71,7 @@ public class UserGenerator {
                     .firstName("John")
                     .lastName("Doe")
                     .dateOfBirth(LocalDate.of(1990, 1, 1))
-                    .gender("Male")
+                    .gender(Gender.MALE)
                     .email("john.doe@example.com")
                     .phone("123-456-7890")
                     .address("123 Main St")
@@ -98,11 +98,7 @@ public class UserGenerator {
      *  @returns Tokens produced by logging in.
      */
     public LoginResponseDto doEmployeeLogin(String email, String password) {
-        var resp = employeeService.login(new LoginDto(email, password));
-        if (resp.getStatusCode() != HttpStatus.OK)
-            throw new RuntimeException("login failed");
-
-        return resp.getBody();
+        return employeeService.login(new LoginDto(email, password));
     }
 
     private ClientRepository clientRepo;
@@ -140,7 +136,7 @@ public class UserGenerator {
                     .firstName("John")
                     .lastName("Doe")
                     .dateOfBirth(LocalDate.of(1990, 1, 1))
-                    .gender("Male")
+                    .gender(Gender.MALE)
                     .email("john.doe@example.com")
                     .phone("123-456-7890")
                     .address("123 Main St")
@@ -148,7 +144,6 @@ public class UserGenerator {
                     .enabled(true)
                     .permissionBits(1L)
                     .accounts(new HashSet<>())
-                    .contacts(new HashSet<>())
             )
                 .build()
         );
