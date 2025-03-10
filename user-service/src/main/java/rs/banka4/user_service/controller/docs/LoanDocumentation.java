@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.RequestParam;
+import rs.banka4.user_service.domain.loan.db.LoanStatus;
+import rs.banka4.user_service.domain.loan.db.LoanType;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
@@ -41,7 +44,7 @@ public interface LoanDocumentation {
                     @ApiResponse(responseCode = "403", description = "Forbidden: Insufficient permissions")
             }
     )
-    ResponseEntity<Page<LoanInformationDto>> getAllLoans(int page, int size);
+    ResponseEntity<Page<LoanInformationDto>> getAllLoans(int page, int size, LoanType type, LoanStatus status, String accountNumber);
 
     @Operation(
             summary = "Search Client's Loans",

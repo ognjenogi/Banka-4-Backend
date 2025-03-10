@@ -9,7 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.user_service.controller.docs.LoanDocumentation;
+import rs.banka4.user_service.domain.loan.db.LoanStatus;
+import rs.banka4.user_service.domain.loan.db.LoanType;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
+import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
 import rs.banka4.user_service.service.abstraction.LoanService;
 
@@ -30,8 +33,13 @@ public class LoanController implements LoanDocumentation {
     @GetMapping("/search")
     public ResponseEntity<Page<LoanInformationDto>> getAllLoans(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return loanService.getAllLoans(PageRequest.of(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LoanType type,
+            @RequestParam(required = false) LoanStatus status,
+            @RequestParam(required = false) String accountNumber){
+        LoanFilterDto filter = new LoanFilterDto(type, status, accountNumber);
+
+        return loanService.getAllLoans(PageRequest.of(page, size),filter);
     }
 
     @Override
