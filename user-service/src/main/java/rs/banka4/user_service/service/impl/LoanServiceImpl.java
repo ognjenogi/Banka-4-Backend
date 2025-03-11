@@ -1,7 +1,6 @@
 package rs.banka4.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -9,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
+import org.springframework.transaction.annotation.Transactional;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
 import rs.banka4.user_service.domain.loan.mapper.LoanMapper;
 import rs.banka4.user_service.domain.loan.specification.LoanSpecification;
 import rs.banka4.user_service.repositories.LoanRepository;
+import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.service.abstraction.LoanService;
 
 import java.util.Optional;
@@ -46,14 +47,28 @@ public class LoanServiceImpl implements LoanService {
         return null;
         // check out /client/search
     }
-
+    @Transactional
     @Override
     public void approveLoan(Long loanNumber) {
+        var loan = loanRepository.findByLoanNumber(loanNumber);
 
+        if(loan.isEmpty())
+            throw new LoanNotFound();
+
+        loan.get().setStatus(LoanStatus.APPROVED);
+
+        loanRepository.save(loan.get());
     }
-
+    @Transactional
     @Override
     public void rejectLoan(Long loanNumber) {
+        var loan = loanRepository.findByLoanNumber(loanNumber);
 
+        if(loan.isEmpty())
+            throw new LoanNotFound();
+
+        loan.get().setStatus(LoanStatus.REJECTED);
+
+        loanRepository.save(loan.get());
     }
 }
