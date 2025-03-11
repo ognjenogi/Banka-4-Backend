@@ -46,30 +46,34 @@ public class GetAllLoansTests {
     }
     List<LoanInformationDto> mockLoans = List.of(
             new LoanInformationDto(
-                    1234567L, LoanType.CASH, LoanStatus.APPROVED, BigDecimal.valueOf(10000), 60,
+                    1234567L, LoanType.CASH, BigDecimal.valueOf(10000), 60,
                     BigDecimal.valueOf(5.5), BigDecimal.valueOf(6.0),
                     LocalDate.now(), LocalDate.now().plusYears(5),
                     BigDecimal.valueOf(500), LocalDate.now().plusMonths(1),
                     BigDecimal.valueOf(5000),
-                    new CurrencyDto(UUID.randomUUID(), "Euro", "EUR", "European currency", true, Currency.Code.EUR)
-
+                    new CurrencyDto(UUID.randomUUID(), "Euro", "EUR", "European currency", true, Currency.Code.EUR),
+                    LoanStatus.APPROVED,
+                    Loan.InterestType.FIXED
             ),
             new LoanInformationDto(
-                    1234967L, LoanType.CASH,LoanStatus.DELAYED, BigDecimal.valueOf(10000), 60,
+                    1234967L, LoanType.CASH, BigDecimal.valueOf(10000), 60,
                     BigDecimal.valueOf(5.5), BigDecimal.valueOf(6.0),
                     LocalDate.now(), LocalDate.now().plusYears(5),
                     BigDecimal.valueOf(500), LocalDate.now().plusMonths(1),
                     BigDecimal.valueOf(5000),
-                    new CurrencyDto(UUID.randomUUID(), "Euro", "€", "Official currency of the eurozone", true, Currency.Code.EUR)
+                    new CurrencyDto(UUID.randomUUID(), "Euro", "€", "Official currency of the eurozone", true, Currency.Code.EUR),
+                    LoanStatus.APPROVED,
+                    Loan.InterestType.FIXED
 
             ), new LoanInformationDto(
-                    4434967L, LoanType.CASH,LoanStatus.APPROVED, BigDecimal.valueOf(10000), 60,
+                    4434967L, LoanType.CASH, BigDecimal.valueOf(10000), 60,
                     BigDecimal.valueOf(5.5), BigDecimal.valueOf(6.0),
                     LocalDate.now(), LocalDate.now().plusYears(5),
                     BigDecimal.valueOf(500), LocalDate.now().plusMonths(1),
                     BigDecimal.valueOf(5000),
-                    new CurrencyDto(UUID.randomUUID(), "Euro", "€", "Official currency of the eurozone", true, Currency.Code.EUR)
-
+                    new CurrencyDto(UUID.randomUUID(), "Euro", "€", "Official currency of the eurozone", true, Currency.Code.EUR),
+                    LoanStatus.APPROVED,
+                    Loan.InterestType.FIXED
             )
     );
     @Test
