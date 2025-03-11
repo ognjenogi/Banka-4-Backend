@@ -34,12 +34,14 @@ public class LoanController implements LoanDocumentation {
     public ResponseEntity<Page<LoanInformationDto>> getAllLoans(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) LoanType type,
-            @RequestParam(required = false) LoanStatus status,
-            @RequestParam(required = false) String accountNumber){
-        LoanFilterDto filter = new LoanFilterDto(type, status, accountNumber);
+            @RequestParam(required = false) String loanType,
+            @RequestParam(required = false) String loanStatus,
+            @RequestParam(required = false) String accountNumber) {
+        LoanFilterDto filter = new LoanFilterDto(loanType != null ? LoanType.fromString(loanType) : null,
+                loanStatus != null ? LoanStatus.fromString(loanStatus) : null,
+                accountNumber);
 
-        return loanService.getAllLoans(PageRequest.of(page, size),filter);
+        return loanService.getAllLoans(PageRequest.of(page, size), filter);
     }
 
     @Override
@@ -47,7 +49,7 @@ public class LoanController implements LoanDocumentation {
     public ResponseEntity<Page<LoanInformationDto>> me(
             Authentication auth,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
+            @RequestParam(defaultValue = "10") int size) {
         return loanService.getMyLoans(auth.getCredentials().toString(), PageRequest.of(page, size));
     }
 
