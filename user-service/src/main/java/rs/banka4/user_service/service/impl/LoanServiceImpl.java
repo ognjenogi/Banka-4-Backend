@@ -8,24 +8,28 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
+import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
+import rs.banka4.user_service.exceptions.Unauthorized;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.domain.loan.mapper.LoanMapper;
 import rs.banka4.user_service.domain.loan.specification.LoanSpecification;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.abstraction.LoanService;
+import rs.banka4.user_service.utils.JwtUtil;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LoanServiceImpl implements LoanService {
-  
+
     private final LoanRepository loanRepository;
+    private final JwtUtil jwtUtil;
+
     @Override
     public void createLoanApplication(LoanApplicationDto loanApplicationDto) {
 
@@ -50,10 +54,14 @@ public class LoanServiceImpl implements LoanService {
     }
     @Transactional
     @Override
-    public void approveLoan(Long loanNumber) {
+    public void approveLoan(Long loanNumber, String auth) {
+        var role = jwtUtil.extractRole(auth);
+        if (!role.equals("employee"))
+            throw new Unauthorized(auth);
+
         var loan = loanRepository.findByLoanNumber(loanNumber);
 
-        if(loan.isEmpty())
+        if (loan.isEmpty())
             throw new LoanNotFound();
 
         loan.get().setStatus(LoanStatus.APPROVED);
@@ -62,10 +70,14 @@ public class LoanServiceImpl implements LoanService {
     }
     @Transactional
     @Override
-    public void rejectLoan(Long loanNumber) {
+    public void rejectLoan(Long loanNumber, String auth) {
+        var role = jwtUtil.extractRole(auth);
+        if (!role.equals("employee"))
+            throw new Unauthorized(auth);
+
         var loan = loanRepository.findByLoanNumber(loanNumber);
 
-        if(loan.isEmpty())
+        if (loan.isEmpty())
             throw new LoanNotFound();
 
         loan.get().setStatus(LoanStatus.REJECTED);
