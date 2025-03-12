@@ -23,6 +23,7 @@ import rs.banka4.user_service.exceptions.loan.InvalidLoanStatus;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.domain.loan.mapper.LoanMapper;
 import rs.banka4.user_service.domain.loan.specification.LoanSpecification;
+import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.abstraction.LoanService;
 import rs.banka4.user_service.utils.JwtUtil;
 
