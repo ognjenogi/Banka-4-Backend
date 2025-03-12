@@ -64,6 +64,8 @@ public class LoanServiceImpl implements LoanService {
         if (loan.isEmpty())
             throw new LoanNotFound();
 
+        loan.get().setNextInstallmentDate(LocalDate.now().plusMonths(1));
+        loan.get().setDueDate(LocalDate.now().plusMonths(loan.get().getRepaymentPeriod()));
         loan.get().setStatus(LoanStatus.APPROVED);
         loan.get().setAgreementDate(LocalDate.now());
 

@@ -50,6 +50,7 @@ public class ManageLoansTests {
     void approveLoan_success() {
         Long loanNumber = 123L;
         Loan loan = new Loan();
+        loan.setRepaymentPeriod(3);
 
         loan.setLoanNumber(loanNumber);
         loan.setStatus(LoanStatus.PROCESSING);
@@ -62,6 +63,8 @@ public class ManageLoansTests {
         loanService.approveLoan(loanNumber,"jwt");
 
         assertEquals(loan.getAgreementDate(), LocalDate.now());
+        assertEquals(loan.getNextInstallmentDate(), LocalDate.now().plusMonths(1));
+        assertEquals(loan.getDueDate(), LocalDate.now().plusMonths(3));
         assertEquals(LoanStatus.APPROVED, loan.getStatus());
         verify(loanRepository).save(loan);
     }
