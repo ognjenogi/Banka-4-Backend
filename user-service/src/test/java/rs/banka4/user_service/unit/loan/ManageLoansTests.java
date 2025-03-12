@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
 import rs.banka4.user_service.exceptions.jwt.Unauthorized;
+import rs.banka4.user_service.exceptions.loan.InvalidLoanStatus;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.impl.LoanServiceImpl;
@@ -47,13 +48,50 @@ public class ManageLoansTests {
         verify(loanRepository, never()).save(any(Loan.class));
     }
     @Test
+    void approveLoan_loanStatusBad() {
+        Long loanNumber = 123L;
+        Loan loan = new Loan();
+        loan.setRepaymentPeriod(3);
+        loan.setStatus(LoanStatus.APPROVED);
+        loan.setLoanNumber(loanNumber);
+
+        when(jwtUtil.extractRole("jwt")).thenReturn("employee");
+
+        when(loanRepository.findByLoanNumber(loanNumber))
+                .thenReturn(Optional.of(loan));
+        when(loanRepository.save(loan)).thenReturn(loan);
+
+
+        assertThrows(InvalidLoanStatus.class,() -> loanService.approveLoan(loanNumber,"jwt"));
+        verify(loanRepository,never()).save(loan);
+    }
+    @Test
+    void rejectLoan_loanStatusBad() {
+        Long loanNumber = 123L;
+        Loan loan = new Loan();
+        loan.setRepaymentPeriod(3);
+        loan.setStatus(LoanStatus.APPROVED);
+        loan.setLoanNumber(loanNumber);
+
+        when(jwtUtil.extractRole("jwt")).thenReturn("employee");
+
+        when(loanRepository.findByLoanNumber(loanNumber))
+                .thenReturn(Optional.of(loan));
+        when(loanRepository.save(loan)).thenReturn(loan);
+
+
+        assertThrows(InvalidLoanStatus.class,() -> loanService.rejectLoan(loanNumber,"jwt"));
+        verify(loanRepository,never()).save(loan);
+    }
+
+    @Test
     void approveLoan_success() {
         Long loanNumber = 123L;
         Loan loan = new Loan();
         loan.setRepaymentPeriod(3);
-
         loan.setLoanNumber(loanNumber);
         loan.setStatus(LoanStatus.PROCESSING);
+
         when(jwtUtil.extractRole("jwt")).thenReturn("employee");
 
         when(loanRepository.findByLoanNumber(loanNumber))
