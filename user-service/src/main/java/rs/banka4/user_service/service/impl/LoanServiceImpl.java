@@ -21,11 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import rs.banka4.user_service.domain.account.db.Account;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
+import rs.banka4.user_service.domain.loan.db.*;
 import rs.banka4.user_service.domain.loan.db.InterestRate;
 import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanRequest;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
-import rs.banka4.user_service.domain.loan.db.*;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationResponseDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
@@ -220,10 +220,14 @@ public class LoanServiceImpl implements LoanService {
 
         makeLoanInstallmentFromLoan(loan.get());
     }
-    private void makeLoanInstallmentFromLoan(Loan loan){
+
+    private void makeLoanInstallmentFromLoan(Loan loan) {
         var loneInstallment = new LoanInstallment();
-        var interest = loan.getInterestRate() == null ? null :
-                loan.getInterestRate().getFixedRate();
+        var interest =
+            loan.getInterestRate() == null
+                ? null
+                : loan.getInterestRate()
+                    .getFixedRate();
 
         loneInstallment.setLoan(loan);
         loneInstallment.setInstallmentAmount(loan.getMonthlyInstallment());
