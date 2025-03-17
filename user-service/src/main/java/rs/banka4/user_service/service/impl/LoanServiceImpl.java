@@ -25,6 +25,7 @@ import rs.banka4.user_service.domain.loan.db.InterestRate;
 import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanRequest;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
+import rs.banka4.user_service.domain.loan.db.*;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationResponseDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
@@ -42,6 +43,7 @@ import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.exceptions.loan.NoLoansOnAccount;
 import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
 import rs.banka4.user_service.repositories.InterestRateRepository;
+import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.repositories.LoanRequestRepository;
 import rs.banka4.user_service.service.abstraction.AccountService;
@@ -63,6 +65,7 @@ public class LoanServiceImpl implements LoanService {
     private final LoanRequestRepository loanRequestRepository;
     private final InterestRateRepository interestRateRepository;
     private final JwtUtil jwtUtil;
+    private final LoanInstallmentRepository loanInstallmentRepository;
 
     @Transactional
     @Override
@@ -214,6 +217,21 @@ public class LoanServiceImpl implements LoanService {
             .setAgreementDate(LocalDate.now());
 
         loanRepository.save(loan.get());
+
+        makeLoanInstallmentFromLoan(loan.get());
+    }
+    private void makeLoanInstallmentFromLoan(Loan loan){
+        var loneInstallment = new LoanInstallment();
+        var interest = loan.getInterestRate() == null ? null :
+                loan.getInterestRate().getFixedRate();
+
+        loneInstallment.setLoan(loan);
+        loneInstallment.setInstallmentAmount(loan.getMonthlyInstallment());
+        loneInstallment.setExpectedDueDate(loan.getDueDate());
+        loneInstallment.setInterestRateAmount(interest);
+        loneInstallment.setPaymentStatus(PaymentStatus.UNPAID);
+
+        loanInstallmentRepository.save(loneInstallment);
     }
 
     private void ensureEmployeeRole(String auth) {
