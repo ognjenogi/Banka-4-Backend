@@ -7,6 +7,7 @@ import org.mapstruct.factory.Mappers;
 import rs.banka4.user_service.domain.account.mapper.AccountMapper;
 import rs.banka4.user_service.domain.currency.mapper.CurrencyMapper;
 import rs.banka4.user_service.domain.loan.db.Loan;
+import rs.banka4.user_service.domain.loan.db.LoanInstallment;
 import rs.banka4.user_service.domain.loan.db.LoanRequest;
 import rs.banka4.user_service.domain.loan.dtos.*;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
@@ -20,6 +21,8 @@ import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 public interface LoanMapper {
 
     LoanMapper INSTANCE = Mappers.getMapper(LoanMapper.class);
+
+    LoanInstallmentDto toDto(LoanInstallment loanInstallment);
 
     @Mapping(
         target = "currency",
