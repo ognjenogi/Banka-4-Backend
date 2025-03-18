@@ -25,12 +25,19 @@ public class LoanController implements LoanDocumentation {
     @Override
     @GetMapping("/installment/{loanNumber}")
     public ResponseEntity<Page<LoanInstallmentDto>> getInstallmentsForLoan(
+        Authentication auth,
         @PathVariable Long loanNumber,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
 
-        var response = loanInstallmentService.getInstallmentsForLoan(loanNumber, page, size);
+        var response =
+            loanInstallmentService.getInstallmentsForLoan(
+                loanNumber,
+                page,
+                size,
+                (String) auth.getCredentials()
+            );
         return ResponseEntity.ok(response);
     }
 

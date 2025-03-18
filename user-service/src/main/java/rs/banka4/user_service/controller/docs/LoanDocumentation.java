@@ -208,7 +208,7 @@ public interface LoanDocumentation {
     );
 
     @Operation(
-        summary = "Search All Loans",
+        summary = "GET All Loan Installments",
         description = "Allows an client to search and retrieve all installments for loan in the system. "
             + "This endpoint supports pagination "
             + "Use the 'page' and 'size' parameters to control pagination. "
@@ -243,6 +243,7 @@ public interface LoanDocumentation {
         }
     )
     ResponseEntity<Page<LoanInstallmentDto>> getInstallmentsForLoan(
+        Authentication auth,
         @Parameter(description = "Number of the loan") Long loanNumber,
         int page,
         int size

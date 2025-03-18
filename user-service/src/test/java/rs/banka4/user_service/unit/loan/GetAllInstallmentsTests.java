@@ -1,8 +1,7 @@
 package rs.banka4.user_service.unit.loan;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +27,7 @@ import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.impl.LoanInstallmentServiceImpl;
+import rs.banka4.user_service.utils.JwtUtil;
 
 public class GetAllInstallmentsTests {
     @Mock
@@ -35,6 +35,8 @@ public class GetAllInstallmentsTests {
 
     @Mock
     private LoanInstallmentRepository loanInstallmentRepository;
+    @Mock
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private LoanInstallmentServiceImpl loanService;
@@ -54,6 +56,7 @@ public class GetAllInstallmentsTests {
     void testGetInstallmentsForLoan_UpcomingInstallmentExists() {
 
         when(loanRepository.findByLoanNumber(eq(testLoanNumber))).thenReturn(Optional.of(testLoan));
+        when(jwtUtil.extractRole(anyString())).thenReturn("client");
 
         LoanInstallment upcoming = new LoanInstallment();
         upcoming.setId(UUID.randomUUID());
@@ -88,7 +91,8 @@ public class GetAllInstallmentsTests {
                 )
             );
 
-        Page<LoanInstallmentDto> result = loanService.getInstallmentsForLoan(testLoanNumber, 0, 10);
+        Page<LoanInstallmentDto> result =
+            loanService.getInstallmentsForLoan(testLoanNumber, 0, 10, anyString());
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
@@ -100,6 +104,7 @@ public class GetAllInstallmentsTests {
     @Test
     void testGetInstallmentsForLoan_NoUpcomingInstallment() {
         when(loanRepository.findByLoanNumber(eq(testLoanNumber))).thenReturn(Optional.of(testLoan));
+        when(jwtUtil.extractRole(anyString())).thenReturn("client");
         Page<LoanInstallment> emptyPage =
             new PageImpl<>(
                 List.of(),
@@ -114,7 +119,8 @@ public class GetAllInstallmentsTests {
         when(loanInstallmentRepository.findAll(any(Specification.class), any(PageRequest.class)))
             .thenReturn(emptyPage);
 
-        Page<LoanInstallmentDto> result = loanService.getInstallmentsForLoan(testLoanNumber, 0, 10);
+        Page<LoanInstallmentDto> result =
+            loanService.getInstallmentsForLoan(testLoanNumber, 0, 10, anyString());
 
         assertNotNull(result);
         assertEquals(0, result.getTotalElements());
@@ -126,10 +132,11 @@ public class GetAllInstallmentsTests {
     @Test
     void testGetInstallmentsForLoan_LoanNotFound() {
         when(loanRepository.findByLoanNumber(eq(testLoanNumber))).thenReturn(Optional.empty());
+        when(jwtUtil.extractRole(anyString())).thenReturn("client");
 
         assertThrows(
             LoanNotFound.class,
-            () -> loanService.getInstallmentsForLoan(testLoanNumber, 0, 10)
+            () -> loanService.getInstallmentsForLoan(testLoanNumber, 0, 10, anyString())
         );
 
         verify(loanRepository).findByLoanNumber(eq(testLoanNumber));

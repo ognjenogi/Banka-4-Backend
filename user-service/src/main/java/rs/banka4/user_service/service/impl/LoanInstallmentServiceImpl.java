@@ -8,19 +8,28 @@ import rs.banka4.user_service.domain.loan.db.LoanInstallment;
 import rs.banka4.user_service.domain.loan.dtos.LoanInstallmentDto;
 import rs.banka4.user_service.domain.loan.mapper.LoanMapper;
 import rs.banka4.user_service.domain.loan.specification.LoanSpecification;
+import rs.banka4.user_service.exceptions.jwt.Unauthorized;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.abstraction.LoanInstallmentService;
+import rs.banka4.user_service.utils.JwtUtil;
 
 @RequiredArgsConstructor
 @Service
 public class LoanInstallmentServiceImpl implements LoanInstallmentService {
     private final LoanRepository loanRepository;
     private final LoanInstallmentRepository loanInstallmentRepository;
+    private final JwtUtil jwtUtil;
 
     @Override
-    public Page<LoanInstallmentDto> getInstallmentsForLoan(Long loanNumber, int page, int size) {
+    public Page<LoanInstallmentDto> getInstallmentsForLoan(
+        Long loanNumber,
+        int page,
+        int size,
+        String auth
+    ) {
+        ensureClientRole(auth);
         var loan =
             loanRepository.findByLoanNumber(loanNumber)
                 .orElseThrow(LoanNotFound::new);
@@ -31,5 +40,10 @@ public class LoanInstallmentServiceImpl implements LoanInstallmentService {
             );
 
         return pages.map(LoanMapper.INSTANCE::toDto);
+    }
+
+    private void ensureClientRole(String auth) {
+        var role = jwtUtil.extractRole(auth);
+        if (!role.equals("client")) throw new Unauthorized(auth);
     }
 }
