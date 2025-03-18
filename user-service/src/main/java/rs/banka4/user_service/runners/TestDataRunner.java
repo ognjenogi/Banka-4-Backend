@@ -55,6 +55,7 @@ public class TestDataRunner implements CommandLineRunner {
     private final BankMarginRepository bankMarginRepository;
     private final InterestRateRepository interestRateRepository;
     private final CardRepository cardRepository;
+    private final LoanInstallmentRepository loanInstallmentRepository;
 
 
     @Override
@@ -72,6 +73,7 @@ public class TestDataRunner implements CommandLineRunner {
         transactionSeeder();
         seedBankMargins();
         cardSeeder();
+        loanInstallmentSeeder();
     }
 
     private void cardSeeder() {
@@ -129,6 +131,60 @@ public class TestDataRunner implements CommandLineRunner {
         cardRepository.saveAll(newCards);
     }
 
+    public void loanInstallmentSeeder() {
+        long count = loanInstallmentRepository.count();
+        if (count > 10) {
+            LOGGER.debug(
+                "LoanInstallment seeder skipped. There are already more than 10 installments in the database."
+            );
+            return;
+        }
+
+        Random random = new Random();
+        List<Loan> loans = loanRepository.findAll();
+        if (loans.isEmpty()) {
+            LOGGER.warn("No loans found. Cannot seed loan installments.");
+            return;
+        }
+
+        List<LoanInstallment> installments =
+            random.ints(10, 0, 10000)
+                .mapToObj(i -> {
+                    BigDecimal installmentAmount = generateRandomAmount();
+                    BigDecimal interestRateAmount = BigDecimal.valueOf(random.nextDouble() * 100);
+                    LocalDate expectedDueDate =
+                        LocalDate.now()
+                            .plusMonths(random.nextInt(12) + 1);
+                    Loan randomLoan = loans.get(random.nextInt(loans.size()));
+
+                    return LoanInstallment.builder()
+                        .installmentAmount(installmentAmount)
+                        .interestRateAmount(interestRateAmount)
+                        .expectedDueDate(expectedDueDate)
+                        .loan(randomLoan)
+                        .build();
+                })
+                .collect(Collectors.toList());
+
+        installments.sort(Comparator.comparing(LoanInstallment::getExpectedDueDate));
+
+        int total = installments.size();
+        for (int i = 0; i < total; i++) {
+            LoanInstallment installment = installments.get(i);
+            if (i < total / 2) {
+                installment.setPaymentStatus(PaymentStatus.PAID);
+                installment.setActualDueDate(installment.getExpectedDueDate());
+            } else {
+                PaymentStatus status =
+                    random.nextBoolean() ? PaymentStatus.UNPAID : PaymentStatus.DELAYED;
+                installment.setPaymentStatus(status);
+                installment.setActualDueDate(null);
+            }
+        }
+
+        loanInstallmentRepository.saveAll(installments);
+        loanInstallmentRepository.flush();
+    }
 
     private void loanRequestSeeder() {
         long loanCount = loanRequestRepository.count();
