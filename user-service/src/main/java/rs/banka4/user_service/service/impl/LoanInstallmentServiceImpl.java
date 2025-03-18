@@ -10,6 +10,8 @@ import rs.banka4.user_service.domain.loan.mapper.LoanMapper;
 import rs.banka4.user_service.domain.loan.specification.LoanSpecification;
 import rs.banka4.user_service.exceptions.jwt.Unauthorized;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
+import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
+import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.abstraction.LoanInstallmentService;
@@ -21,6 +23,7 @@ public class LoanInstallmentServiceImpl implements LoanInstallmentService {
     private final LoanRepository loanRepository;
     private final LoanInstallmentRepository loanInstallmentRepository;
     private final JwtUtil jwtUtil;
+    private final ClientRepository clientRepository;
 
     @Override
     public Page<LoanInstallmentDto> getInstallmentsForLoan(
@@ -30,9 +33,21 @@ public class LoanInstallmentServiceImpl implements LoanInstallmentService {
         String auth
     ) {
         ensureClientRole(auth);
+        var email = jwtUtil.extractUsername(auth);
+        var client =
+            clientRepository.findByEmail(email)
+                .orElseThrow(() -> new ClientNotFound(email));
         var loan =
             loanRepository.findByLoanNumber(loanNumber)
                 .orElseThrow(LoanNotFound::new);
+        if (
+            !loan.getAccount()
+                .getClient()
+                .equals(client)
+        ) {
+            throw new Unauthorized(auth);
+        }
+
         Page<LoanInstallment> pages =
             loanInstallmentRepository.findAll(
                 LoanSpecification.findPaidAndNextUpcomingInstallment(loan.getId()),
