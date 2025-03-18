@@ -231,7 +231,10 @@ public class LoanServiceImpl implements LoanService {
 
         loneInstallment.setLoan(loan);
         loneInstallment.setInstallmentAmount(loan.getMonthlyInstallment());
-        loneInstallment.setExpectedDueDate(loan.getDueDate());
+        loneInstallment.setExpectedDueDate(
+            LocalDate.now()
+                .plusMonths(1)
+        );
         loneInstallment.setInterestRateAmount(interest);
         loneInstallment.setPaymentStatus(PaymentStatus.UNPAID);
 
