@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import rs.banka4.user_service.controller.docs.LoanDocumentation;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
 import rs.banka4.user_service.domain.loan.db.LoanType;
-import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
-import rs.banka4.user_service.domain.loan.dtos.LoanApplicationResponseDto;
-import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
-import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
+import rs.banka4.user_service.domain.loan.dtos.*;
+import rs.banka4.user_service.service.abstraction.LoanInstallmentService;
 import rs.banka4.user_service.service.abstraction.LoanService;
 
 @RestController
@@ -22,6 +20,18 @@ import rs.banka4.user_service.service.abstraction.LoanService;
 @RequiredArgsConstructor
 public class LoanController implements LoanDocumentation {
     private final LoanService loanService;
+    private final LoanInstallmentService loanInstallmentService;
+    @Override
+    @GetMapping("/installment/{loanNumber}")
+    public ResponseEntity<Page<LoanInstallmentDto>> getInstallmentsForLoan(
+        @PathVariable Long loanNumber,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+
+        var response = loanInstallmentService.getInstallmentsForLoan(loanNumber, page, size);
+        return ResponseEntity.ok(response);
+    }
 
     @Override
     @PostMapping

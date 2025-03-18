@@ -10,9 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationResponseDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
+import rs.banka4.user_service.domain.loan.dtos.LoanInstallmentDto;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 
 @Tag(
@@ -204,6 +207,46 @@ public interface LoanDocumentation {
     ResponseEntity<Void> rejectLoan(
         @Parameter(description = "Number of the loan") Long loanNumber,
         Authentication auth
+    );
+    @Operation(
+            summary = "Search All Loans",
+            description = "Allows an client to search and retrieve all installments for loan in the system. "
+                    + "This endpoint supports pagination "
+                    + "Use the 'page' and 'size' parameters to control pagination. "
+                    + "The 'loanNumber' parameters defines which lone installments are being searched "
+                    + "If there is no such lone, a 404 Not Found error is returned. "
+                    + "The results are sorted by expected due date in ascending order. ",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Installments retrieved successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = LoanInformationDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized: Client authentication failed",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden: Insufficient permissions",
+                            content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not Found: Incorrect loan number is provided",
+                            content = @Content
+                    )
+            }
+    )
+     ResponseEntity<Page<LoanInstallmentDto>> getInstallmentsForLoan(
+            @Parameter(description = "Number of the loan") Long loanNumber,
+            int page,
+            int size
     );
 
 }
