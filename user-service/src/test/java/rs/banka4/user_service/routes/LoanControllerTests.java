@@ -82,10 +82,12 @@ public class LoanControllerTests {
         public LoanService loanService() {
             return Mockito.mock(LoanService.class);
         }
+
         @Bean
         public LoanInstallmentService loanInstallmentService() {
             return Mockito.mock(LoanInstallmentService.class);
         }
+
         @Bean
         public JwtUtil jwtUtil() {
             return Mockito.mock(JwtUtil.class);
