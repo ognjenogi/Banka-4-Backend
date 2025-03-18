@@ -2,12 +2,10 @@ package rs.banka4.user_service.domain.loan.specification;
 
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.criteria.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.data.jpa.domain.Specification;
 import rs.banka4.user_service.domain.account.db.Account;
 import rs.banka4.user_service.domain.loan.db.*;
@@ -84,26 +82,39 @@ public class LoanSpecification {
             return builder.and(predicates.toArray(new Predicate[0]));
         };
     }
+
     public static Specification<LoanInstallment> findPaidAndNextUpcomingInstallment(UUID loanId) {
         return (root, query, builder) -> {
-            Predicate loanPredicate = builder.equal(root.get("loan").get("id"), loanId);
+            Predicate loanPredicate =
+                builder.equal(
+                    root.get("loan")
+                        .get("id"),
+                    loanId
+                );
 
             Predicate paidPredicate = builder.equal(root.get("paymentStatus"), PaymentStatus.PAID);
 
             Subquery<LocalDate> subquery = query.subquery(LocalDate.class);
             Root<LoanInstallment> subRoot = subquery.from(LoanInstallment.class);
             subquery.select(builder.least(subRoot.<LocalDate>get("expectedDueDate")))
-                    .where(
-                            builder.and(
-                                    builder.equal(subRoot.get("loan").get("id"), loanId),
-                                    subRoot.get("paymentStatus").in(PaymentStatus.UNPAID, PaymentStatus.DELAYED)
-                            )
-                    );
+                .where(
+                    builder.and(
+                        builder.equal(
+                            subRoot.get("loan")
+                                .get("id"),
+                            loanId
+                        ),
+                        subRoot.get("paymentStatus")
+                            .in(PaymentStatus.UNPAID, PaymentStatus.DELAYED)
+                    )
+                );
 
-            Predicate upcomingPredicate = builder.and(
-                    root.get("paymentStatus").in(PaymentStatus.UNPAID, PaymentStatus.DELAYED),
+            Predicate upcomingPredicate =
+                builder.and(
+                    root.get("paymentStatus")
+                        .in(PaymentStatus.UNPAID, PaymentStatus.DELAYED),
                     builder.equal(root.get("expectedDueDate"), subquery)
-            );
+                );
 
             Predicate combinedPredicate = builder.or(paidPredicate, upcomingPredicate);
 

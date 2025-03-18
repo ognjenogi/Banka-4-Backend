@@ -21,6 +21,7 @@ import rs.banka4.user_service.service.abstraction.LoanService;
 public class LoanController implements LoanDocumentation {
     private final LoanService loanService;
     private final LoanInstallmentService loanInstallmentService;
+
     @Override
     @GetMapping("/installment/{loanNumber}")
     public ResponseEntity<Page<LoanInstallmentDto>> getInstallmentsForLoan(

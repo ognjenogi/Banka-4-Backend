@@ -1,9 +1,15 @@
 package rs.banka4.user_service.unit.loan;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,14 +28,6 @@ import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.service.impl.LoanInstallmentServiceImpl;
-import rs.banka4.user_service.service.impl.LoanServiceImpl;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.eq;
 
 public class GetAllInstallmentsTests {
     @Mock
@@ -63,10 +61,32 @@ public class GetAllInstallmentsTests {
         upcoming.setPaymentStatus(PaymentStatus.UNPAID);
 
         when(loanInstallmentRepository.findAll(any(Specification.class), any(PageRequest.class)))
-                .thenReturn(new PageImpl<>(List.of(upcoming), PageRequest.of(0, 10, Sort.by("expectedDueDate").ascending()), 1));
+            .thenReturn(
+                new PageImpl<>(
+                    List.of(upcoming),
+                    PageRequest.of(
+                        0,
+                        10,
+                        Sort.by("expectedDueDate")
+                            .ascending()
+                    ),
+                    1
+                )
+            );
 
         when(loanInstallmentRepository.findAll(any(Specification.class), any(PageRequest.class)))
-                .thenReturn(new PageImpl<>(List.of(upcoming), PageRequest.of(0, 10, Sort.by("expectedDueDate").ascending()), 1));
+            .thenReturn(
+                new PageImpl<>(
+                    List.of(upcoming),
+                    PageRequest.of(
+                        0,
+                        10,
+                        Sort.by("expectedDueDate")
+                            .ascending()
+                    ),
+                    1
+                )
+            );
 
         Page<LoanInstallmentDto> result = loanService.getInstallmentsForLoan(testLoanNumber, 0, 10);
 
@@ -80,8 +100,19 @@ public class GetAllInstallmentsTests {
     @Test
     void testGetInstallmentsForLoan_NoUpcomingInstallment() {
         when(loanRepository.findByLoanNumber(eq(testLoanNumber))).thenReturn(Optional.of(testLoan));
-        Page<LoanInstallment> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10, Sort.by("expectedDueDate").ascending()), 0);
-        when(loanInstallmentRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(emptyPage);
+        Page<LoanInstallment> emptyPage =
+            new PageImpl<>(
+                List.of(),
+                PageRequest.of(
+                    0,
+                    10,
+                    Sort.by("expectedDueDate")
+                        .ascending()
+                ),
+                0
+            );
+        when(loanInstallmentRepository.findAll(any(Specification.class), any(PageRequest.class)))
+            .thenReturn(emptyPage);
 
         Page<LoanInstallmentDto> result = loanService.getInstallmentsForLoan(testLoanNumber, 0, 10);
 
@@ -96,7 +127,10 @@ public class GetAllInstallmentsTests {
     void testGetInstallmentsForLoan_LoanNotFound() {
         when(loanRepository.findByLoanNumber(eq(testLoanNumber))).thenReturn(Optional.empty());
 
-        assertThrows(LoanNotFound.class, () -> loanService.getInstallmentsForLoan(testLoanNumber, 0, 10));
+        assertThrows(
+            LoanNotFound.class,
+            () -> loanService.getInstallmentsForLoan(testLoanNumber, 0, 10)
+        );
 
         verify(loanRepository).findByLoanNumber(eq(testLoanNumber));
     }
