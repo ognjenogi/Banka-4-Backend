@@ -26,6 +26,7 @@ import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
 import rs.banka4.user_service.generator.LoanObjectMother;
+import rs.banka4.user_service.service.abstraction.LoanInstallmentService;
 import rs.banka4.user_service.service.abstraction.LoanService;
 import rs.banka4.user_service.service.impl.CustomUserDetailsService;
 import rs.banka4.user_service.util.MockMvcUtil;
@@ -41,6 +42,8 @@ public class LoanControllerTests {
     private ObjectMapper objectMapper;
     @Autowired
     private LoanService loanService;
+    @Autowired
+    private LoanInstallmentService loanInstallmentService;
 
     private MockMvcUtil mockMvcUtil;
 
@@ -79,7 +82,10 @@ public class LoanControllerTests {
         public LoanService loanService() {
             return Mockito.mock(LoanService.class);
         }
-
+        @Bean
+        public LoanInstallmentService loanInstallmentService() {
+            return Mockito.mock(LoanInstallmentService.class);
+        }
         @Bean
         public JwtUtil jwtUtil() {
             return Mockito.mock(JwtUtil.class);
