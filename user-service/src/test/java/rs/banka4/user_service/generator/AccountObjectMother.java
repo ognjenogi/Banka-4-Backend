@@ -10,6 +10,7 @@ import rs.banka4.user_service.domain.account.dtos.AccountClientIdDto;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
 import rs.banka4.user_service.domain.account.dtos.AccountTypeDto;
 import rs.banka4.user_service.domain.account.dtos.CreateAccountDto;
+import rs.banka4.user_service.domain.company.dtos.CompanyDto;
 import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.currency.db.Currency.Code;
 import rs.banka4.user_service.domain.currency.mapper.CurrencyMapper;
