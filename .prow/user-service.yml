@@ -5,7 +5,7 @@ presubmits:
     decorate: true
     spec:
       containers:
-        - image: harbor.k8s.elab.rs/base-images/base:java-21-node-18-docker
+        - image: harbor.k8s.elab.rs/base-images/base:gradle-21-node-22-docker
           command:
             - /bin/bash
             - -c
@@ -14,8 +14,8 @@ presubmits:
               start-docker.sh
 
               fail=
-              ./gradlew clean || fail=yes
-              ./gradlew :user-service:generateAllTestReports || fail=yes
+              gradle clean || fail=yes
+              gradle :user-service:generateAllTestReports || fail=yes
 
               # Collect test reports.
               (

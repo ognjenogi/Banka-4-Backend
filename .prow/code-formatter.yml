@@ -5,8 +5,8 @@ presubmits:
     decorate: true
     spec:
       containers:
-        - image: harbor.k8s.elab.rs/base-images/base:java-21-node-18-docker
-          name: java-code-style
+        - image: harbor.k8s.elab.rs/base-images/base:gradle-21-node-22-docker
+          name: code-style
           command:
             - /bin/bash
             - -c
@@ -17,28 +17,11 @@ presubmits:
               git worktree add --detach /tmp/STYLE_CHECK_SRC_1
               cd /tmp/STYLE_CHECK_SRC_1
               git rebase --exec "\
+                fail() { echo E''R''R''O''R: commit above failed; \
+                         touch /tmp/STYLE_CHECK_WHEW; }; \
                 [ -e .prow/code-formatter.yml ] || exit 0; \
                 git --no-pager show --no-patch; \
-                ./gradlew spotlessCheck || touch /tmp/STYLE_CHECK_WHEW; \
-              " "${PULL_BASE_SHA}"
-              [[ ! -e /tmp/STYLE_CHECK_WHEW ]]
-        - # TODO(arsen): merge into above
-          image: python:latest
-          name: python-code-style
-          command:
-            - /bin/bash
-            - -c
-            - |
-              set -eux
-              pip install pre-commit
-              rm -f /tmp/STYLE_CHECK_WHEW
-
-              git worktree add --detach /tmp/STYLE_CHECK_SRC_2
-              cd /tmp/STYLE_CHECK_SRC_2
-              git rebase --exec "\
-                [ -e .prow/code-formatter.yml ] || exit 0; \
-                git --no-pager show --no-patch; \
-                SKIP=spotless-apply pre-commit run -a --show-diff-on-failure; \
-                git checkout .;\
+                SKIP=spotless-apply pre-commit run -a --show-diff-on-failure || fail; \
+                gradle spotlessCheck || fail; \
               " "${PULL_BASE_SHA}"
               [[ ! -e /tmp/STYLE_CHECK_WHEW ]]
