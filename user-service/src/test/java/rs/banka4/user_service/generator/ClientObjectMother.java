@@ -19,7 +19,7 @@ public class ClientObjectMother {
             LocalDate.of(1990, 1, 1),
             Gender.MALE,
             "john.doe@example.com",
-            "1234567890",
+            "+381650312764",
             "123 Grove Street, City, Country",
             Set.of(Privilege.SEARCH)
         );
