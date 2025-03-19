@@ -133,7 +133,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile-exchange-office
     environment:
-      EXCHANGERATE_API_KEY: ${EXCHANGERATE_API_KEY}
+      EXCHANGERATE_API_KEY: ${EXCHANGERATE_API_KEY:?exchange rate api key missing}
     volumes:
       - exchange_office_data:/data
 
