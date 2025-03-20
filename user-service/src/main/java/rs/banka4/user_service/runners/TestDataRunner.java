@@ -1164,7 +1164,10 @@ public class TestDataRunner implements CommandLineRunner {
             if (fromAccount != null && toAccount != null && currency != null) {
                 Transaction transaction1 =
                     Transaction.builder()
-                        .transactionNumber("587135813355381")
+                        .transactionNumber(
+                            UUID.randomUUID()
+                                .toString()
+                        )
                         .fromAccount(fromAccount)
                         .toAccount(toAccount)
                         .from(new MonetaryAmount(new BigDecimal("100.00"), currency))
@@ -1180,7 +1183,10 @@ public class TestDataRunner implements CommandLineRunner {
 
                 Transaction transaction2 =
                     Transaction.builder()
-                        .transactionNumber("583135413351381")
+                        .transactionNumber(
+                            UUID.randomUUID()
+                                .toString()
+                        )
                         .fromAccount(toAccount)
                         .toAccount(fromAccount)
                         .from(new MonetaryAmount(new BigDecimal("200.00"), currency))
