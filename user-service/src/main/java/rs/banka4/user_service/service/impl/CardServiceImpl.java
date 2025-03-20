@@ -213,6 +213,7 @@ public class CardServiceImpl implements CardService {
         String lastName,
         String email,
         String cardStatus,
+        String accountNumber,
         Pageable pageable
     ) {
 
@@ -250,6 +251,10 @@ public class CardServiceImpl implements CardService {
             } catch (IllegalArgumentException e) {
                 throw new NotValidCardStatus();
             }
+        }
+
+        if (accountNumber != null && !accountNumber.isEmpty()) {
+            combinator.and(CardSpecification.hasAccountNumber(accountNumber));
         }
 
         Page<Card> cards = cardRepository.findAll(combinator.build(), pageable);
