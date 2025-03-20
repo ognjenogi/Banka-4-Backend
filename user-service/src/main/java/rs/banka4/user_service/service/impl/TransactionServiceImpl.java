@@ -122,6 +122,8 @@ public class TransactionServiceImpl implements TransactionService {
         Account fromAccount = getAccount(createTransferDto.fromAccount());
         Account toAccount = getAccount(createTransferDto.toAccount());
 
+        if (fromAccount.equals(toAccount)) throw new ClientCannotTransferToSameAccount();
+
         validateAccountActive(fromAccount);
         validateClientAccountOwnership(client, fromAccount, toAccount);
         validateSufficientFunds(fromAccount, createTransferDto.fromAmount());
@@ -162,6 +164,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         combinator.and(PaymentSpecification.isNotSpecialTransaction());
+        combinator.and(PaymentSpecification.isNotTransfer());
 
         Page<Transaction> transactions =
             transactionRepository.findAll(combinator.build(), pageRequest);
