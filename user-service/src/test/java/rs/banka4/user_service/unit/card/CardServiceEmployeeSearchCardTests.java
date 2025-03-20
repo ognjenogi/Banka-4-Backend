@@ -45,13 +45,20 @@ public class CardServiceEmployeeSearchCardTests {
 
     private static Stream<Arguments> provideFilters() {
         return Stream.of(
-            Arguments.of("1234567812345678", "John", "Doe", "user@example.com", "ACTIVATED"),
-            Arguments.of("1234567812345678", null, null, null, null),
-            Arguments.of(null, "John", null, null, null),
-            Arguments.of(null, null, "Doe", null, null),
-            Arguments.of(null, null, null, "user@example.com", null),
-            Arguments.of(null, null, null, null, "BLOCKED"),
-            Arguments.of(null, null, null, null, null)
+            Arguments.of(
+                "1234567812345678",
+                "John",
+                "Doe",
+                "user@example.com",
+                "ACTIVATED",
+                "1111111111"
+            ),
+            Arguments.of("1234567812345678", null, null, null, null, null),
+            Arguments.of(null, "John", null, null, null, null),
+            Arguments.of(null, null, "Doe", null, null, null),
+            Arguments.of(null, null, null, "user@example.com", null, null),
+            Arguments.of(null, null, null, null, "BLOCKED", null),
+            Arguments.of(null, null, null, null, null, null)
         );
     }
 
@@ -62,7 +69,8 @@ public class CardServiceEmployeeSearchCardTests {
         String firstName,
         String lastName,
         String email,
-        String cardStatus
+        String cardStatus,
+        String accountNumber
     ) {
         // Arrange
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -88,6 +96,7 @@ public class CardServiceEmployeeSearchCardTests {
                 lastName,
                 email,
                 cardStatus,
+                accountNumber,
                 pageRequest
             );
 
