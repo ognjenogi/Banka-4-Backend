@@ -195,8 +195,25 @@ public class TestDataRunner implements CommandLineRunner {
 
         Random random = new Random();
         List<Account> accounts = accountRepository.findAll();
-        var currencies = currencyRepository.findAll();
-        var loans = loanRepository.findAll();
+        List<Currency> currencies = currencyRepository.findAll();
+        List<Loan> loans = loanRepository.findAll();
+
+        List<String> purposes =
+            List.of(
+                "College",
+                "New Business",
+                "New House",
+                "Car Purchase",
+                "Medical Expenses",
+                "Home Renovation",
+                "Debt Consolidation",
+                "Travel Expenses",
+                "Wedding",
+                "Investment Opportunity"
+            );
+
+        List<String> employmentStatuses = List.of("PERMANENT", "TEMPORARY", "UNEMPLOYED");
+
         List<LoanRequest> loanRequests =
             random.ints(10, 0, 10000)
                 .mapToObj(
@@ -206,11 +223,13 @@ public class TestDataRunner implements CommandLineRunner {
                         .account(accounts.get(random.nextInt(accounts.size())))
                         .type(randomEnumValue(LoanType.class))
                         .interestType(randomEnumValue(Loan.InterestType.class))
-                        .purposeOfLoan("asdsdasd")
-                        .contactPhone("+381668523974")
-                        .employmentStatus("asdda")
-                        .employmentPeriod(21)
-                        .monthlyIncome(BigDecimal.valueOf(32213))
+                        .purposeOfLoan(purposes.get(random.nextInt(purposes.size())))
+                        .contactPhone("+381630124756")
+                        .employmentStatus(
+                            employmentStatuses.get(random.nextInt(employmentStatuses.size()))
+                        )
+                        .employmentPeriod(random.nextInt(40) + 1)
+                        .monthlyIncome(BigDecimal.valueOf(random.nextInt(100000) + 20000))
                         .loan(loans.get(random.nextInt(loans.size())))
                         .currency(currencies.get(random.nextInt(currencies.size())))
                         .build()
