@@ -21,6 +21,7 @@ import rs.banka4.user_service.domain.transaction.mapper.TransactionMapper;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.exceptions.account.AccountNotFound;
 import rs.banka4.user_service.exceptions.account.NotAccountOwner;
+import rs.banka4.user_service.exceptions.transaction.ClientCannotPayToOwnAccount;
 import rs.banka4.user_service.exceptions.transaction.InsufficientFunds;
 import rs.banka4.user_service.generator.AccountObjectMother;
 import rs.banka4.user_service.generator.ClientObjectMother;
@@ -253,6 +254,37 @@ public class TransactionServiceCreateTests {
         assertEquals(createTransferDto.toAccount(), result.toAccount());
         assertEquals(createTransferDto.fromAmount(), result.fromAmount());
         verify(transactionRepository, times(1)).save(any());
+    }
+
+    @Test
+    void testCreateTransactionClientCannotPayToOwnAccount() {
+        // Arrange
+        CreatePaymentDto createPaymentDto = TransactionObjectMother.generateBasicCreatePaymentDto();
+        Client client =
+            ClientObjectMother.generateClient(
+                UUID.fromString("9df5e618-f21d-48a7-a7a4-ac55ea8bec97"),
+                "markezaa@example.com"
+            );
+        Account fromAccount = AccountObjectMother.generateBasicFromAccount();
+        Account toAccount = AccountObjectMother.generateBasicToAccount();
+
+        fromAccount.setClient(client);
+        toAccount.setClient(client);
+        client.setAccounts(Set.of(fromAccount, toAccount));
+
+        when(jwtUtil.extractUsername(anyString())).thenReturn("markezaa@example.com");
+        when(clientRepository.findByEmail(anyString())).thenReturn(Optional.of(client));
+        when(accountRepository.findAccountByAccountNumber(createPaymentDto.fromAccount()))
+            .thenReturn(Optional.of(fromAccount));
+        when(accountRepository.findAccountByAccountNumber(createPaymentDto.toAccount())).thenReturn(
+            Optional.of(toAccount)
+        );
+
+        // Act & Assert
+        assertThrows(
+            ClientCannotPayToOwnAccount.class,
+            () -> transactionService.createTransaction(authentication, createPaymentDto)
+        );
     }
 
 }
