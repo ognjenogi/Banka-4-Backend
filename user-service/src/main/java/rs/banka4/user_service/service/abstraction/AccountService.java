@@ -29,4 +29,5 @@ public interface AccountService {
         PageRequest pageRequest
     );
 
+    void makeAnAccountNumber(Account account);
 }

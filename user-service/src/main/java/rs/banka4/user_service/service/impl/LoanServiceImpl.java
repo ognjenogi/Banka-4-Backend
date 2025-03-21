@@ -2,6 +2,7 @@ package rs.banka4.user_service.service.impl;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +100,14 @@ public class LoanServiceImpl implements LoanService {
         Loan newLoan = LoanMapper.INSTANCE.toEntity(loanApplicationDto);
         newLoan.setStatus(LoanStatus.PROCESSING);
         newLoan.setRemainingDebt(loanApplicationDto.amount());
+        newLoan.setMonthlyInstallment(
+            loanApplicationDto.amount()
+                .divide(
+                    BigDecimal.valueOf(loanApplicationDto.repaymentPeriod()),
+                    2,
+                    RoundingMode.HALF_UP
+                )
+        );
 
         connectAccountToLoan(loanApplicationDto, newLoan, email);
         setLoanInterestRate(newLoan, loanApplicationDto);

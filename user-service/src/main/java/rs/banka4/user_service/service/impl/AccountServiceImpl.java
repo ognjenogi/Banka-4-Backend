@@ -364,7 +364,7 @@ public class AccountServiceImpl implements AccountService {
      *
      * @param account the account for which the account number is generated
      */
-    private void makeAnAccountNumber(Account account) {
+    public void makeAnAccountNumber(Account account) {
         String accountNumber = "";
         while (true) {
             try {

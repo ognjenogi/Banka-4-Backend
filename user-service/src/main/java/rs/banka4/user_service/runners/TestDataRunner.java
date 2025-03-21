@@ -29,6 +29,7 @@ import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.client.db.ClientContact;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.repositories.*;
+import rs.banka4.user_service.service.abstraction.AccountService;
 
 @Profile({
     "dev"
@@ -47,50 +48,367 @@ public class TestDataRunner implements CommandLineRunner {
     private final CompanyRepository companyRepository;
     private final ClientContactRepository clientContactRepository;
     private final TransactionRepository transactionRepository;
-    private final LoanRepository loanRepository;
-    private final LoanRequestRepository loanRequestRepository;
     private final BankMarginRepository bankMarginRepository;
     private final InterestRateRepository interestRateRepository;
     private final CardRepository cardRepository;
-    private final LoanInstallmentRepository loanInstallmentRepository;
+    private final AccountService accountService;
 
 
     @Override
     public void run(String... args) {
-        clientSeeder();
         employeeSeeder();
         activityCodeSeeder();
         currencySeeder();
+        seedClientsAndAccounts();
         clientContactsSeeder();
-        companySeeder();
-        accountSeeder();
         interestRateSeeder();
-        loanSeeder();
-        loanRequestSeeder();
         transactionSeeder();
         seedBankMargins();
         cardSeeder();
-        loanInstallmentSeeder();
         authorizedUserSeeder();
         bankSeeder();
     }
 
-    private void cardSeeder() {
+    private void employeeSeeder() {
+        List<Employee> employees =
+            List.of(
+                Employee.builder()
+                    .firstName("Alice")
+                    .lastName("Johnson")
+                    .dateOfBirth(LocalDate.of(1985, 4, 12))
+                    .gender(Gender.FEMALE)
+                    .email("alice.johnson@bankcorp.com")
+                    .phone("+38166798580")
+                    .address("789 Sunset Blvd")
+                    .password(passwordEncoder.encode("password"))
+                    .username("alicej")
+                    .position("Branch Manager")
+                    .department("Branch Operations")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
 
+                Employee.builder()
+                    .firstName("Robert")
+                    .lastName("Anderson")
+                    .dateOfBirth(LocalDate.of(1990, 7, 21))
+                    .gender(Gender.MALE)
+                    .email("robert.anderson@bankcorp.com")
+                    .phone("+38166798500")
+                    .address("456 Greenway Rd")
+                    .password(passwordEncoder.encode("password"))
+                    .username("roberta")
+                    .position("Loan Officer")
+                    .department("Loans & Mortgages")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Samantha")
+                    .lastName("Miller")
+                    .dateOfBirth(LocalDate.of(1988, 10, 5))
+                    .gender(Gender.FEMALE)
+                    .email("samantha.miller@bankcorp.com")
+                    .phone("+38166798511")
+                    .address("321 Oak Dr")
+                    .password(passwordEncoder.encode("password"))
+                    .username("samantham")
+                    .position("Financial Analyst")
+                    .department("Finance")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Daniel")
+                    .lastName("White")
+                    .dateOfBirth(LocalDate.of(1993, 3, 15))
+                    .gender(Gender.MALE)
+                    .email("daniel.white@bankcorp.com")
+                    .phone("+38166798522")
+                    .address("567 Pine Ln")
+                    .password(passwordEncoder.encode("password"))
+                    .username("danielw")
+                    .position("Investment Banker")
+                    .department("Investment Banking")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Jessica")
+                    .lastName("Martinez")
+                    .dateOfBirth(LocalDate.of(1991, 5, 30))
+                    .gender(Gender.FEMALE)
+                    .email("jessica.martinez@bankcorp.com")
+                    .phone("+38166798333")
+                    .address("123 Cedar Ave")
+                    .password(passwordEncoder.encode("password"))
+                    .username("jessicam")
+                    .position("Compliance Officer")
+                    .department("Regulatory Compliance")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Michael")
+                    .lastName("Thompson")
+                    .dateOfBirth(LocalDate.of(1987, 8, 18))
+                    .gender(Gender.MALE)
+                    .email("michael.thompson@bankcorp.com")
+                    .phone("+38166798366")
+                    .address("456 Maple Rd")
+                    .password(passwordEncoder.encode("password"))
+                    .username("michaelt")
+                    .position("Risk Manager")
+                    .department("Risk Management")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Laura")
+                    .lastName("Harris")
+                    .dateOfBirth(LocalDate.of(1994, 12, 22))
+                    .gender(Gender.FEMALE)
+                    .email("laura.harris@bankcorp.com")
+                    .phone("+38166798377")
+                    .address("789 Elm St")
+                    .password(passwordEncoder.encode("password"))
+                    .username("laurah")
+                    .position("Customer Service Representative")
+                    .department("Customer Support")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("David")
+                    .lastName("Clark")
+                    .dateOfBirth(LocalDate.of(1989, 6, 9))
+                    .gender(Gender.MALE)
+                    .email("david.clark@bankcorp.com")
+                    .phone("+38166798388")
+                    .address("987 Walnut St")
+                    .password(passwordEncoder.encode("password"))
+                    .username("davidc")
+                    .position("Credit Analyst")
+                    .department("Credit & Lending")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Emma")
+                    .lastName("Lewis")
+                    .dateOfBirth(LocalDate.of(1996, 2, 14))
+                    .gender(Gender.FEMALE)
+                    .email("emma.lewis@bankcorp.com")
+                    .phone("+38166798399")
+                    .address("654 Birch Rd")
+                    .password(passwordEncoder.encode("password"))
+                    .username("emmal")
+                    .position("Treasury Analyst")
+                    .department("Treasury")
+                    .active(true)
+                    .enabled(true)
+                    .build(),
+
+                Employee.builder()
+                    .firstName("Chris")
+                    .lastName("Walker")
+                    .dateOfBirth(LocalDate.of(1986, 11, 3))
+                    .gender(Gender.MALE)
+                    .email("chris.walker@bankcorp.com")
+                    .phone("+38166798400")
+                    .address("321 Redwood Ave")
+                    .password(passwordEncoder.encode("password"))
+                    .username("chrisw")
+                    .position("Bank Teller")
+                    .department("Retail Banking")
+                    .active(true)
+                    .enabled(true)
+                    .build()
+            );
+
+        List<Employee> newEmployees =
+            employees.stream()
+                .filter(employee -> !employeeRepository.existsByEmail(employee.getEmail()))
+                .collect(Collectors.toList());
+
+        newEmployees.forEach(employee -> {
+            switch (employee.getPosition()) {
+            case "Branch Manager",
+                "Investment Banker"
+                -> employee.setPrivileges(
+                    Arrays.asList(Privilege.ADMIN, Privilege.TRADE_STOCKS, Privilege.VIEW_STOCKS)
+                );
+            case "Compliance Officer",
+                "Risk Manager"
+                -> employee.setPrivileges(Arrays.asList(Privilege.CONTRACTS, Privilege.FILTER));
+            case "Loan Officer",
+                "Credit Analyst"
+                -> employee.setPrivileges(Arrays.asList(Privilege.SEARCH, Privilege.VIEW_STOCKS));
+            default -> employee.setPrivileges(List.of(Privilege.VIEW_STOCKS));
+            }
+        });
+
+        if (!newEmployees.isEmpty()) {
+            employeeRepository.saveAll(newEmployees);
+        }
+
+        employeeRepository.flush();
+    }
+
+    private void seedClientsAndAccounts() {
+        Currency currency = currencyRepository.findByCode(Currency.Code.RSD);
+        if (currency == null) {
+            throw new IllegalStateException("Currency RSD not found!");
+        }
+
+        List<Client> clients =
+            List.of(
+                Client.builder()
+                    .firstName("John")
+                    .lastName("Doe")
+                    .dateOfBirth(LocalDate.of(1995, 5, 15))
+                    .gender(Gender.MALE)
+                    .email("johndoe95@example.com")
+                    .phone("+38162798588")
+                    .address("123 Main St")
+                    .password(passwordEncoder.encode("password"))
+                    .enabled(true)
+                    .build(),
+                Client.builder()
+                    .firstName("Jane")
+                    .lastName("Smith")
+                    .dateOfBirth(LocalDate.of(1992, 8, 25))
+                    .gender(Gender.FEMALE)
+                    .email("janesmith92@example.com")
+                    .phone("+38162798580")
+                    .address("789 Oak St")
+                    .password(passwordEncoder.encode("password"))
+                    .enabled(true)
+                    .build(),
+                Client.builder()
+                    .firstName("Daniel")
+                    .lastName("Miller")
+                    .dateOfBirth(LocalDate.of(1994, 7, 22))
+                    .gender(Gender.MALE)
+                    .email("danielm@example.com")
+                    .phone("+38162372273")
+                    .address("741 Redwood St")
+                    .password(passwordEncoder.encode("password"))
+                    .enabled(true)
+                    .build()
+            );
+
+        for (Client client : clients) {
+            if (!clientRepository.existsByEmail(client.getEmail())) {
+                clientRepository.save(client);
+            }
+        }
+
+        clientRepository.flush();
+
+        Client majorityOwner =
+            clientRepository.findByEmail("danielm@example.com")
+                .orElse(null);
+        Company company = null;
+        if (majorityOwner != null && companyRepository.count() == 0) {
+            ActivityCode activityCode =
+                activityCodeRepository.findActivityCodeByCode("62.01")
+                    .orElse(null);
+            if (activityCode != null) {
+                company =
+                    Company.builder()
+                        .name("Some Company")
+                        .tin("123456789")
+                        .crn("987654321")
+                        .address("789 Oak St")
+                        .activityCode(activityCode)
+                        .majorityOwner(majorityOwner)
+                        .build();
+                company = companyRepository.save(company);
+            }
+        }
+        List<Employee> employees = employeeRepository.findAll();
+        Random random = new Random();
+
+        if (employees.isEmpty()) {
+            throw new IllegalStateException("No employees found!");
+        }
+
+        for (Client client : clients) {
+            Client savedClient =
+                clientRepository.findByEmail(client.getEmail())
+                    .orElse(null);
+            Employee randomEmployee = employees.get(random.nextInt(employees.size()));
+
+            if (savedClient != null && !accountRepository.existsByClient(savedClient)) {
+                Account.AccountBuilder accountBuilder =
+                    Account.builder()
+                        .balance(new BigDecimal("1000.00"))
+                        .availableBalance(new BigDecimal("1000.00"))
+                        .accountMaintenance(new BigDecimal("10.00"))
+                        .createdDate(LocalDate.now())
+                        .expirationDate(
+                            LocalDate.now()
+                                .plusYears(5)
+                        )
+                        .active(true)
+                        .accountType(AccountType.STANDARD)
+                        .dailyLimit(new BigDecimal("500.00"))
+                        .monthlyLimit(new BigDecimal("5000.00"))
+                        .client(savedClient)
+                        .employee(randomEmployee)
+                        .currency(currency);
+
+                if (company != null && savedClient.equals(majorityOwner)) {
+                    accountBuilder.company(company);
+                    accountBuilder.accountType(AccountType.DOO);
+                }
+
+                Account account = accountBuilder.build();
+                accountService.makeAnAccountNumber(account);
+            }
+        }
+
+        accountRepository.flush();
+    }
+
+    private void cardSeeder() {
         if (accountRepository.count() == 0) {
             LOGGER.info("No accounts found. Skipping card seeder.");
             return;
         }
 
-        Account account =
-            accountRepository.findAccountByAccountNumber("1234567890")
-                .orElse(null);
-        Client client = account.getClient();
-        Currency currency = account.getCurrency();
-        if (client == null || currency == null) {
-            LOGGER.info("Client or Currency not found. Skipping card seeder.");
+        if (cardRepository.count() > 0) {
+            LOGGER.info("No need for card seeder. Skipping card seeder.");
             return;
         }
+
+        List<Account> accounts = accountRepository.findAll();
+
+        if (accounts.isEmpty()) {
+            LOGGER.info("No accounts found. Skipping card seeder.");
+            return;
+        }
+
+        Account standardAccount =
+            accounts.stream()
+                .filter(account -> account.getAccountType() == AccountType.STANDARD)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No standard account found"));
+
+        Account dooAccount =
+            accounts.stream()
+                .filter(account -> account.getAccountType() == AccountType.DOO)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No DOO account found"));
+
         List<Card> cards =
             List.of(
                 Card.builder()
@@ -98,7 +416,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .cvv("123")
                     .cardName(CardName.VISA)
                     .cardType(CardType.DEBIT)
-                    .account(account)
+                    .account(standardAccount)
                     .cardStatus(CardStatus.ACTIVATED)
                     .limit(BigDecimal.valueOf(10000))
                     .createdAt(LocalDate.now())
@@ -113,7 +431,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .cvv("321")
                     .cardName(CardName.MASTER_CARD)
                     .cardType(CardType.CREDIT)
-                    .account(account)
+                    .account(dooAccount)
                     .cardStatus(CardStatus.ACTIVATED)
                     .limit(BigDecimal.valueOf(10000))
                     .createdAt(LocalDate.now())
@@ -123,193 +441,31 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build()
             );
+
         List<Card> newCards =
             cards.stream()
                 .filter(card -> !cardRepository.existsByCardNumber(card.getCardNumber()))
                 .collect(Collectors.toList());
+
         cardRepository.saveAll(newCards);
-    }
+        cardRepository.flush();
 
-    public void loanInstallmentSeeder() {
-        long count = loanInstallmentRepository.count();
-        if (count > 10) {
-            LOGGER.debug(
-                "LoanInstallment seeder skipped. There are already more than 10 installments in the database."
-            );
-            return;
-        }
-
-        Random random = new Random();
-        List<Loan> loans = loanRepository.findAll();
-        if (loans.isEmpty()) {
-            LOGGER.warn("No loans found. Cannot seed loan installments.");
-            return;
-        }
-
-        List<LoanInstallment> installments =
-            random.ints(10, 0, 10000)
-                .mapToObj(i -> {
-                    BigDecimal installmentAmount = generateRandomAmount();
-                    BigDecimal interestRateAmount = BigDecimal.valueOf(random.nextDouble() * 100);
-                    LocalDate expectedDueDate =
-                        LocalDate.now()
-                            .plusMonths(random.nextInt(12) + 1);
-                    Loan randomLoan = loans.get(random.nextInt(loans.size()));
-
-                    return LoanInstallment.builder()
-                        .installmentAmount(installmentAmount)
-                        .interestRateAmount(interestRateAmount)
-                        .expectedDueDate(expectedDueDate)
-                        .loan(randomLoan)
-                        .build();
-                })
-                .collect(Collectors.toList());
-
-        installments.sort(Comparator.comparing(LoanInstallment::getExpectedDueDate));
-
-        int total = installments.size();
-        for (int i = 0; i < total; i++) {
-            LoanInstallment installment = installments.get(i);
-            if (i < total / 2) {
-                installment.setPaymentStatus(PaymentStatus.PAID);
-                installment.setActualDueDate(installment.getExpectedDueDate());
-            } else {
-                PaymentStatus status =
-                    random.nextBoolean() ? PaymentStatus.UNPAID : PaymentStatus.DELAYED;
-                installment.setPaymentStatus(status);
-                installment.setActualDueDate(null);
-            }
-        }
-
-        loanInstallmentRepository.saveAll(installments);
-        loanInstallmentRepository.flush();
-    }
-
-    private void loanRequestSeeder() {
-        long loanCount = loanRequestRepository.count();
-
-        if (loanCount > 10) {
-            LOGGER.debug("Seeder skipped. There are already more than 10 loans in the database.");
-            return;
-        }
-
-        Random random = new Random();
-        List<Account> accounts = accountRepository.findAll();
-        List<Currency> currencies = currencyRepository.findAll();
-        List<Loan> loans = loanRepository.findAll();
-
-        List<String> purposes =
-            List.of(
-                "College",
-                "New Business",
-                "New House",
-                "Car Purchase",
-                "Medical Expenses",
-                "Home Renovation",
-                "Debt Consolidation",
-                "Travel Expenses",
-                "Wedding",
-                "Investment Opportunity"
-            );
-
-        List<String> employmentStatuses = List.of("PERMANENT", "TEMPORARY", "UNEMPLOYED");
-
-        List<LoanRequest> loanRequests =
-            random.ints(10, 0, 10000)
-                .mapToObj(
-                    i -> LoanRequest.builder()
-                        .amount(generateRandomAmount())
-                        .repaymentPeriod(random.nextInt(60) + 12)
-                        .account(accounts.get(random.nextInt(accounts.size())))
-                        .type(randomEnumValue(LoanType.class))
-                        .interestType(randomEnumValue(Loan.InterestType.class))
-                        .purposeOfLoan(purposes.get(random.nextInt(purposes.size())))
-                        .contactPhone("+381630124756")
-                        .employmentStatus(
-                            employmentStatuses.get(random.nextInt(employmentStatuses.size()))
-                        )
-                        .employmentPeriod(random.nextInt(40) + 1)
-                        .monthlyIncome(BigDecimal.valueOf(random.nextInt(100000) + 20000))
-                        .loan(loans.get(random.nextInt(loans.size())))
-                        .currency(currencies.get(random.nextInt(currencies.size())))
-                        .build()
-                )
-                .toList();
-
-        loanRequestRepository.saveAll(loanRequests);
-    }
-
-    private void loanSeeder() {
-        long loanCount = loanRepository.count();
-
-        if (loanCount > 10) {
-            LOGGER.debug("Seeder skipped. There are already more than 10 loans in the database.");
-            return;
-        }
-
-        Random random = new Random();
-        List<Account> accounts = accountRepository.findAll();
-        List<InterestRate> interestRates = interestRateRepository.findAll();
-        List<Loan> loans =
-            random.ints(10, 0, 10000)
-                .mapToObj(
-                    i -> Loan.builder()
-                        .loanNumber(generateRandomLoanNumber())
-                        .amount(generateRandomAmount())
-                        .repaymentPeriod(random.nextInt(60) + 12)
-                        .agreementDate(generateRandomDate())
-                        .dueDate(generateRandomDate().plusMonths(random.nextInt(6) + 1))
-                        .monthlyInstallment(generateRandomAmount())
-                        .nextInstallmentDate(generateRandomDate().plusMonths(1))
-                        .remainingDebt(generateRandomAmount())
-                        .baseInterestRate(generateRandomInterestRate())
-                        .account(accounts.get(random.nextInt(accounts.size())))
-                        // addition
-                        .interestRate(
-                            interestRates.get(new Random().nextInt(0, interestRates.size()))
-                        )
-
-                        .status(randomEnumValue(LoanStatus.class))
-                        .type(randomEnumValue(LoanType.class))
-                        .interestType(randomEnumValue(Loan.InterestType.class))
-                        .build()
-                )
-                .collect(Collectors.toList());
-
-        loanRepository.saveAll(loans);
-    }
-
-    private Long generateRandomLoanNumber() {
-        Random random = new Random();
-        return (long) (random.nextInt(100000) + 100000);
-    }
-
-    private BigDecimal generateRandomAmount() {
-        Random random = new Random();
-        return BigDecimal.valueOf(random.nextInt(100000) + 1000);
-    }
-
-    private LocalDate generateRandomDate() {
-        Random random = new Random();
-        int year = random.nextInt(5) + 2020;
-        int month = random.nextInt(12) + 1;
-        int day = random.nextInt(28) + 1;
-        return LocalDate.of(year, month, day);
-    }
-
-    private BigDecimal generateRandomInterestRate() {
-        Random random = new Random();
-        return BigDecimal.valueOf(random.nextInt(20) + 1);
-    }
-
-    private <T extends Enum<?>> T randomEnumValue(Class<T> clazz) {
-        Random random = new Random();
-        int x = random.nextInt(clazz.getEnumConstants().length);
-        return clazz.getEnumConstants()[x];
+        LOGGER.info("Card seeder executed successfully.");
     }
 
     private void clientContactsSeeder() {
         List<Client> clients = clientRepository.findAll();
+        List<String> accountNumbers =
+            accountRepository.findAll()
+                .stream()
+                .map(Account::getAccountNumber)
+                .toList();
+
+        if (accountNumbers.isEmpty()) {
+            throw new IllegalStateException("No accounts found!");
+        }
+
+        Random random = new Random();
 
         List<ClientContact> clientContacts =
             clients.stream()
@@ -319,7 +475,7 @@ public class TestDataRunner implements CommandLineRunner {
                         .mapToObj(
                             i -> ClientContact.builder()
                                 .client(client)
-                                .accountNumber(generateRandomAccountNumber())
+                                .accountNumber(getRandomAccountNumber(accountNumbers, random))
                                 .nickname(generateRandomNickname())
                                 .build()
                         )
@@ -336,11 +492,11 @@ public class TestDataRunner implements CommandLineRunner {
                 .toList();
 
         clientContactRepository.saveAll(newClientContacts);
+        clientContactRepository.flush();
     }
 
-    private String generateRandomAccountNumber() {
-        Random random = new Random();
-        return String.format("%012d", random.nextLong(100000000000L, 999999999999L));
+    private String getRandomAccountNumber(List<String> accountNumbers, Random random) {
+        return accountNumbers.get(random.nextInt(accountNumbers.size()));
     }
 
     private String generateRandomNickname() {
@@ -358,8 +514,7 @@ public class TestDataRunner implements CommandLineRunner {
         };
         Random random = new Random();
         return nicknames[random.nextInt(nicknames.length)] + random.nextInt(100); // Append random
-                                                                                  // number to
-                                                                                  // nickname
+        // number to nickname
     }
 
     private void activityCodeSeeder() {
@@ -674,7 +829,7 @@ public class TestDataRunner implements CommandLineRunner {
                 .collect(Collectors.toList());
 
         activityCodeRepository.saveAll(newActivityCodes);
-
+        activityCodeRepository.flush();
     }
 
     protected void currencySeeder() {
@@ -743,467 +898,73 @@ public class TestDataRunner implements CommandLineRunner {
                 currencyRepository.save(currency);
             }
         }
-    }
 
-    private void employeeSeeder() {
-        List<Employee> employees =
-            List.of(
-                Employee.builder()
-                    .firstName("Alice")
-                    .lastName("Johnson")
-                    .dateOfBirth(LocalDate.of(1985, 4, 12))
-                    .gender(Gender.FEMALE)
-                    .email("alice.johnson@bankcorp.com")
-                    .phone("+381615478963")
-                    .address("789 Sunset Blvd")
-                    .password(passwordEncoder.encode("password"))
-                    .username("alicej")
-                    .position("Branch Manager")
-                    .department("Branch Operations")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Robert")
-                    .lastName("Anderson")
-                    .dateOfBirth(LocalDate.of(1990, 7, 21))
-                    .gender(Gender.MALE)
-                    .email("robert.anderson@bankcorp.com")
-                    .phone("+381628974563")
-                    .address("456 Greenway Rd")
-                    .password(passwordEncoder.encode("password"))
-                    .username("roberta")
-                    .position("Loan Officer")
-                    .department("Loans & Mortgages")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Samantha")
-                    .lastName("Miller")
-                    .dateOfBirth(LocalDate.of(1988, 10, 5))
-                    .gender(Gender.FEMALE)
-                    .email("samantha.miller@bankcorp.com")
-                    .phone("+381698745632")
-                    .address("321 Oak Dr")
-                    .password(passwordEncoder.encode("password"))
-                    .username("samantham")
-                    .position("Financial Analyst")
-                    .department("Finance")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Daniel")
-                    .lastName("White")
-                    .dateOfBirth(LocalDate.of(1993, 3, 15))
-                    .gender(Gender.MALE)
-                    .email("daniel.white@bankcorp.com")
-                    .phone("+381685214789")
-                    .address("567 Pine Ln")
-                    .password(passwordEncoder.encode("password"))
-                    .username("danielw")
-                    .position("Investment Banker")
-                    .department("Investment Banking")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Jessica")
-                    .lastName("Martinez")
-                    .dateOfBirth(LocalDate.of(1991, 5, 30))
-                    .gender(Gender.FEMALE)
-                    .email("jessica.martinez@bankcorp.com")
-                    .phone("+381679632145")
-                    .address("123 Cedar Ave")
-                    .password(passwordEncoder.encode("password"))
-                    .username("jessicam")
-                    .position("Compliance Officer")
-                    .department("Regulatory Compliance")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Michael")
-                    .lastName("Thompson")
-                    .dateOfBirth(LocalDate.of(1987, 8, 18))
-                    .gender(Gender.MALE)
-                    .email("michael.thompson@bankcorp.com")
-                    .phone("+381661478523")
-                    .address("456 Maple Rd")
-                    .password(passwordEncoder.encode("password"))
-                    .username("michaelt")
-                    .position("Risk Manager")
-                    .department("Risk Management")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Laura")
-                    .lastName("Harris")
-                    .dateOfBirth(LocalDate.of(1994, 12, 22))
-                    .gender(Gender.FEMALE)
-                    .email("laura.harris@bankcorp.com")
-                    .phone("+381654789632")
-                    .address("789 Elm St")
-                    .password(passwordEncoder.encode("password"))
-                    .username("laurah")
-                    .position("Customer Service Representative")
-                    .department("Customer Support")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("David")
-                    .lastName("Clark")
-                    .dateOfBirth(LocalDate.of(1989, 6, 9))
-                    .gender(Gender.MALE)
-                    .email("david.clark@bankcorp.com")
-                    .phone("+381648523697")
-                    .address("987 Walnut St")
-                    .password(passwordEncoder.encode("password"))
-                    .username("davidc")
-                    .position("Credit Analyst")
-                    .department("Credit & Lending")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Emma")
-                    .lastName("Lewis")
-                    .dateOfBirth(LocalDate.of(1996, 2, 14))
-                    .gender(Gender.FEMALE)
-                    .email("emma.lewis@bankcorp.com")
-                    .phone("+381632145698")
-                    .address("654 Birch Rd")
-                    .password(passwordEncoder.encode("password"))
-                    .username("emmal")
-                    .position("Treasury Analyst")
-                    .department("Treasury")
-                    .active(true)
-                    .enabled(true)
-                    .build(),
-
-                Employee.builder()
-                    .firstName("Chris")
-                    .lastName("Walker")
-                    .dateOfBirth(LocalDate.of(1986, 11, 3))
-                    .gender(Gender.MALE)
-                    .email("chris.walker@bankcorp.com")
-                    .phone("+381627896541")
-                    .address("321 Redwood Ave")
-                    .password(passwordEncoder.encode("password"))
-                    .username("chrisw")
-                    .position("Bank Teller")
-                    .department("Retail Banking")
-                    .active(true)
-                    .enabled(true)
-                    .build()
-            );
-
-        List<Employee> newEmployees =
-            employees.stream()
-                .filter(employee -> !employeeRepository.existsByEmail(employee.getEmail()))
-                .collect(Collectors.toList());
-
-        newEmployees.forEach(employee -> {
-            switch (employee.getPosition()) {
-            case "Branch Manager",
-                "Investment Banker"
-                -> employee.setPrivileges(
-                    Arrays.asList(Privilege.ADMIN, Privilege.TRADE_STOCKS, Privilege.VIEW_STOCKS)
-                );
-            case "Compliance Officer",
-                "Risk Manager"
-                -> employee.setPrivileges(Arrays.asList(Privilege.CONTRACTS, Privilege.FILTER));
-            case "Loan Officer",
-                "Credit Analyst"
-                -> employee.setPrivileges(Arrays.asList(Privilege.SEARCH, Privilege.VIEW_STOCKS));
-            default -> employee.setPrivileges(List.of(Privilege.VIEW_STOCKS));
-            }
-        });
-
-        if (!newEmployees.isEmpty()) {
-            employeeRepository.saveAll(newEmployees);
-        }
-    }
-
-    private void clientSeeder() {
-        List<Client> clients =
-            List.of(
-                Client.builder()
-                    .firstName("John")
-                    .lastName("Doe")
-                    .dateOfBirth(LocalDate.of(1995, 5, 15))
-                    .gender(Gender.MALE)
-                    .email("johndoe95@example.com")
-                    .phone("+381614785236")
-                    .address("123 Main St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("Jane")
-                    .lastName("Smith")
-                    .dateOfBirth(LocalDate.of(1992, 8, 25))
-                    .gender(Gender.FEMALE)
-                    .email("janesmith92@example.com")
-                    .phone("+381695478321")
-                    .address("789 Oak St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("Michael")
-                    .lastName("Johnson")
-                    .dateOfBirth(LocalDate.of(1988, 3, 10))
-                    .gender(Gender.MALE)
-                    .email("michaelj@example.com")
-                    .phone("+381682139547")
-                    .address("567 Pine St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("Emily")
-                    .lastName("Davis")
-                    .dateOfBirth(LocalDate.of(1990, 11, 30))
-                    .gender(Gender.FEMALE)
-                    .email("emilyd@example.com")
-                    .phone("+381674563218")
-                    .address("234 Maple St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("David")
-                    .lastName("Wilson")
-                    .dateOfBirth(LocalDate.of(1985, 6, 20))
-                    .gender(Gender.MALE)
-                    .email("davidw@example.com")
-                    .phone("+381662145789")
-                    .address("890 Cedar St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("Olivia")
-                    .lastName("Martinez")
-                    .dateOfBirth(LocalDate.of(1993, 9, 5))
-                    .gender(Gender.FEMALE)
-                    .email("oliviam@example.com")
-                    .phone("+381659874563")
-                    .address("321 Birch St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("James")
-                    .lastName("Brown")
-                    .dateOfBirth(LocalDate.of(1987, 4, 18))
-                    .gender(Gender.MALE)
-                    .email("jamesb@example.com")
-                    .phone("+381641237896")
-                    .address("654 Willow St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("Sophia")
-                    .lastName("Garcia")
-                    .dateOfBirth(LocalDate.of(1996, 12, 12))
-                    .gender(Gender.FEMALE)
-                    .email("sophiag@example.com")
-                    .phone("+381637845912")
-                    .address("987 Palm St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build(),
-
-                Client.builder()
-                    .firstName("Daniel")
-                    .lastName("Miller")
-                    .dateOfBirth(LocalDate.of(1994, 7, 22))
-                    .gender(Gender.MALE)
-                    .email("danielm@example.com")
-                    .phone("+381620314758")
-                    .address("741 Redwood St")
-                    .password(passwordEncoder.encode("password"))
-                    .accounts(Set.of())
-                    .enabled(true)
-                    .build()
-            );
-
-        List<Client> newClients =
-            clients.stream()
-                .filter(client -> !clientRepository.existsByEmail(client.getEmail()))
-                .collect(Collectors.toList());
-
-        if (!newClients.isEmpty()) {
-            clientRepository.saveAll(newClients);
-        }
-    }
-
-    private void companySeeder() {
-        if (companyRepository.count() == 0) {
-            Client majorityOwner =
-                clientRepository.findByEmail("danielm@example.com")
-                    .orElse(null);
-            ActivityCode activityCode =
-                activityCodeRepository.findActivityCodeByCode("62.01")
-                    .orElse(null);
-
-            if (majorityOwner != null && activityCode != null) {
-                Company company =
-                    Company.builder()
-                        .name("Some Company")
-                        .tin("123456789")
-                        .crn("987654321")
-                        .address("789 Oak St")
-                        .activityCode(activityCode)
-                        .majorityOwner(majorityOwner)
-                        .build();
-
-                companyRepository.save(company);
-            }
-        }
-    }
-
-    private void accountSeeder() {
-        if (accountRepository.count() == 0) {
-            Client client =
-                clientRepository.findByEmail("danielm@example.com")
-                    .orElse(null);
-            Company company =
-                companyRepository.findByName(("Some Company"))
-                    .orElse(null);
-            Currency currency = currencyRepository.findByCode(Currency.Code.RSD);
-
-            if (client != null && currency != null) {
-                Account personalAccount =
-                    Account.builder()
-                        .accountNumber("1234567890")
-                        .balance(new BigDecimal("1000.00"))
-                        .availableBalance(new BigDecimal("1000.00"))
-                        .accountMaintenance(new BigDecimal("10.00"))
-                        .createdDate(LocalDate.now())
-                        .expirationDate(
-                            LocalDate.now()
-                                .plusYears(5)
-                        )
-                        .active(true)
-                        .accountType(AccountType.STANDARD)
-                        .dailyLimit(new BigDecimal("500.00"))
-                        .monthlyLimit(new BigDecimal("5000.00"))
-                        .client(client)
-                        .currency(currency)
-                        .build();
-
-                accountRepository.save(personalAccount);
-            }
-
-            if (company != null && currency != null) {
-                Account businessAccount =
-                    Account.builder()
-                        .accountNumber("0987654321")
-                        .balance(new BigDecimal("5000.00"))
-                        .availableBalance(new BigDecimal("5000.00"))
-                        .accountMaintenance(new BigDecimal("50.00"))
-                        .createdDate(LocalDate.now())
-                        .expirationDate(
-                            LocalDate.now()
-                                .plusYears(5)
-                        )
-                        .active(true)
-                        .accountType(AccountType.DOO)
-                        .dailyLimit(new BigDecimal("1000.00"))
-                        .monthlyLimit(new BigDecimal("10000.00"))
-                        .client(client)
-                        .company(company)
-                        .currency(currency)
-                        .build();
-
-                accountRepository.save(businessAccount);
-            }
-        }
+        currencyRepository.flush();
     }
 
     private void transactionSeeder() {
         if (transactionRepository.count() == 0) {
-            Account fromAccount =
-                accountRepository.findAccountByAccountNumber("1234567890")
-                    .orElse(null);
-            Account toAccount =
-                accountRepository.findAccountByAccountNumber("0987654321")
-                    .orElse(null);
-            Currency currency = currencyRepository.findByCode(Currency.Code.RSD);
+            List<Account> accounts = accountRepository.findAll();
 
-            if (fromAccount != null && toAccount != null && currency != null) {
-                Transaction transaction1 =
-                    Transaction.builder()
-                        .transactionNumber(
-                            UUID.randomUUID()
-                                .toString()
-                        )
-                        .fromAccount(fromAccount)
-                        .toAccount(toAccount)
-                        .from(new MonetaryAmount(new BigDecimal("100.00"), currency))
-                        .to(new MonetaryAmount(new BigDecimal("100.00"), currency))
-                        .fee(new MonetaryAmount(new BigDecimal("1.00"), currency))
-                        .recipient("Recipient Name")
-                        .paymentCode("123")
-                        .referenceNumber("123456")
-                        .paymentPurpose("Payment for services")
-                        .paymentDateTime(LocalDateTime.now())
-                        .status(TransactionStatus.IN_PROGRESS)
-                        .build();
+            if (accounts.size() > 1) {
+                Random random = new Random();
+                Account fromAccount;
+                Account toAccount;
 
-                Transaction transaction2 =
-                    Transaction.builder()
-                        .transactionNumber(
-                            UUID.randomUUID()
-                                .toString()
-                        )
-                        .fromAccount(toAccount)
-                        .toAccount(fromAccount)
-                        .from(new MonetaryAmount(new BigDecimal("200.00"), currency))
-                        .to(new MonetaryAmount(new BigDecimal("200.00"), currency))
-                        .fee(new MonetaryAmount(new BigDecimal("2.00"), currency))
-                        .recipient("Another Recipient")
-                        .paymentCode("456")
-                        .referenceNumber("654321")
-                        .paymentPurpose("Payment for goods")
-                        .paymentDateTime(
-                            LocalDateTime.now()
-                                .minusDays(1)
-                        )
-                        .status(TransactionStatus.REALIZED)
-                        .build();
+                do {
+                    fromAccount = accounts.get(random.nextInt(accounts.size()));
+                    toAccount = accounts.get(random.nextInt(accounts.size()));
+                } while (fromAccount.equals(toAccount)); // Ensure the accounts are not the same
 
-                transactionRepository.saveAll(Set.of(transaction1, transaction2));
+                Currency currency = currencyRepository.findByCode(Currency.Code.RSD);
+
+                if (toAccount != null && currency != null) {
+                    Transaction transaction1 =
+                        Transaction.builder()
+                            .transactionNumber(
+                                UUID.randomUUID()
+                                    .toString()
+                            )
+                            .fromAccount(fromAccount)
+                            .toAccount(toAccount)
+                            .from(new MonetaryAmount(new BigDecimal("100.00"), currency))
+                            .to(new MonetaryAmount(new BigDecimal("100.00"), currency))
+                            .fee(new MonetaryAmount(new BigDecimal("1.00"), currency))
+                            .recipient("Recipient Name")
+                            .paymentCode("123")
+                            .referenceNumber("123456")
+                            .paymentPurpose("Payment for services")
+                            .paymentDateTime(LocalDateTime.now())
+                            .status(TransactionStatus.IN_PROGRESS)
+                            .build();
+
+                    Transaction transaction2 =
+                        Transaction.builder()
+                            .transactionNumber(
+                                UUID.randomUUID()
+                                    .toString()
+                            )
+                            .fromAccount(toAccount)
+                            .toAccount(fromAccount)
+                            .from(new MonetaryAmount(new BigDecimal("200.00"), currency))
+                            .to(new MonetaryAmount(new BigDecimal("200.00"), currency))
+                            .fee(new MonetaryAmount(new BigDecimal("2.00"), currency))
+                            .recipient("Another Recipient")
+                            .paymentCode("456")
+                            .referenceNumber("654321")
+                            .paymentPurpose("Payment for goods")
+                            .paymentDateTime(
+                                LocalDateTime.now()
+                                    .minusDays(1)
+                            )
+                            .status(TransactionStatus.REALIZED)
+                            .build();
+
+                    transactionRepository.saveAll(Set.of(transaction1, transaction2));
+                    transactionRepository.flush();
+                }
+            } else {
+                LOGGER.warn("Not enough accounts to create transactions.");
             }
         }
     }
@@ -1243,7 +1004,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .margin(new BigDecimal("0.75"))
                     .build();
 
-            // Save all the bank margins to the database
             bankMarginRepository.saveAll(
                 List.of(
                     cashMargin,
@@ -1253,6 +1013,7 @@ public class TestDataRunner implements CommandLineRunner {
                     studentLoanMargin
                 )
             );
+            bankMarginRepository.flush();
         }
     }
 
@@ -1273,6 +1034,7 @@ public class TestDataRunner implements CommandLineRunner {
                 );
 
             interestRateRepository.saveAll(interestRates);
+            interestRateRepository.flush();
         }
     }
 
@@ -1293,49 +1055,140 @@ public class TestDataRunner implements CommandLineRunner {
         List<Card> cards = cardRepository.findAll();
 
         if (cards.isEmpty()) {
-            System.out.println("No cards found. Skipping authorized user seeder.");
+            LOGGER.info("No cards found. Skipping authorized user seeder.");
+            return;
+        }
+
+        List<Card> dooCards =
+            cards.stream()
+                .filter(
+                    card -> card.getAccount()
+                        .getAccountType()
+                        == AccountType.DOO
+                )
+                .collect(Collectors.toList());
+
+        if (dooCards.isEmpty()) {
+            LOGGER.info("No DOO accounts found. Skipping authorized user seeder.");
+            return;
+        }
+
+        boolean hasAuthorizedUser =
+            dooCards.stream()
+                .anyMatch(card -> card.getAuthorizedUser() != null);
+
+        if (hasAuthorizedUser) {
+            LOGGER.info(
+                "Some cards already have authorized users. Skipping authorized user seeder."
+            );
             return;
         }
 
         List<AuthorizedUser> authorizedUsers =
-            cards.stream()
+            dooCards.stream()
                 .map(
                     card -> AuthorizedUser.builder()
                         .userId(UUID.randomUUID())
-                        .firstName(
-                            "User"
-                                + card.getCardNumber()
-                                    .substring(0, 4)
-                        )
-                        .lastName("Authorized")
+                        .firstName(generateRandomFirstName())
+                        .lastName(generateRandomLastName())
                         .dateOfBirth(LocalDate.of(1990, 1, 1))
-                        .email(
-                            "user"
-                                + card.getCardNumber()
-                                    .substring(0, 4)
-                                + "@example.com"
-                        )
-                        .phoneNumber(
-                            "+381600000"
-                                + card.getCardNumber()
-                                    .substring(0, 2)
-                        )
-                        .address(
-                            "Address "
-                                + card.getCardNumber()
-                                    .substring(0, 3)
-                        )
+                        .email(generateRandomEmail(card))
+                        .phoneNumber(generateRandomPhoneNumber(card))
+                        .address(generateRandomAddress())
                         .gender(Gender.MALE)
                         .build()
                 )
                 .toList();
 
-        for (int i = 0; i < cards.size(); i++) {
-            cards.get(i)
+        for (int i = 0; i < dooCards.size(); i++) {
+            dooCards.get(i)
                 .setAuthorizedUser(authorizedUsers.get(i));
         }
 
-        cardRepository.saveAll(cards);
+        cardRepository.saveAll(dooCards);
+        cardRepository.flush();
+    }
+
+    private String generateRandomFirstName() {
+        List<String> firstNames =
+            List.of(
+                "John",
+                "Emma",
+                "Oliver",
+                "Sophia",
+                "Liam",
+                "Ava",
+                "Noah",
+                "Isabella",
+                "James",
+                "Mia"
+            );
+        Random rand = new Random();
+        return firstNames.get(rand.nextInt(firstNames.size()));
+    }
+
+    private String generateRandomLastName() {
+        List<String> lastNames =
+            List.of(
+                "Smith",
+                "Johnson",
+                "Williams",
+                "Brown",
+                "Jones",
+                "Garcia",
+                "Martinez",
+                "Hernandez",
+                "Davis",
+                "Lopez"
+            );
+        Random rand = new Random();
+        return lastNames.get(rand.nextInt(lastNames.size()));
+    }
+
+    private String generateRandomEmail(Card card) {
+        String prefix =
+            card.getCardNumber()
+                .substring(0, 4);
+        return "user" + prefix + "@example.com";
+    }
+
+    private String generateRandomPhoneNumber(Card card) {
+        String prefix =
+            card.getCardNumber()
+                .substring(0, 2);
+        return "+381600000" + prefix;
+    }
+
+    private String generateRandomAddress() {
+        List<String> streets =
+            List.of(
+                "Main St",
+                "Oak St",
+                "Pine St",
+                "Maple Ave",
+                "Elm St",
+                "Cedar Rd",
+                "Sunset Blvd",
+                "Park Ave"
+            );
+        List<String> cities =
+            List.of(
+                "Belgrade",
+                "Novi Sad",
+                "Niš",
+                "Kragujevac",
+                "Subotica",
+                "Zrenjanin",
+                "Vranje",
+                "Senta"
+            );
+        Random rand = new Random();
+
+        String street = streets.get(rand.nextInt(streets.size()));
+        String city = cities.get(rand.nextInt(cities.size()));
+        int houseNumber = rand.nextInt(100) + 1;
+
+        return houseNumber + " " + street + ", " + city;
     }
 
     private void bankSeeder() {
@@ -1404,6 +1257,7 @@ public class TestDataRunner implements CommandLineRunner {
                 }
 
                 accountRepository.saveAll(accounts);
+                accountRepository.flush();
             }
         }
     }
