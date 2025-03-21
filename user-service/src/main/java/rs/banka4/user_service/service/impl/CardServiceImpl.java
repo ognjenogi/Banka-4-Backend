@@ -112,6 +112,7 @@ public class CardServiceImpl implements CardService {
                     || card.getAccount()
                         .getClient()
                         == null
+                    || card.getCardStatus() == CardStatus.BLOCKED
             ) {
                 return null;
             }
@@ -133,7 +134,7 @@ public class CardServiceImpl implements CardService {
             card.getCardStatus() == CardStatus.BLOCKED
                 || card.getCardStatus() == CardStatus.DEACTIVATED
         ) {
-            return card;
+            return null;
         }
         card.setCardStatus(CardStatus.BLOCKED);
         return cardRepository.save(card);
@@ -154,7 +155,7 @@ public class CardServiceImpl implements CardService {
         }
 
         if (card.getCardStatus() != CardStatus.BLOCKED) {
-            return card;
+            return null;
         }
 
         card.setCardStatus(CardStatus.ACTIVATED);
