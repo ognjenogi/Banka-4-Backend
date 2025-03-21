@@ -25,4 +25,6 @@ public interface AccountRepository extends
     Optional<Account> getAccountByAccountNumber(String accountNumber);
 
     List<Account> findAllByCompany(@Param("company") Company company);
+
+    boolean existsByClient(Client client);
 }
