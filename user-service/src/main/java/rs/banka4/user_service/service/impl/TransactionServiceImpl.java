@@ -867,6 +867,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Map<String, Account> lockAccounts(String... accountNumbers) {
         return Arrays.stream(accountNumbers)
+            .distinct() // Remove duplicates
             .map(
                 accNum -> accountRepository.findAccountByAccountNumber(accNum)
                     .orElseThrow(AccountNotFound::new)
@@ -874,7 +875,7 @@ public class TransactionServiceImpl implements TransactionService {
             .sorted(Comparator.comparing(Account::getId)) // Deadlock prevention
             .peek(account -> {
                 entityManager.lock(account, LockModeType.PESSIMISTIC_WRITE);
-                entityManager.refresh(account); // Povuci sveže podatke nakon lock-a
+                entityManager.refresh(account); // Refresh data
             })
             .collect(Collectors.toMap(Account::getAccountNumber, acc -> acc));
     }
