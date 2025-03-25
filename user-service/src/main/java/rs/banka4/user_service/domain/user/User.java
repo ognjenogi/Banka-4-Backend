@@ -19,7 +19,7 @@ import org.hibernate.proxy.HibernateProxy;
 public abstract class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     public UUID id;
 
     @Column(nullable = false)
