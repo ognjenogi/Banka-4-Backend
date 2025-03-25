@@ -86,4 +86,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         return transactions.map(TransactionMapper.INSTANCE::toDto);
     }
 
+    public Client getBankOwner(){
+        return getBankAccountForCurrency(Currency.Code.RSD).getCompany().getMajorityOwner();
+    }
 }

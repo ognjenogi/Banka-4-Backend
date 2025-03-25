@@ -30,6 +30,7 @@ import rs.banka4.user_service.exceptions.account.AccountNotFound;
 import rs.banka4.user_service.exceptions.account.NotAccountOwner;
 import rs.banka4.user_service.exceptions.authenticator.NotValidTotpException;
 import rs.banka4.user_service.exceptions.transaction.*;
+import rs.banka4.user_service.exceptions.user.NotFound;
 import rs.banka4.user_service.exceptions.user.UserNotFound;
 import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.ClientContactRepository;
@@ -163,7 +164,11 @@ public class TransactionServiceImpl implements TransactionService {
             combinator.or(PaymentSpecification.hasToAccount(fromAccount));
         }
 
-        combinator.and(PaymentSpecification.isNotSpecialTransaction());
+        Client client = clientRepository.findByEmail(jwtUtil.extractUsername(token)).orElseThrow(NotFound::new);
+        if(!bankAccountServiceImpl.getBankOwner().equals(client)){
+            combinator.and(PaymentSpecification.isNotSpecialTransaction());
+        }
+
         combinator.and(PaymentSpecification.isNotTransfer());
 
         Page<Transaction> transactions =
