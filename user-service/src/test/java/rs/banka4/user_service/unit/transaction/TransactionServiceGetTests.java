@@ -119,7 +119,9 @@ public class TransactionServiceGetTests {
         when(accountRepository.findAccountByAccountNumber(accountNumber)).thenReturn(
             Optional.of(fromAccount)
         );
-        when(clientRepository.findByEmail(any())).thenReturn(Optional.ofNullable(fromAccount.getClient()));
+        when(clientRepository.findByEmail(any())).thenReturn(
+            Optional.ofNullable(fromAccount.getClient())
+        );
         when(bankAccountServiceImpl.getBankOwner()).thenReturn(fromAccount.getClient());
         // Act
         Page<TransactionDto> result =
@@ -327,7 +329,9 @@ public class TransactionServiceGetTests {
                 TransactionStatus.REALIZED
             )
         );
-        when(clientRepository.findByEmail(any())).thenReturn(Optional.ofNullable(fromAccount.getClient()));
+        when(clientRepository.findByEmail(any())).thenReturn(
+            Optional.ofNullable(fromAccount.getClient())
+        );
         when(bankAccountServiceImpl.getBankOwner()).thenReturn(fromAccount.getClient());
         // Act
         Page<TransactionDto> result =
