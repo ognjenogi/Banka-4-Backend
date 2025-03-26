@@ -16,8 +16,8 @@ import org.hibernate.proxy.HibernateProxy;
 public class ActivityCode {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(
         nullable = false,

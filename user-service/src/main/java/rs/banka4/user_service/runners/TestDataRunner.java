@@ -967,6 +967,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
+        // TODO(arsen): don't use findByCode. Actually, remove this whole thing. It is goofy.
         for (Currency currency : currencies) {
             if (currencyRepository.findByCode(currency.getCode()) == null) {
                 currencyRepository.saveAndFlush(currency);

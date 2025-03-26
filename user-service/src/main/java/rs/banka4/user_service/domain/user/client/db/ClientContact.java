@@ -16,8 +16,8 @@ import org.hibernate.proxy.HibernateProxy;
 public class ClientContact {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @ManyToOne
     @JoinColumn(nullable = false)

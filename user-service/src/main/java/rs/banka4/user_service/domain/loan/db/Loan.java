@@ -19,8 +19,8 @@ import rs.banka4.user_service.domain.account.db.Account;
 public class Loan {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(
         nullable = false,
