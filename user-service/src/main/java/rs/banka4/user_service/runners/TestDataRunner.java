@@ -559,21 +559,13 @@ public class TestDataRunner implements CommandLineRunner {
 
         Client clientJane =
             clientRepository.findById(CLIENT_JANE)
-                .orElseThrow(() -> new RuntimeException("Client John not found"));
-
-        Account accountJohn =
-            accountRepository.findById(ACCOUNT_JOHN_DOO)
-                .orElseThrow(() -> new RuntimeException("John account not found"));
-
-        Account accountJane =
-            accountRepository.findById(ACCOUNT_JANE_STANDARD)
-                .orElseThrow(() -> new RuntimeException("Jane account not found"));
+                .orElseThrow(() -> new RuntimeException("Client Jane not found"));
 
         ClientContact clientContactJohn =
             ClientContact.builder()
                 .id(JOHN_CONTACT)
                 .client(clientJohn)
-                .accountNumber(accountJane.getAccountNumber())
+                .accountNumber(ACCOUNT_JANE_STANDARD_NUMBER)
                 .nickname(String.join(" ", clientJane.getFirstName(), clientJane.getLastName()))
                 .build();
 
@@ -581,12 +573,12 @@ public class TestDataRunner implements CommandLineRunner {
             ClientContact.builder()
                 .id(JANE_CONTACT)
                 .client(clientJane)
-                .accountNumber(accountJohn.getAccountNumber())
+                .accountNumber(ACCOUNT_JOHN_DOO_NUMBER)
                 .nickname(String.join(" ", clientJohn.getFirstName(), clientJohn.getLastName()))
                 .build();
 
-        clientContactRepository.save(clientContactJohn);
-        clientContactRepository.save(clientContactJane);
+        clientContactRepository.saveAndFlush(clientContactJane);
+        clientContactRepository.saveAndFlush(clientContactJohn);
     }
 
     private void activityCodeSeeder() {
@@ -895,7 +887,10 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
-        activityCodeRepository.saveAllAndFlush(activityCodes);
+        activityCodes.forEach(activityCode -> {
+            if (!activityCodeRepository.existsByCode(activityCode.getCode()))
+                activityCodeRepository.saveAndFlush(activityCode);
+        });
     }
 
     protected void currencySeeder() {
@@ -976,76 +971,62 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedBankMargins() {
-        if (
-            bankMarginRepository.findAll()
-                .isEmpty()
-        ) {
-            BankMargin cashMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_CASH)
-                    .type(LoanType.CASH)
-                    .margin(new BigDecimal("1.75"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_CASH)
+                .type(LoanType.CASH)
+                .margin(new BigDecimal("1.75"))
+                .build()
+        );
 
-            BankMargin mortgageMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_MORTGAGE)
-                    .type(LoanType.MORTGAGE)
-                    .margin(new BigDecimal("1.50"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_MORTGAGE)
+                .type(LoanType.MORTGAGE)
+                .margin(new BigDecimal("1.50"))
+                .build()
+        );
 
-            BankMargin autoLoanMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_AUTO_LOAN)
-                    .type(LoanType.AUTO_LOAN)
-                    .margin(new BigDecimal("1.25"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_AUTO_LOAN)
+                .type(LoanType.AUTO_LOAN)
+                .margin(new BigDecimal("1.25"))
+                .build()
+        );
 
-            BankMargin refinancingMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_REFINANCING)
-                    .type(LoanType.REFINANCING)
-                    .margin(new BigDecimal("1.00"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_REFINANCING)
+                .type(LoanType.REFINANCING)
+                .margin(new BigDecimal("1.00"))
+                .build()
+        );
 
-            BankMargin studentLoanMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_STUDENT_LOAN)
-                    .type(LoanType.STUDENT_LOAN)
-                    .margin(new BigDecimal("0.75"))
-                    .build();
-
-            bankMarginRepository.saveAndFlush(cashMargin);
-            bankMarginRepository.saveAndFlush(mortgageMargin);
-            bankMarginRepository.saveAndFlush(autoLoanMargin);
-            bankMarginRepository.saveAndFlush(refinancingMargin);
-            bankMarginRepository.saveAndFlush(studentLoanMargin);
-        }
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_STUDENT_LOAN)
+                .type(LoanType.STUDENT_LOAN)
+                .margin(new BigDecimal("0.75"))
+                .build()
+        );
     }
 
     private void interestRateSeeder() {
-        if (
-            interestRateRepository.findAll()
-                .isEmpty()
-        ) {
-            List<InterestRate> interestRates =
-                List.of(
-                    createInterestRate(LOAN_INTEREST_0_500000, 0, 500000L, 6.25),
-                    createInterestRate(LOAN_INTEREST_500001_1000000, 500001, 1000000L, 6.00),
-                    createInterestRate(LOAN_INTEREST_1000001_2000000, 1000001, 2000000L, 5.75),
-                    createInterestRate(LOAN_INTEREST_2000001_5000000, 2000001, 5000000L, 5.50),
-                    createInterestRate(LOAN_INTEREST_5000001_10000000, 5000001, 10000000L, 5.25),
-                    createInterestRate(LOAN_INTEREST_10000001_20000000, 10000001, 20000000L, 5.00),
-                    createInterestRate(
-                        LOAN_INTEREST_20000001_2000000100,
-                        20000001,
-                        2000000100L,
-                        4.75
-                    ) // No upper limit
-                );
+        List<InterestRate> interestRates =
+            List.of(
+                createInterestRate(LOAN_INTEREST_0_500000, 0, 500000L, 6.25),
+                createInterestRate(LOAN_INTEREST_500001_1000000, 500001, 1000000L, 6.00),
+                createInterestRate(LOAN_INTEREST_1000001_2000000, 1000001, 2000000L, 5.75),
+                createInterestRate(LOAN_INTEREST_2000001_5000000, 2000001, 5000000L, 5.50),
+                createInterestRate(LOAN_INTEREST_5000001_10000000, 5000001, 10000000L, 5.25),
+                createInterestRate(LOAN_INTEREST_10000001_20000000, 10000001, 20000000L, 5.00),
+                createInterestRate(LOAN_INTEREST_20000001_2000000100, 20000001, 2000000100L, 4.75) // No
+                                                                                                   // upper
+                                                                                                   // limit
+            );
 
-            interestRateRepository.saveAllAndFlush(interestRates);
-        }
+        interestRateRepository.saveAllAndFlush(interestRates);
     }
 
     private InterestRate createInterestRate(
