@@ -99,7 +99,6 @@ public class GetAllLoansTests {
                 BigDecimal.valueOf(5000),
                 new Currency(
                     UUID.randomUUID(),
-                    1L,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
@@ -125,7 +124,6 @@ public class GetAllLoansTests {
                 BigDecimal.valueOf(5000),
                 new Currency(
                     UUID.randomUUID(),
-                    1L,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
@@ -152,7 +150,6 @@ public class GetAllLoansTests {
                 BigDecimal.valueOf(5000),
                 new Currency(
                     UUID.randomUUID(),
-                    1L,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
@@ -181,7 +178,6 @@ public class GetAllLoansTests {
         currency.setName("EUR");
         currency.setActive(true);
         currency.setSymbol("E");
-        currency.setVersion(0L);
 
         Loan loan2 = new Loan();
         loan2.setLoanNumber(222L);

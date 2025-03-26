@@ -79,7 +79,6 @@ public class ListingLoansTests {
         currency.setName("EUR");
         currency.setActive(true);
         currency.setSymbol("E");
-        currency.setVersion(0L);
 
         account = new Account();
         account.setId(accountId);

@@ -900,7 +900,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Serbian Dinar")
                     .symbol("RSD")
                     .description("Serbian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.RSD)
                     .build(),
@@ -908,7 +907,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Euro")
                     .symbol("EUR")
                     .description("European Union currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.EUR)
                     .build(),
@@ -916,7 +914,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("US Dollar")
                     .symbol("USD")
                     .description("United States currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.USD)
                     .build(),
@@ -924,7 +921,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Swiss Franc")
                     .symbol("CHF")
                     .description("Swiss national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.CHF)
                     .build(),
@@ -932,7 +928,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Japanese Yen")
                     .symbol("JPY")
                     .description("Japanese national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.JPY)
                     .build(),
@@ -940,7 +935,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Australian Dollar")
                     .symbol("AUD")
                     .description("Australian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.AUD)
                     .build(),
@@ -948,7 +942,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Canadian Dollar")
                     .symbol("CAD")
                     .description("Canadian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.CAD)
                     .build(),
@@ -956,7 +949,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("British Pound")
                     .symbol("GBP")
                     .description("United Kingdom national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.GBP)
                     .build()

@@ -21,9 +21,6 @@ public class Currency {
     @Builder.Default
     private UUID id = UUID.randomUUID();
 
-    @Version
-    private Long version;
-
     @Column(nullable = false)
     private String name;
 
