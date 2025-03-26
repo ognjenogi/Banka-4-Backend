@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import rs.banka4.user_service.domain.account.db.Account;
@@ -22,12 +24,12 @@ import rs.banka4.user_service.domain.user.client.db.ClientContact;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.repositories.*;
 
-@Profile({
-    "dev"
-})
+
 @Component
 @RequiredArgsConstructor
 public class TestDataRunner implements CommandLineRunner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestDataRunner.class);
+    private final Environment environment;
 
     private static final UUID EMPLOYEE_ALICE =
         UUID.fromString("557514F1-2740-4C50-88CA-BE8235C1C4F3");
@@ -54,6 +56,8 @@ public class TestDataRunner implements CommandLineRunner {
     private static final UUID CLIENT_JANE = UUID.fromString("44ADDAB9-F74D-4974-9733-4B23E6D4DCC9");
     private static final UUID CLIENT_DANIEL =
         UUID.fromString("B578A349-4271-4A22-8F10-DAE69DDFBB45");
+    private static final UUID CLIENT_BANK_SELF =
+        UUID.fromString("723B12AF-9DF4-4A9D-BE33-B054B02C7D90");
 
     private static final UUID COMPANY_BIG_COMPANY_DOO =
         UUID.fromString("259A9DFB-E5A6-46F0-AAD8-5E29496503C0");
@@ -157,18 +161,48 @@ public class TestDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        employeeSeeder();
-        activityCodeSeeder();
-        currencySeeder();
-        clientSeeder();
-        clientContactsSeeder();
-        companySeeder();
-        accountSeeder();
+        /* Production seeders. */
         interestRateSeeder();
         seedBankMargins();
-        cardSeeder();
-        authorizedUserSeeder();
+        currencySeeder();
+        activityCodeSeeder();
+        bankSelfClientSeeder();
         bankSeeder();
+
+        /* Dev-only seeders. */
+        if (environment.matchesProfiles("dev")) {
+            LOGGER.info("Inserting fake data (profiles includes 'dev')");
+            employeeSeeder();
+            clientSeeder();
+            clientContactsSeeder();
+            companySeeder();
+            accountSeeder();
+            cardSeeder();
+            authorizedUserSeeder();
+        }
+    }
+
+    /**
+     * Install a client with ID {@link #CLIENT_BANK_SELF} that's used as the owner for all
+     * bank-owned bank accounts.
+     *
+     * Disabled by default, as it lacks a password.
+     */
+    private void bankSelfClientSeeder() {
+        var bankSelfClient =
+            Client.builder()
+                .id(CLIENT_BANK_SELF)
+                .firstName("RAFeisen")
+                .lastName("Bank")
+                .dateOfBirth(LocalDate.of(2025, 2, 10))
+                .gender(Gender.MALE)
+                .email("admin@bankcorp.com")
+                .phone("+381651231231")
+                .address("Mali Kalemegdan 8, Belgrade")
+                .enabled(false)
+                .build();
+
+        clientRepository.saveAndFlush(bankSelfClient);
     }
 
     private void accountSeeder() {
@@ -1067,8 +1101,8 @@ public class TestDataRunner implements CommandLineRunner {
                 .orElseThrow(() -> new RuntimeException("ActivityCode not found"));
 
         Client client =
-            clientRepository.findById(CLIENT_DANIEL)
-                .orElseThrow(() -> new RuntimeException("Client Daniel not found"));
+            clientRepository.findById(CLIENT_BANK_SELF)
+                .orElseThrow(() -> new RuntimeException("Bank self client not found"));
 
         Company ourBank =
             Company.builder()
