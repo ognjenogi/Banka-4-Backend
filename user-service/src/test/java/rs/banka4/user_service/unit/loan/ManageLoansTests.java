@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,14 +12,19 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import rs.banka4.user_service.domain.account.db.Account;
+import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
 import rs.banka4.user_service.exceptions.jwt.Unauthorized;
 import rs.banka4.user_service.exceptions.loan.InvalidLoanStatus;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
+import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
+import rs.banka4.user_service.service.impl.BankAccountServiceImpl;
 import rs.banka4.user_service.service.impl.LoanServiceImpl;
+import rs.banka4.user_service.service.impl.TransactionServiceImpl;
 import rs.banka4.user_service.utils.JwtUtil;
 
 public class ManageLoansTests {
@@ -33,6 +39,12 @@ public class ManageLoansTests {
     private JwtUtil jwtUtil;
     @Mock
     private LoanInstallmentRepository loanInstallmentRepository;
+    @Mock
+    private BankAccountServiceImpl bankAccountService;
+    @Mock
+    private TransactionServiceImpl transactionService;
+    @Mock
+    private AccountRepository accountRepository;
     @InjectMocks
     private LoanServiceImpl loanService;
 
@@ -95,11 +107,24 @@ public class ManageLoansTests {
         loan.setRepaymentPeriod(3);
         loan.setLoanNumber(loanNumber);
         loan.setStatus(LoanStatus.PROCESSING);
+        loan.setAmount(new BigDecimal("1000"));
+
+        Account userAccount = new Account();
+        Currency currency = new Currency();
+        currency.setCode(Currency.Code.RSD);
+        userAccount.setCurrency(currency);
+        userAccount.setBalance(new BigDecimal("5000"));
+        loan.setAccount(userAccount);
+
+        Account bankAccount = new Account();
+        bankAccount.setBalance(new BigDecimal("10000"));
 
         when(jwtUtil.extractRole("jwt")).thenReturn("employee");
-
         when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(loan));
         when(loanRepository.save(loan)).thenReturn(loan);
+        when(bankAccountService.getBankAccountForCurrency(currency.getCode())).thenReturn(
+            bankAccount
+        );
 
         loanService.approveLoan(loanNumber, "jwt");
 
@@ -116,6 +141,14 @@ public class ManageLoansTests {
         );
         assertEquals(LoanStatus.APPROVED, loan.getStatus());
         verify(loanRepository).save(loan);
+        verify(accountRepository).save(bankAccount);
+        verify(accountRepository).save(userAccount);
+        verify(transactionService).createBankTransferTransaction(
+            bankAccount,
+            userAccount,
+            loan.getAmount(),
+            "Loan disbursement"
+        );
     }
 
     @Test

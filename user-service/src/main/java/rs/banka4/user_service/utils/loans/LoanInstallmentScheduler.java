@@ -21,6 +21,8 @@ import rs.banka4.user_service.domain.loan.db.PaymentStatus;
 import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
+import rs.banka4.user_service.service.impl.BankAccountServiceImpl;
+import rs.banka4.user_service.service.impl.TransactionServiceImpl;
 import rs.banka4.user_service.utils.MessageHelper;
 
 /**
@@ -37,6 +39,8 @@ public class LoanInstallmentScheduler {
     private final AccountRepository accountRepository;
     private final RabbitTemplate rabbitTemplate;
     private final LoanRateUtil loanRateUtil;
+    private final BankAccountServiceImpl bankAccountService;
+    private final TransactionServiceImpl transactionService;
     private final ApplicationContext applicationContext;
 
     private static final BigDecimal LATE_PAYMENT_PENALTY = new BigDecimal("0.05");
@@ -185,6 +189,25 @@ public class LoanInstallmentScheduler {
             loan.setRemainingDebt(
                 loan.getRemainingDebt()
                     .subtract(installmentAmount)
+            );
+
+            // Transfer installment amount to bank account
+            Account bankAccount =
+                bankAccountService.getBankAccountForCurrency(
+                    account.getCurrency()
+                        .getCode()
+                );
+            bankAccount.setBalance(
+                bankAccount.getBalance()
+                    .add(installmentAmount)
+            );
+            accountRepository.save(bankAccount);
+
+            transactionService.createBankTransferTransaction(
+                account,
+                bankAccount,
+                installmentAmount,
+                "Loan installment payment"
             );
 
             // In case loan is paid off.
