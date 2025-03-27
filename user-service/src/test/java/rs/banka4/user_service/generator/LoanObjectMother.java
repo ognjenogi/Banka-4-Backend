@@ -45,7 +45,6 @@ public class LoanObjectMother {
             BigDecimal.valueOf(900.00),
             new Currency(
                 UUID.randomUUID(),
-                1L,
                 "Serbian Dinar",
                 "RSD",
                 "Serbian Dinar currency",

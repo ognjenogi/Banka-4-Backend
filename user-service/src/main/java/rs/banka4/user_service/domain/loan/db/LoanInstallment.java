@@ -18,8 +18,8 @@ import org.hibernate.proxy.HibernateProxy;
 public class LoanInstallment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @ManyToOne
     private Loan loan;

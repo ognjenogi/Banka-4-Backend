@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import rs.banka4.user_service.domain.account.db.Account;
@@ -22,12 +24,12 @@ import rs.banka4.user_service.domain.user.client.db.ClientContact;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.repositories.*;
 
-@Profile({
-    "dev"
-})
+
 @Component
 @RequiredArgsConstructor
 public class TestDataRunner implements CommandLineRunner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestDataRunner.class);
+    private final Environment environment;
 
     private static final UUID EMPLOYEE_ALICE =
         UUID.fromString("557514F1-2740-4C50-88CA-BE8235C1C4F3");
@@ -54,6 +56,8 @@ public class TestDataRunner implements CommandLineRunner {
     private static final UUID CLIENT_JANE = UUID.fromString("44ADDAB9-F74D-4974-9733-4B23E6D4DCC9");
     private static final UUID CLIENT_DANIEL =
         UUID.fromString("B578A349-4271-4A22-8F10-DAE69DDFBB45");
+    private static final UUID CLIENT_BANK_SELF =
+        UUID.fromString("723B12AF-9DF4-4A9D-BE33-B054B02C7D90");
 
     private static final UUID COMPANY_BIG_COMPANY_DOO =
         UUID.fromString("259A9DFB-E5A6-46F0-AAD8-5E29496503C0");
@@ -157,18 +161,48 @@ public class TestDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        employeeSeeder();
-        activityCodeSeeder();
-        currencySeeder();
-        clientSeeder();
-        clientContactsSeeder();
-        companySeeder();
-        accountSeeder();
+        /* Production seeders. */
         interestRateSeeder();
         seedBankMargins();
-        cardSeeder();
-        authorizedUserSeeder();
+        currencySeeder();
+        activityCodeSeeder();
+        bankSelfClientSeeder();
         bankSeeder();
+
+        /* Dev-only seeders. */
+        if (environment.matchesProfiles("dev")) {
+            LOGGER.info("Inserting fake data (profiles includes 'dev')");
+            employeeSeeder();
+            clientSeeder();
+            clientContactsSeeder();
+            companySeeder();
+            accountSeeder();
+            cardSeeder();
+            authorizedUserSeeder();
+        }
+    }
+
+    /**
+     * Install a client with ID {@link #CLIENT_BANK_SELF} that's used as the owner for all
+     * bank-owned bank accounts.
+     *
+     * Disabled by default, as it lacks a password.
+     */
+    private void bankSelfClientSeeder() {
+        var bankSelfClient =
+            Client.builder()
+                .id(CLIENT_BANK_SELF)
+                .firstName("RAFeisen")
+                .lastName("Bank")
+                .dateOfBirth(LocalDate.of(2025, 2, 10))
+                .gender(Gender.MALE)
+                .email("admin@bankcorp.com")
+                .phone("+381651231231")
+                .address("Mali Kalemegdan 8, Belgrade")
+                .enabled(false)
+                .build();
+
+        clientRepository.saveAndFlush(bankSelfClient);
     }
 
     private void accountSeeder() {
@@ -559,21 +593,13 @@ public class TestDataRunner implements CommandLineRunner {
 
         Client clientJane =
             clientRepository.findById(CLIENT_JANE)
-                .orElseThrow(() -> new RuntimeException("Client John not found"));
-
-        Account accountJohn =
-            accountRepository.findById(ACCOUNT_JOHN_DOO)
-                .orElseThrow(() -> new RuntimeException("John account not found"));
-
-        Account accountJane =
-            accountRepository.findById(ACCOUNT_JANE_STANDARD)
-                .orElseThrow(() -> new RuntimeException("Jane account not found"));
+                .orElseThrow(() -> new RuntimeException("Client Jane not found"));
 
         ClientContact clientContactJohn =
             ClientContact.builder()
                 .id(JOHN_CONTACT)
                 .client(clientJohn)
-                .accountNumber(accountJane.getAccountNumber())
+                .accountNumber(ACCOUNT_JANE_STANDARD_NUMBER)
                 .nickname(String.join(" ", clientJane.getFirstName(), clientJane.getLastName()))
                 .build();
 
@@ -581,12 +607,12 @@ public class TestDataRunner implements CommandLineRunner {
             ClientContact.builder()
                 .id(JANE_CONTACT)
                 .client(clientJane)
-                .accountNumber(accountJohn.getAccountNumber())
+                .accountNumber(ACCOUNT_JOHN_DOO_NUMBER)
                 .nickname(String.join(" ", clientJohn.getFirstName(), clientJohn.getLastName()))
                 .build();
 
-        clientContactRepository.save(clientContactJohn);
-        clientContactRepository.save(clientContactJane);
+        clientContactRepository.saveAndFlush(clientContactJane);
+        clientContactRepository.saveAndFlush(clientContactJohn);
     }
 
     private void activityCodeSeeder() {
@@ -895,7 +921,10 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
-        activityCodeRepository.saveAllAndFlush(activityCodes);
+        activityCodes.forEach(activityCode -> {
+            if (!activityCodeRepository.existsByCode(activityCode.getCode()))
+                activityCodeRepository.saveAndFlush(activityCode);
+        });
     }
 
     protected void currencySeeder() {
@@ -905,7 +934,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Serbian Dinar")
                     .symbol("RSD")
                     .description("Serbian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.RSD)
                     .build(),
@@ -913,7 +941,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Euro")
                     .symbol("EUR")
                     .description("European Union currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.EUR)
                     .build(),
@@ -921,7 +948,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("US Dollar")
                     .symbol("USD")
                     .description("United States currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.USD)
                     .build(),
@@ -929,7 +955,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Swiss Franc")
                     .symbol("CHF")
                     .description("Swiss national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.CHF)
                     .build(),
@@ -937,7 +962,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Japanese Yen")
                     .symbol("JPY")
                     .description("Japanese national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.JPY)
                     .build(),
@@ -945,7 +969,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Australian Dollar")
                     .symbol("AUD")
                     .description("Australian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.AUD)
                     .build(),
@@ -953,7 +976,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Canadian Dollar")
                     .symbol("CAD")
                     .description("Canadian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.CAD)
                     .build(),
@@ -961,12 +983,12 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("British Pound")
                     .symbol("GBP")
                     .description("United Kingdom national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.GBP)
                     .build()
             );
 
+        // TODO(arsen): don't use findByCode. Actually, remove this whole thing. It is goofy.
         for (Currency currency : currencies) {
             if (currencyRepository.findByCode(currency.getCode()) == null) {
                 currencyRepository.saveAndFlush(currency);
@@ -975,76 +997,62 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedBankMargins() {
-        if (
-            bankMarginRepository.findAll()
-                .isEmpty()
-        ) {
-            BankMargin cashMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_CASH)
-                    .type(LoanType.CASH)
-                    .margin(new BigDecimal("1.75"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_CASH)
+                .type(LoanType.CASH)
+                .margin(new BigDecimal("1.75"))
+                .build()
+        );
 
-            BankMargin mortgageMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_MORTGAGE)
-                    .type(LoanType.MORTGAGE)
-                    .margin(new BigDecimal("1.50"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_MORTGAGE)
+                .type(LoanType.MORTGAGE)
+                .margin(new BigDecimal("1.50"))
+                .build()
+        );
 
-            BankMargin autoLoanMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_AUTO_LOAN)
-                    .type(LoanType.AUTO_LOAN)
-                    .margin(new BigDecimal("1.25"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_AUTO_LOAN)
+                .type(LoanType.AUTO_LOAN)
+                .margin(new BigDecimal("1.25"))
+                .build()
+        );
 
-            BankMargin refinancingMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_REFINANCING)
-                    .type(LoanType.REFINANCING)
-                    .margin(new BigDecimal("1.00"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_REFINANCING)
+                .type(LoanType.REFINANCING)
+                .margin(new BigDecimal("1.00"))
+                .build()
+        );
 
-            BankMargin studentLoanMargin =
-                BankMargin.builder()
-                    .id(BANK_MARGIN_STUDENT_LOAN)
-                    .type(LoanType.STUDENT_LOAN)
-                    .margin(new BigDecimal("0.75"))
-                    .build();
-
-            bankMarginRepository.saveAndFlush(cashMargin);
-            bankMarginRepository.saveAndFlush(mortgageMargin);
-            bankMarginRepository.saveAndFlush(autoLoanMargin);
-            bankMarginRepository.saveAndFlush(refinancingMargin);
-            bankMarginRepository.saveAndFlush(studentLoanMargin);
-        }
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_STUDENT_LOAN)
+                .type(LoanType.STUDENT_LOAN)
+                .margin(new BigDecimal("0.75"))
+                .build()
+        );
     }
 
     private void interestRateSeeder() {
-        if (
-            interestRateRepository.findAll()
-                .isEmpty()
-        ) {
-            List<InterestRate> interestRates =
-                List.of(
-                    createInterestRate(LOAN_INTEREST_0_500000, 0, 500000L, 6.25),
-                    createInterestRate(LOAN_INTEREST_500001_1000000, 500001, 1000000L, 6.00),
-                    createInterestRate(LOAN_INTEREST_1000001_2000000, 1000001, 2000000L, 5.75),
-                    createInterestRate(LOAN_INTEREST_2000001_5000000, 2000001, 5000000L, 5.50),
-                    createInterestRate(LOAN_INTEREST_5000001_10000000, 5000001, 10000000L, 5.25),
-                    createInterestRate(LOAN_INTEREST_10000001_20000000, 10000001, 20000000L, 5.00),
-                    createInterestRate(
-                        LOAN_INTEREST_20000001_2000000100,
-                        20000001,
-                        2000000100L,
-                        4.75
-                    ) // No upper limit
-                );
+        List<InterestRate> interestRates =
+            List.of(
+                createInterestRate(LOAN_INTEREST_0_500000, 0, 500000L, 6.25),
+                createInterestRate(LOAN_INTEREST_500001_1000000, 500001, 1000000L, 6.00),
+                createInterestRate(LOAN_INTEREST_1000001_2000000, 1000001, 2000000L, 5.75),
+                createInterestRate(LOAN_INTEREST_2000001_5000000, 2000001, 5000000L, 5.50),
+                createInterestRate(LOAN_INTEREST_5000001_10000000, 5000001, 10000000L, 5.25),
+                createInterestRate(LOAN_INTEREST_10000001_20000000, 10000001, 20000000L, 5.00),
+                createInterestRate(LOAN_INTEREST_20000001_2000000100, 20000001, 2000000100L, 4.75) // No
+                                                                                                   // upper
+                                                                                                   // limit
+            );
 
-            interestRateRepository.saveAllAndFlush(interestRates);
-        }
+        interestRateRepository.saveAllAndFlush(interestRates);
     }
 
     private InterestRate createInterestRate(
@@ -1093,8 +1101,8 @@ public class TestDataRunner implements CommandLineRunner {
                 .orElseThrow(() -> new RuntimeException("ActivityCode not found"));
 
         Client client =
-            clientRepository.findById(CLIENT_DANIEL)
-                .orElseThrow(() -> new RuntimeException("Client Daniel not found"));
+            clientRepository.findById(CLIENT_BANK_SELF)
+                .orElseThrow(() -> new RuntimeException("Bank self client not found"));
 
         Company ourBank =
             Company.builder()

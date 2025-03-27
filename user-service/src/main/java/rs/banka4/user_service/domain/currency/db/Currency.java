@@ -18,11 +18,8 @@ import rs.banka4.user_service.exceptions.account.InvalidCurrency;
 public class Currency {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
-
-    @Version
-    private Long version;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(nullable = false)
     private String name;
