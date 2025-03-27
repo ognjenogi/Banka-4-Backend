@@ -3,6 +3,7 @@ package rs.banka4.user_service.unit.transaction;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
@@ -53,6 +54,8 @@ public class TransactionServiceCreateTests {
     @Mock
     private TotpServiceImpl totpService;
     @Mock
+    private EntityManager entityManager;
+    @Mock
     private ExchangeRateService exchangeRateService;;
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -77,6 +80,9 @@ public class TransactionServiceCreateTests {
             );
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
+        fromAccount.setId(UUID.randomUUID());
+        toAccount.setId(UUID.randomUUID());
+
         TransactionDto transactionDto = TransactionObjectMother.generateBasicTransactionDto();
 
         client.setAccounts(Set.of(fromAccount));
@@ -123,6 +129,8 @@ public class TransactionServiceCreateTests {
             );
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
+        fromAccount.setId(UUID.randomUUID());
+        toAccount.setId(UUID.randomUUID());
 
         fromAccount.setBalance(BigDecimal.valueOf(0.50)); // Insufficient funds
         client.setAccounts(Set.of(fromAccount));
@@ -153,6 +161,8 @@ public class TransactionServiceCreateTests {
             );
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
+        fromAccount.setId(UUID.randomUUID());
+        toAccount.setId(UUID.randomUUID());
 
         client.setAccounts(Set.of());
 
@@ -236,6 +246,9 @@ public class TransactionServiceCreateTests {
             );
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
+        fromAccount.setId(UUID.randomUUID());
+        toAccount.setId(UUID.randomUUID());
+
         TransactionDto transactionDto = TransactionObjectMother.generateBasicTransactionDto();
 
         client.setAccounts(Set.of(fromAccount, toAccount));
@@ -271,6 +284,8 @@ public class TransactionServiceCreateTests {
             );
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
+        fromAccount.setId(UUID.randomUUID());
+        toAccount.setId(UUID.randomUUID());
 
         fromAccount.setClient(client);
         toAccount.setClient(client);
@@ -302,6 +317,7 @@ public class TransactionServiceCreateTests {
                 "markezaa@example.com"
             );
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
+        fromAccount.setId(UUID.randomUUID());
 
         client.setAccounts(Set.of(fromAccount));
 

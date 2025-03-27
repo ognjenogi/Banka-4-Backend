@@ -1,11 +1,12 @@
 package rs.banka4.user_service.service.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import rs.banka4.user_service.exceptions.account.AccountNotFound;
 import rs.banka4.user_service.exceptions.account.NotAccountOwner;
 import rs.banka4.user_service.exceptions.authenticator.NotValidTotpException;
 import rs.banka4.user_service.exceptions.transaction.*;
+import rs.banka4.user_service.exceptions.user.NotFound;
 import rs.banka4.user_service.exceptions.user.UserNotFound;
 import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.ClientContactRepository;
@@ -53,6 +55,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final ExchangeRateService exchangeRateService;
     private final BankAccountServiceImpl bankAccountServiceImpl;
     private final JwtUtil jwtUtil;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
@@ -66,8 +69,11 @@ public class TransactionServiceImpl implements TransactionService {
             throw new NotValidTotpException();
         }
 
-        Account fromAccount = getAccount(createPaymentDto.fromAccount());
-        Account toAccount = getAccount(createPaymentDto.toAccount());
+        Map<String, Account> lockedAccounts =
+            lockAccounts(createPaymentDto.fromAccount(), createPaymentDto.toAccount());
+
+        Account fromAccount = lockedAccounts.get(createPaymentDto.fromAccount());
+        Account toAccount = lockedAccounts.get(createPaymentDto.toAccount());
 
         if (
             fromAccount.getClient()
@@ -119,8 +125,11 @@ public class TransactionServiceImpl implements TransactionService {
             throw new NotValidTotpException();
         }
 
-        Account fromAccount = getAccount(createTransferDto.fromAccount());
-        Account toAccount = getAccount(createTransferDto.toAccount());
+        Map<String, Account> lockedAccounts =
+            lockAccounts(createTransferDto.fromAccount(), createTransferDto.toAccount());
+
+        Account fromAccount = lockedAccounts.get(createTransferDto.fromAccount());
+        Account toAccount = lockedAccounts.get(createTransferDto.toAccount());
 
         if (fromAccount.equals(toAccount)) throw new ClientCannotTransferToSameAccount();
 
@@ -163,7 +172,16 @@ public class TransactionServiceImpl implements TransactionService {
             combinator.or(PaymentSpecification.hasToAccount(fromAccount));
         }
 
-        combinator.and(PaymentSpecification.isNotSpecialTransaction());
+        Client client =
+            clientRepository.findByEmail(jwtUtil.extractUsername(token))
+                .orElseThrow(NotFound::new);
+        if (
+            !bankAccountServiceImpl.getBankOwner()
+                .equals(client)
+        ) {
+            combinator.and(PaymentSpecification.isNotSpecialTransaction());
+        }
+
         combinator.and(PaymentSpecification.isNotTransfer());
 
         Page<Transaction> transactions =
@@ -770,6 +788,7 @@ public class TransactionServiceImpl implements TransactionService {
             .build();
     }
 
+
     private void createFeeTransaction(Account fromAccount, Account toAccount, BigDecimal fee) {
         BigDecimal toAmount =
             convertCurrency(fee, fromAccount.getCurrency(), toAccount.getCurrency());
@@ -888,4 +907,18 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
+    private Map<String, Account> lockAccounts(String... accountNumbers) {
+        return Arrays.stream(accountNumbers)
+            .distinct() // Remove duplicates
+            .map(
+                accNum -> accountRepository.findAccountByAccountNumber(accNum)
+                    .orElseThrow(AccountNotFound::new)
+            )
+            .sorted(Comparator.comparing(Account::getId)) // Deadlock prevention
+            .peek(account -> {
+                entityManager.lock(account, LockModeType.PESSIMISTIC_WRITE);
+                entityManager.refresh(account); // Refresh data
+            })
+            .collect(Collectors.toMap(Account::getAccountNumber, acc -> acc));
+    }
 }
