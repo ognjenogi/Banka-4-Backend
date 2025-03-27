@@ -15,8 +15,8 @@ import org.hibernate.proxy.HibernateProxy;
 public class Token {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(unique = true)
     private String token;

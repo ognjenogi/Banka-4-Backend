@@ -18,8 +18,8 @@ import rs.banka4.user_service.domain.currency.db.Currency;
 @Table(name = "loan_requests")
 public class LoanRequest {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     private BigDecimal amount;
 

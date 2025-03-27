@@ -22,8 +22,8 @@ import rs.banka4.user_service.domain.user.employee.db.Employee;
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(
         nullable = false,

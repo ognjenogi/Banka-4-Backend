@@ -2,15 +2,12 @@ package rs.banka4.user_service.runners;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import rs.banka4.user_service.domain.account.db.Account;
@@ -20,24 +17,135 @@ import rs.banka4.user_service.domain.company.db.ActivityCode;
 import rs.banka4.user_service.domain.company.db.Company;
 import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.loan.db.*;
-import rs.banka4.user_service.domain.transaction.db.MonetaryAmount;
-import rs.banka4.user_service.domain.transaction.db.Transaction;
-import rs.banka4.user_service.domain.transaction.db.TransactionStatus;
 import rs.banka4.user_service.domain.user.Gender;
 import rs.banka4.user_service.domain.user.Privilege;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.client.db.ClientContact;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.repositories.*;
-import rs.banka4.user_service.service.abstraction.AccountService;
 
-@Profile({
-    "dev"
-})
+
 @Component
 @RequiredArgsConstructor
 public class TestDataRunner implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestDataRunner.class);
+    private final Environment environment;
+
+    private static final UUID EMPLOYEE_ALICE =
+        UUID.fromString("557514F1-2740-4C50-88CA-BE8235C1C4F3");
+    private static final UUID EMPLOYEE_ROBERT =
+        UUID.fromString("D9BF337A-C052-43F3-947F-1CDDE9B48CAC");
+    private static final UUID EMPLOYEE_DANIEL =
+        UUID.fromString("2A3EB11D-8686-4B24-92DC-273A88131548");
+    private static final UUID EMPLOYEE_SAMANTHA =
+        UUID.fromString("C98DCD32-F0FF-4C0D-9D48-F0023844D984");
+    private static final UUID EMPLOYEE_JESSICA =
+        UUID.fromString("7CE33D5F-11F5-490E-A21D-564FA3ADC3C7");
+    private static final UUID EMPLOYEE_MICHAEL =
+        UUID.fromString("4F7F5481-A667-47EE-8650-E6D8A2BC3616");
+    private static final UUID EMPLOYEE_LAURA =
+        UUID.fromString("3B086FD6-1991-4273-8CA3-F609458D3DDD");
+    private static final UUID EMPLOYEE_DAVID =
+        UUID.fromString("9F617476-BDCE-40AC-8999-E942890F0626");
+    private static final UUID EMPLOYEE_EMMA =
+        UUID.fromString("58C441D9-1A1D-4F21-8736-6E784BFE394E");
+    private static final UUID EMPLOYEE_CHRIS =
+        UUID.fromString("D55C2670-F40D-4DF6-B06A-0CADB80AE023");
+
+    private static final UUID CLIENT_JOHN = UUID.fromString("D96CBD90-4DA2-44C4-866C-E0E37754F95D");
+    private static final UUID CLIENT_JANE = UUID.fromString("44ADDAB9-F74D-4974-9733-4B23E6D4DCC9");
+    private static final UUID CLIENT_DANIEL =
+        UUID.fromString("B578A349-4271-4A22-8F10-DAE69DDFBB45");
+    private static final UUID CLIENT_BANK_SELF =
+        UUID.fromString("723B12AF-9DF4-4A9D-BE33-B054B02C7D90");
+
+    private static final UUID COMPANY_BIG_COMPANY_DOO =
+        UUID.fromString("259A9DFB-E5A6-46F0-AAD8-5E29496503C0");
+    private static final UUID COMPANY_RAFFEISEN_BANK =
+        UUID.fromString("073F00D9-D258-4CF2-8559-BADCDF0D1350");
+
+    private static final UUID LOAN_INTEREST_0_500000 =
+        UUID.fromString("B0513B81-D32E-4F64-A9BF-D939AFE0E6A6");
+    private static final UUID LOAN_INTEREST_500001_1000000 =
+        UUID.fromString("EF29BB2E-1C65-4C76-98D9-CA7FBCF2C6BB");
+    private static final UUID LOAN_INTEREST_1000001_2000000 =
+        UUID.fromString("9A52A003-06F9-4023-B18D-D06F6D857ADF");
+    private static final UUID LOAN_INTEREST_2000001_5000000 =
+        UUID.fromString("8EF87FA5-BA82-4A56-A5BB-AFC1C652225F");
+    private static final UUID LOAN_INTEREST_5000001_10000000 =
+        UUID.fromString("E0DB80D4-2244-483D-9D94-E11C8B7641E6");
+    private static final UUID LOAN_INTEREST_10000001_20000000 =
+        UUID.fromString("68B85D72-EB30-4136-A397-7E6D25DB8EED");
+    private static final UUID LOAN_INTEREST_20000001_2000000100 =
+        UUID.fromString("E533B80B-B1F4-4B20-93D1-66B70401DE56");
+
+    private static final UUID BANK_MARGIN_CASH =
+        UUID.fromString("EA440E8A-B516-468E-B942-D3E5C208F0DD");
+    private static final UUID BANK_MARGIN_MORTGAGE =
+        UUID.fromString("6F01B5DC-ECF8-446E-B561-5720376C3E5A");
+    private static final UUID BANK_MARGIN_AUTO_LOAN =
+        UUID.fromString("69D72FF5-0018-4B71-8DAE-73797E5CBF52");
+    private static final UUID BANK_MARGIN_REFINANCING =
+        UUID.fromString("D2A4F4D1-181C-46AF-9675-292699C980FC");
+    private static final UUID BANK_MARGIN_STUDENT_LOAN =
+        UUID.fromString("AE8A5DCB-2ED9-4D04-A23A-DD49F4C3B47A");
+
+    private static final UUID CARD_STANDARD =
+        UUID.fromString("1A38A9BD-7231-402D-9A9C-4927953C23F3");
+    private static final String CARD_STANDARD_NUMBER = "1234567810345678";
+    private static final String CARD_STANDARD_CVV = "123";
+
+    private static final UUID CARD_DOO = UUID.fromString("0ED4C23C-DEAF-4D44-A5BA-6BC1E48BC315");
+    private static final UUID CARD_DOO_AUTHORIZED_USER =
+        UUID.fromString("54F5792B-95B7-4E26-8E13-87A5A1520244");
+    private static final String CARD_DOO_NUMBER = "8765432107654321";
+    private static final String CARD_DOO_CVV = "321";
+
+    private static final UUID BANK_ACCOUNT_RSD =
+        UUID.fromString("8142AA92-D71E-461C-AD92-A3228FE46488");
+    private static final String BANK_ACCOUNT_RSD_NUMBER = "4440001000000000010";
+
+    private static final UUID BANK_ACCOUNT_EUR =
+        UUID.fromString("FBA778B9-063F-4C99-B00B-B5AC43CB464C");
+    private static final String BANK_ACCOUNT_EUR_NUMBER = "4440001000000000020";
+
+    private static final UUID BANK_ACCOUNT_USD =
+        UUID.fromString("2EE2F6BC-3BBD-409B-80C2-DA4C8D605BA2");
+    private static final String BANK_ACCOUNT_USD_NUMBER = "4440001000000000120";
+
+    private static final UUID BANK_ACCOUNT_CHF =
+        UUID.fromString("20558201-FF0C-405C-BE04-4185DCB3D11E");
+    private static final String BANK_ACCOUNT_CHF_NUMBER = "4440001000000000220";
+
+    private static final UUID BANK_ACCOUNT_JPY =
+        UUID.fromString("24A27A98-E983-4524-9949-3FA62414E05D");
+    private static final String BANK_ACCOUNT_JPY_NUMBER = "4440001000000000320";
+
+    private static final UUID BANK_ACCOUNT_AUD =
+        UUID.fromString("356388C5-5E16-4158-A9F5-A2A0A516E93B");
+    private static final String BANK_ACCOUNT_AUD_NUMBER = "4440001000000000420";
+
+    private static final UUID BANK_ACCOUNT_CAD =
+        UUID.fromString("D9ACCC48-A0D9-4C33-AB13-38966B5BD8E2");
+    private static final String BANK_ACCOUNT_CAD_NUMBER = "4440001000000000520";
+
+    private static final UUID BANK_ACCOUNT_GBP =
+        UUID.fromString("1944791A-0B92-4F83-815D-2C73C99F7980");
+    private static final String BANK_ACCOUNT_GBP_NUMBER = "4440001000000000620";
+
+    private static final UUID ACCOUNT_JOHN_DOO =
+        UUID.fromString("5366EBCB-3F1C-4764-9E34-D2C61AA7E72A");
+    private static final String ACCOUNT_JOHN_DOO_NUMBER = "4440001000000000512";
+
+    private static final UUID ACCOUNT_JANE_STANDARD =
+        UUID.fromString("04BFDE45-B5C6-433F-99D9-6485E55C28D6");
+    private static final String ACCOUNT_JANE_STANDARD_NUMBER = "4440001000000000521";
+
+    private static final UUID JOHN_CONTACT =
+        UUID.fromString("25A92DCD-A4CE-4AFA-BDF7-37B391E27B58");
+    private static final UUID JANE_CONTACT =
+        UUID.fromString("8A2DD617-9EB3-4216-AFB0-26C54CB8DDA9");
+
 
     private final ClientRepository clientRepository;
     private final EmployeeRepository employeeRepository;
@@ -47,32 +155,151 @@ public class TestDataRunner implements CommandLineRunner {
     private final ActivityCodeRepository activityCodeRepository;
     private final CompanyRepository companyRepository;
     private final ClientContactRepository clientContactRepository;
-    private final TransactionRepository transactionRepository;
     private final BankMarginRepository bankMarginRepository;
     private final InterestRateRepository interestRateRepository;
     private final CardRepository cardRepository;
-    private final AccountService accountService;
-
 
     @Override
     public void run(String... args) {
-        employeeSeeder();
-        activityCodeSeeder();
-        currencySeeder();
-        seedClientsAndAccounts();
-        clientContactsSeeder();
+        /* Production seeders. */
         interestRateSeeder();
-        transactionSeeder();
         seedBankMargins();
-        cardSeeder();
-        authorizedUserSeeder();
+        currencySeeder();
+        activityCodeSeeder();
+        bankSelfClientSeeder();
         bankSeeder();
+
+        /* Dev-only seeders. */
+        if (environment.matchesProfiles("dev")) {
+            LOGGER.info("Inserting fake data (profiles includes 'dev')");
+            employeeSeeder();
+            clientSeeder();
+            clientContactsSeeder();
+            companySeeder();
+            accountSeeder();
+            cardSeeder();
+            authorizedUserSeeder();
+        }
+    }
+
+    /**
+     * Install a client with ID {@link #CLIENT_BANK_SELF} that's used as the owner for all
+     * bank-owned bank accounts.
+     *
+     * Disabled by default, as it lacks a password.
+     */
+    private void bankSelfClientSeeder() {
+        var bankSelfClient =
+            Client.builder()
+                .id(CLIENT_BANK_SELF)
+                .firstName("RAFeisen")
+                .lastName("Bank")
+                .dateOfBirth(LocalDate.of(2025, 2, 10))
+                .gender(Gender.MALE)
+                .email("admin@bankcorp.com")
+                .phone("+381651231231")
+                .address("Mali Kalemegdan 8, Belgrade")
+                .enabled(false)
+                .build();
+
+        clientRepository.saveAndFlush(bankSelfClient);
+    }
+
+    private void accountSeeder() {
+        Employee employee =
+            employeeRepository.findById(EMPLOYEE_ALICE)
+                .orElseThrow(() -> new RuntimeException("Employee Alice not found"));
+
+        Client clientJohn =
+            clientRepository.findById(CLIENT_JOHN)
+                .orElseThrow(() -> new RuntimeException("Client John not found"));
+
+        Client clientJane =
+            clientRepository.findById(CLIENT_JANE)
+                .orElseThrow(() -> new RuntimeException("Client John not found"));
+
+        Currency currencyRSD = currencyRepository.findByCode(Currency.Code.RSD);
+        Currency currencyEUR = currencyRepository.findByCode(Currency.Code.EUR);
+
+        Company company =
+            companyRepository.findById(COMPANY_BIG_COMPANY_DOO)
+                .orElseThrow(() -> new RuntimeException("Company BigCompany not found"));
+
+        Account dooAcount =
+            Account.builder()
+                .id(ACCOUNT_JOHN_DOO)
+                .accountNumber(ACCOUNT_JOHN_DOO_NUMBER)
+                .balance(new BigDecimal("1000.00"))
+                .availableBalance(new BigDecimal("1000.00"))
+                .accountMaintenance(new BigDecimal("10.00"))
+                .createdDate(LocalDate.now())
+                .expirationDate(
+                    LocalDate.now()
+                        .plusYears(5)
+                )
+                .active(true)
+                .accountType(AccountType.DOO)
+                .dailyLimit(new BigDecimal("500.00"))
+                .monthlyLimit(new BigDecimal("5000.00"))
+                .client(clientJohn)
+                .employee(employee)
+                .currency(currencyRSD)
+                .company(company)
+                .build();
+
+        Account standardAccount =
+            Account.builder()
+                .id(ACCOUNT_JANE_STANDARD)
+                .accountNumber(ACCOUNT_JANE_STANDARD_NUMBER)
+                .balance(new BigDecimal("1000.00"))
+                .availableBalance(new BigDecimal("1000.00"))
+                .accountMaintenance(new BigDecimal("10.00"))
+                .createdDate(LocalDate.now())
+                .expirationDate(
+                    LocalDate.now()
+                        .plusYears(5)
+                )
+                .active(true)
+                .accountType(AccountType.STANDARD)
+                .dailyLimit(new BigDecimal("500.00"))
+                .monthlyLimit(new BigDecimal("5000.00"))
+                .client(clientJane)
+                .employee(employee)
+                .currency(currencyEUR)
+                .build();
+
+        accountRepository.saveAndFlush(dooAcount);
+        accountRepository.saveAndFlush(standardAccount);
+    }
+
+    private void companySeeder() {
+        Client client =
+            clientRepository.findById(CLIENT_JOHN)
+                .orElseThrow(() -> new RuntimeException("Client John not found"));
+
+        ActivityCode activityCode =
+            activityCodeRepository.findActivityCodeByCode("62.01")
+                .orElseThrow(() -> new RuntimeException("Activity code not found"));
+
+        Company company =
+            Company.builder()
+                .id(COMPANY_BIG_COMPANY_DOO)
+                .name("BigCompanyDOO")
+                .tin("123456789")
+                .crn("987654321")
+                .address("789 Oak St")
+                .activityCode(activityCode)
+                .majorityOwner(client)
+                .build();
+
+        companyRepository.saveAndFlush(company);
     }
 
     private void employeeSeeder() {
         List<Employee> employees =
             List.of(
                 Employee.builder()
+                    .id(EMPLOYEE_ALICE)
                     .firstName("Alice")
                     .lastName("Johnson")
                     .dateOfBirth(LocalDate.of(1985, 4, 12))
@@ -89,6 +316,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_ROBERT)
                     .firstName("Robert")
                     .lastName("Anderson")
                     .dateOfBirth(LocalDate.of(1990, 7, 21))
@@ -105,6 +333,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_SAMANTHA)
                     .firstName("Samantha")
                     .lastName("Miller")
                     .dateOfBirth(LocalDate.of(1988, 10, 5))
@@ -121,6 +350,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_DANIEL)
                     .firstName("Daniel")
                     .lastName("White")
                     .dateOfBirth(LocalDate.of(1993, 3, 15))
@@ -137,6 +367,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_JESSICA)
                     .firstName("Jessica")
                     .lastName("Martinez")
                     .dateOfBirth(LocalDate.of(1991, 5, 30))
@@ -153,6 +384,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_MICHAEL)
                     .firstName("Michael")
                     .lastName("Thompson")
                     .dateOfBirth(LocalDate.of(1987, 8, 18))
@@ -169,6 +401,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_LAURA)
                     .firstName("Laura")
                     .lastName("Harris")
                     .dateOfBirth(LocalDate.of(1994, 12, 22))
@@ -185,6 +418,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_DAVID)
                     .firstName("David")
                     .lastName("Clark")
                     .dateOfBirth(LocalDate.of(1989, 6, 9))
@@ -201,6 +435,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_EMMA)
                     .firstName("Emma")
                     .lastName("Lewis")
                     .dateOfBirth(LocalDate.of(1996, 2, 14))
@@ -217,6 +452,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Employee.builder()
+                    .id(EMPLOYEE_CHRIS)
                     .firstName("Chris")
                     .lastName("Walker")
                     .dateOfBirth(LocalDate.of(1986, 11, 3))
@@ -233,12 +469,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
-        List<Employee> newEmployees =
-            employees.stream()
-                .filter(employee -> !employeeRepository.existsByEmail(employee.getEmail()))
-                .collect(Collectors.toList());
-
-        newEmployees.forEach(employee -> {
+        employees.forEach(employee -> {
             switch (employee.getPosition()) {
             case "Branch Manager",
                 "Investment Banker"
@@ -255,22 +486,14 @@ public class TestDataRunner implements CommandLineRunner {
             }
         });
 
-        if (!newEmployees.isEmpty()) {
-            employeeRepository.saveAll(newEmployees);
-        }
-
-        employeeRepository.flush();
+        employeeRepository.saveAllAndFlush(employees);
     }
 
-    private void seedClientsAndAccounts() {
-        Currency currency = currencyRepository.findByCode(Currency.Code.RSD);
-        if (currency == null) {
-            throw new IllegalStateException("Currency RSD not found!");
-        }
-
+    private void clientSeeder() {
         List<Client> clients =
             List.of(
                 Client.builder()
+                    .id(CLIENT_JOHN)
                     .firstName("John")
                     .lastName("Doe")
                     .dateOfBirth(LocalDate.of(1995, 5, 15))
@@ -282,6 +505,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .enabled(true)
                     .build(),
                 Client.builder()
+                    .id(CLIENT_JANE)
                     .firstName("Jane")
                     .lastName("Smith")
                     .dateOfBirth(LocalDate.of(1992, 8, 25))
@@ -293,6 +517,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .enabled(true)
                     .build(),
                 Client.builder()
+                    .id(CLIENT_DANIEL)
                     .firstName("Daniel")
                     .lastName("Miller")
                     .dateOfBirth(LocalDate.of(1994, 7, 22))
@@ -305,97 +530,11 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
-        for (Client client : clients) {
-            if (!clientRepository.existsByEmail(client.getEmail())) {
-                clientRepository.save(client);
-            }
-        }
-
-        clientRepository.flush();
-
-        Client majorityOwner =
-            clientRepository.findByEmail("danielm@example.com")
-                .orElse(null);
-        Company company = null;
-        if (majorityOwner != null && companyRepository.count() == 0) {
-            ActivityCode activityCode =
-                activityCodeRepository.findActivityCodeByCode("62.01")
-                    .orElse(null);
-            if (activityCode != null) {
-                company =
-                    Company.builder()
-                        .name("Some Company")
-                        .tin("123456789")
-                        .crn("987654321")
-                        .address("789 Oak St")
-                        .activityCode(activityCode)
-                        .majorityOwner(majorityOwner)
-                        .build();
-                company = companyRepository.save(company);
-            }
-        }
-        List<Employee> employees = employeeRepository.findAll();
-        Random random = new Random();
-
-        if (employees.isEmpty()) {
-            throw new IllegalStateException("No employees found!");
-        }
-
-        for (Client client : clients) {
-            Client savedClient =
-                clientRepository.findByEmail(client.getEmail())
-                    .orElse(null);
-            Employee randomEmployee = employees.get(random.nextInt(employees.size()));
-
-            if (savedClient != null && !accountRepository.existsByClient(savedClient)) {
-                Account.AccountBuilder accountBuilder =
-                    Account.builder()
-                        .balance(new BigDecimal("1000.00"))
-                        .availableBalance(new BigDecimal("1000.00"))
-                        .accountMaintenance(new BigDecimal("10.00"))
-                        .createdDate(LocalDate.now())
-                        .expirationDate(
-                            LocalDate.now()
-                                .plusYears(5)
-                        )
-                        .active(true)
-                        .accountType(AccountType.STANDARD)
-                        .dailyLimit(new BigDecimal("500.00"))
-                        .monthlyLimit(new BigDecimal("5000.00"))
-                        .client(savedClient)
-                        .employee(randomEmployee)
-                        .currency(currency);
-
-                if (company != null && savedClient.equals(majorityOwner)) {
-                    accountBuilder.company(company);
-                    accountBuilder.accountType(AccountType.DOO);
-                }
-
-                Account account = accountBuilder.build();
-                accountService.makeAnAccountNumber(account);
-            }
-        }
-
-        accountRepository.flush();
+        clientRepository.saveAllAndFlush(clients);
     }
 
     private void cardSeeder() {
-        if (accountRepository.count() == 0) {
-            LOGGER.info("No accounts found. Skipping card seeder.");
-            return;
-        }
-
-        if (cardRepository.count() > 0) {
-            LOGGER.info("No need for card seeder. Skipping card seeder.");
-            return;
-        }
-
         List<Account> accounts = accountRepository.findAll();
-
-        if (accounts.isEmpty()) {
-            LOGGER.info("No accounts found. Skipping card seeder.");
-            return;
-        }
 
         Account standardAccount =
             accounts.stream()
@@ -412,8 +551,9 @@ public class TestDataRunner implements CommandLineRunner {
         List<Card> cards =
             List.of(
                 Card.builder()
-                    .cardNumber("1234567810345678")
-                    .cvv("123")
+                    .id(CARD_STANDARD)
+                    .cardNumber(CARD_STANDARD_NUMBER)
+                    .cvv(CARD_STANDARD_CVV)
                     .cardName(CardName.VISA)
                     .cardType(CardType.DEBIT)
                     .account(standardAccount)
@@ -427,10 +567,11 @@ public class TestDataRunner implements CommandLineRunner {
                     .build(),
 
                 Card.builder()
-                    .cardNumber("8765432107654321")
-                    .cvv("321")
+                    .id(CARD_DOO)
+                    .cardNumber(CARD_DOO_NUMBER)
+                    .cvv(CARD_DOO_CVV)
                     .cardName(CardName.MASTER_CARD)
-                    .cardType(CardType.CREDIT)
+                    .cardType(CardType.DEBIT)
                     .account(dooAccount)
                     .cardStatus(CardStatus.ACTIVATED)
                     .limit(BigDecimal.valueOf(10000))
@@ -442,79 +583,36 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
-        List<Card> newCards =
-            cards.stream()
-                .filter(card -> !cardRepository.existsByCardNumber(card.getCardNumber()))
-                .collect(Collectors.toList());
-
-        cardRepository.saveAll(newCards);
-        cardRepository.flush();
-
-        LOGGER.info("Card seeder executed successfully.");
+        cardRepository.saveAllAndFlush(cards);
     }
 
     private void clientContactsSeeder() {
-        List<Client> clients = clientRepository.findAll();
-        List<String> accountNumbers =
-            accountRepository.findAll()
-                .stream()
-                .map(Account::getAccountNumber)
-                .toList();
+        Client clientJohn =
+            clientRepository.findById(CLIENT_JOHN)
+                .orElseThrow(() -> new RuntimeException("Client John not found"));
 
-        if (accountNumbers.isEmpty()) {
-            throw new IllegalStateException("No accounts found!");
-        }
+        Client clientJane =
+            clientRepository.findById(CLIENT_JANE)
+                .orElseThrow(() -> new RuntimeException("Client Jane not found"));
 
-        Random random = new Random();
+        ClientContact clientContactJohn =
+            ClientContact.builder()
+                .id(JOHN_CONTACT)
+                .client(clientJohn)
+                .accountNumber(ACCOUNT_JANE_STANDARD_NUMBER)
+                .nickname(String.join(" ", clientJane.getFirstName(), clientJane.getLastName()))
+                .build();
 
-        List<ClientContact> clientContacts =
-            clients.stream()
-                .filter(client -> !clientContactRepository.existsByClient(client))
-                .flatMap(
-                    client -> IntStream.range(0, 1)
-                        .mapToObj(
-                            i -> ClientContact.builder()
-                                .client(client)
-                                .accountNumber(getRandomAccountNumber(accountNumbers, random))
-                                .nickname(generateRandomNickname())
-                                .build()
-                        )
-                )
-                .toList();
+        ClientContact clientContactJane =
+            ClientContact.builder()
+                .id(JANE_CONTACT)
+                .client(clientJane)
+                .accountNumber(ACCOUNT_JOHN_DOO_NUMBER)
+                .nickname(String.join(" ", clientJohn.getFirstName(), clientJohn.getLastName()))
+                .build();
 
-        List<ClientContact> newClientContacts =
-            clientContacts.stream()
-                .filter(
-                    clientContact -> !clientContactRepository.existsByAccountNumber(
-                        clientContact.getAccountNumber()
-                    )
-                )
-                .toList();
-
-        clientContactRepository.saveAll(newClientContacts);
-        clientContactRepository.flush();
-    }
-
-    private String getRandomAccountNumber(List<String> accountNumbers, Random random) {
-        return accountNumbers.get(random.nextInt(accountNumbers.size()));
-    }
-
-    private String generateRandomNickname() {
-        String[] nicknames = {
-            "JohnDoe",
-            "JaneSmith",
-            "MichaelJ",
-            "EmilyD",
-            "DavidW",
-            "OliviaM",
-            "JamesB",
-            "SophiaG",
-            "DanielM",
-            "SarahL"
-        };
-        Random random = new Random();
-        return nicknames[random.nextInt(nicknames.length)] + random.nextInt(100); // Append random
-        // number to nickname
+        clientContactRepository.saveAndFlush(clientContactJane);
+        clientContactRepository.saveAndFlush(clientContactJohn);
     }
 
     private void activityCodeSeeder() {
@@ -823,13 +921,10 @@ public class TestDataRunner implements CommandLineRunner {
                     .build()
             );
 
-        List<ActivityCode> newActivityCodes =
-            activityCodes.stream()
-                .filter(employee -> !activityCodeRepository.existsByCode(employee.getCode()))
-                .collect(Collectors.toList());
-
-        activityCodeRepository.saveAll(newActivityCodes);
-        activityCodeRepository.flush();
+        activityCodes.forEach(activityCode -> {
+            if (!activityCodeRepository.existsByCode(activityCode.getCode()))
+                activityCodeRepository.saveAndFlush(activityCode);
+        });
     }
 
     protected void currencySeeder() {
@@ -839,7 +934,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Serbian Dinar")
                     .symbol("RSD")
                     .description("Serbian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.RSD)
                     .build(),
@@ -847,7 +941,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Euro")
                     .symbol("EUR")
                     .description("European Union currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.EUR)
                     .build(),
@@ -855,7 +948,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("US Dollar")
                     .symbol("USD")
                     .description("United States currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.USD)
                     .build(),
@@ -863,7 +955,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Swiss Franc")
                     .symbol("CHF")
                     .description("Swiss national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.CHF)
                     .build(),
@@ -871,7 +962,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Japanese Yen")
                     .symbol("JPY")
                     .description("Japanese national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.JPY)
                     .build(),
@@ -879,7 +969,6 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Australian Dollar")
                     .symbol("AUD")
                     .description("Australian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.AUD)
                     .build(),
@@ -887,159 +976,93 @@ public class TestDataRunner implements CommandLineRunner {
                     .name("Canadian Dollar")
                     .symbol("CAD")
                     .description("Canadian national currency")
-                    .version(0L)
                     .active(true)
                     .code(Currency.Code.CAD)
+                    .build(),
+                Currency.builder()
+                    .name("British Pound")
+                    .symbol("GBP")
+                    .description("United Kingdom national currency")
+                    .active(true)
+                    .code(Currency.Code.GBP)
                     .build()
             );
 
+        // TODO(arsen): don't use findByCode. Actually, remove this whole thing. It is goofy.
         for (Currency currency : currencies) {
             if (currencyRepository.findByCode(currency.getCode()) == null) {
-                currencyRepository.save(currency);
-            }
-        }
-
-        currencyRepository.flush();
-    }
-
-    private void transactionSeeder() {
-        if (transactionRepository.count() == 0) {
-            List<Account> accounts = accountRepository.findAll();
-
-            if (accounts.size() > 1) {
-                Random random = new Random();
-                Account fromAccount;
-                Account toAccount;
-
-                do {
-                    fromAccount = accounts.get(random.nextInt(accounts.size()));
-                    toAccount = accounts.get(random.nextInt(accounts.size()));
-                } while (fromAccount.equals(toAccount)); // Ensure the accounts are not the same
-
-                Currency currency = currencyRepository.findByCode(Currency.Code.RSD);
-
-                if (toAccount != null && currency != null) {
-                    Transaction transaction1 =
-                        Transaction.builder()
-                            .transactionNumber(
-                                UUID.randomUUID()
-                                    .toString()
-                            )
-                            .fromAccount(fromAccount)
-                            .toAccount(toAccount)
-                            .from(new MonetaryAmount(new BigDecimal("100.00"), currency))
-                            .to(new MonetaryAmount(new BigDecimal("100.00"), currency))
-                            .fee(new MonetaryAmount(new BigDecimal("1.00"), currency))
-                            .recipient("Recipient Name")
-                            .paymentCode("123")
-                            .referenceNumber("123456")
-                            .paymentPurpose("Payment for services")
-                            .paymentDateTime(LocalDateTime.now())
-                            .status(TransactionStatus.IN_PROGRESS)
-                            .build();
-
-                    Transaction transaction2 =
-                        Transaction.builder()
-                            .transactionNumber(
-                                UUID.randomUUID()
-                                    .toString()
-                            )
-                            .fromAccount(toAccount)
-                            .toAccount(fromAccount)
-                            .from(new MonetaryAmount(new BigDecimal("200.00"), currency))
-                            .to(new MonetaryAmount(new BigDecimal("200.00"), currency))
-                            .fee(new MonetaryAmount(new BigDecimal("2.00"), currency))
-                            .recipient("Another Recipient")
-                            .paymentCode("456")
-                            .referenceNumber("654321")
-                            .paymentPurpose("Payment for goods")
-                            .paymentDateTime(
-                                LocalDateTime.now()
-                                    .minusDays(1)
-                            )
-                            .status(TransactionStatus.REALIZED)
-                            .build();
-
-                    transactionRepository.saveAll(Set.of(transaction1, transaction2));
-                    transactionRepository.flush();
-                }
-            } else {
-                LOGGER.warn("Not enough accounts to create transactions.");
+                currencyRepository.saveAndFlush(currency);
             }
         }
     }
 
     private void seedBankMargins() {
-        if (
-            bankMarginRepository.findAll()
-                .isEmpty()
-        ) {
-            BankMargin cashMargin =
-                BankMargin.builder()
-                    .type(LoanType.CASH)
-                    .margin(new BigDecimal("1.75"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_CASH)
+                .type(LoanType.CASH)
+                .margin(new BigDecimal("1.75"))
+                .build()
+        );
 
-            BankMargin mortgageMargin =
-                BankMargin.builder()
-                    .type(LoanType.MORTGAGE)
-                    .margin(new BigDecimal("1.50"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_MORTGAGE)
+                .type(LoanType.MORTGAGE)
+                .margin(new BigDecimal("1.50"))
+                .build()
+        );
 
-            BankMargin autoLoanMargin =
-                BankMargin.builder()
-                    .type(LoanType.AUTO_LOAN)
-                    .margin(new BigDecimal("1.25"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_AUTO_LOAN)
+                .type(LoanType.AUTO_LOAN)
+                .margin(new BigDecimal("1.25"))
+                .build()
+        );
 
-            BankMargin refinancingMargin =
-                BankMargin.builder()
-                    .type(LoanType.REFINANCING)
-                    .margin(new BigDecimal("1.00"))
-                    .build();
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_REFINANCING)
+                .type(LoanType.REFINANCING)
+                .margin(new BigDecimal("1.00"))
+                .build()
+        );
 
-            BankMargin studentLoanMargin =
-                BankMargin.builder()
-                    .type(LoanType.STUDENT_LOAN)
-                    .margin(new BigDecimal("0.75"))
-                    .build();
-
-            bankMarginRepository.saveAll(
-                List.of(
-                    cashMargin,
-                    mortgageMargin,
-                    autoLoanMargin,
-                    refinancingMargin,
-                    studentLoanMargin
-                )
-            );
-            bankMarginRepository.flush();
-        }
+        bankMarginRepository.saveAndFlush(
+            BankMargin.builder()
+                .id(BANK_MARGIN_STUDENT_LOAN)
+                .type(LoanType.STUDENT_LOAN)
+                .margin(new BigDecimal("0.75"))
+                .build()
+        );
     }
 
     private void interestRateSeeder() {
-        if (
-            interestRateRepository.findAll()
-                .isEmpty()
-        ) {
-            List<InterestRate> interestRates =
-                List.of(
-                    createInterestRate(0, 500000L, 6.25),
-                    createInterestRate(500001, 1000000L, 6.00),
-                    createInterestRate(1000001, 2000000L, 5.75),
-                    createInterestRate(2000001, 5000000L, 5.50),
-                    createInterestRate(5000001, 10000000L, 5.25),
-                    createInterestRate(10000001, 20000000L, 5.00),
-                    createInterestRate(20000001, 2000000100L, 4.75) // No upper limit
-                );
+        List<InterestRate> interestRates =
+            List.of(
+                createInterestRate(LOAN_INTEREST_0_500000, 0, 500000L, 6.25),
+                createInterestRate(LOAN_INTEREST_500001_1000000, 500001, 1000000L, 6.00),
+                createInterestRate(LOAN_INTEREST_1000001_2000000, 1000001, 2000000L, 5.75),
+                createInterestRate(LOAN_INTEREST_2000001_5000000, 2000001, 5000000L, 5.50),
+                createInterestRate(LOAN_INTEREST_5000001_10000000, 5000001, 10000000L, 5.25),
+                createInterestRate(LOAN_INTEREST_10000001_20000000, 10000001, 20000000L, 5.00),
+                createInterestRate(LOAN_INTEREST_20000001_2000000100, 20000001, 2000000100L, 4.75) // No
+                                                                                                   // upper
+                                                                                                   // limit
+            );
 
-            interestRateRepository.saveAll(interestRates);
-            interestRateRepository.flush();
-        }
+        interestRateRepository.saveAllAndFlush(interestRates);
     }
 
-    private InterestRate createInterestRate(long minAmount, Long maxAmount, double fixedRate) {
+    private InterestRate createInterestRate(
+        UUID interestId,
+        long minAmount,
+        Long maxAmount,
+        double fixedRate
+    ) {
         return InterestRate.builder()
+            .id(interestId)
             .minAmount(BigDecimal.valueOf(minAmount))
             .maxAmount(maxAmount != null ? BigDecimal.valueOf(maxAmount) : null)
             .fixedRate(BigDecimal.valueOf(fixedRate))
@@ -1052,213 +1075,104 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void authorizedUserSeeder() {
-        List<Card> cards = cardRepository.findAll();
+        Card card =
+            cardRepository.findById(CARD_DOO)
+                .orElseThrow(() -> new RuntimeException("DOO Account not found"));
 
-        if (cards.isEmpty()) {
-            LOGGER.info("No cards found. Skipping authorized user seeder.");
-            return;
-        }
+        AuthorizedUser authorizedUsers =
+            AuthorizedUser.builder()
+                .userId(CARD_DOO_AUTHORIZED_USER)
+                .firstName("Mehmmedalija")
+                .lastName("Karisik")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .email("random@example.com")
+                .phoneNumber("+38166798076")
+                .address("New Address 51")
+                .gender(Gender.MALE)
+                .build();
 
-        List<Card> dooCards =
-            cards.stream()
-                .filter(
-                    card -> card.getAccount()
-                        .getAccountType()
-                        == AccountType.DOO
-                )
-                .collect(Collectors.toList());
-
-        if (dooCards.isEmpty()) {
-            LOGGER.info("No DOO accounts found. Skipping authorized user seeder.");
-            return;
-        }
-
-        boolean hasAuthorizedUser =
-            dooCards.stream()
-                .anyMatch(card -> card.getAuthorizedUser() != null);
-
-        if (hasAuthorizedUser) {
-            LOGGER.info(
-                "Some cards already have authorized users. Skipping authorized user seeder."
-            );
-            return;
-        }
-
-        List<AuthorizedUser> authorizedUsers =
-            dooCards.stream()
-                .map(
-                    card -> AuthorizedUser.builder()
-                        .userId(UUID.randomUUID())
-                        .firstName(generateRandomFirstName())
-                        .lastName(generateRandomLastName())
-                        .dateOfBirth(LocalDate.of(1990, 1, 1))
-                        .email(generateRandomEmail(card))
-                        .phoneNumber(generateRandomPhoneNumber(card))
-                        .address(generateRandomAddress())
-                        .gender(Gender.MALE)
-                        .build()
-                )
-                .toList();
-
-        for (int i = 0; i < dooCards.size(); i++) {
-            dooCards.get(i)
-                .setAuthorizedUser(authorizedUsers.get(i));
-        }
-
-        cardRepository.saveAll(dooCards);
-        cardRepository.flush();
-    }
-
-    private String generateRandomFirstName() {
-        List<String> firstNames =
-            List.of(
-                "John",
-                "Emma",
-                "Oliver",
-                "Sophia",
-                "Liam",
-                "Ava",
-                "Noah",
-                "Isabella",
-                "James",
-                "Mia"
-            );
-        Random rand = new Random();
-        return firstNames.get(rand.nextInt(firstNames.size()));
-    }
-
-    private String generateRandomLastName() {
-        List<String> lastNames =
-            List.of(
-                "Smith",
-                "Johnson",
-                "Williams",
-                "Brown",
-                "Jones",
-                "Garcia",
-                "Martinez",
-                "Hernandez",
-                "Davis",
-                "Lopez"
-            );
-        Random rand = new Random();
-        return lastNames.get(rand.nextInt(lastNames.size()));
-    }
-
-    private String generateRandomEmail(Card card) {
-        String prefix =
-            card.getCardNumber()
-                .substring(0, 4);
-        return "user" + prefix + "@example.com";
-    }
-
-    private String generateRandomPhoneNumber(Card card) {
-        String prefix =
-            card.getCardNumber()
-                .substring(0, 2);
-        return "+381600000" + prefix;
-    }
-
-    private String generateRandomAddress() {
-        List<String> streets =
-            List.of(
-                "Main St",
-                "Oak St",
-                "Pine St",
-                "Maple Ave",
-                "Elm St",
-                "Cedar Rd",
-                "Sunset Blvd",
-                "Park Ave"
-            );
-        List<String> cities =
-            List.of(
-                "Belgrade",
-                "Novi Sad",
-                "Niš",
-                "Kragujevac",
-                "Subotica",
-                "Zrenjanin",
-                "Vranje",
-                "Senta"
-            );
-        Random rand = new Random();
-
-        String street = streets.get(rand.nextInt(streets.size()));
-        String city = cities.get(rand.nextInt(cities.size()));
-        int houseNumber = rand.nextInt(100) + 1;
-
-        return houseNumber + " " + street + ", " + city;
+        card.setAuthorizedUser(authorizedUsers);
+        cardRepository.saveAndFlush(card);
     }
 
     private void bankSeeder() {
-        if (
-            companyRepository.findByName("Bank 4")
-                .isEmpty()
-        ) {
-            ActivityCode activityCode =
-                activityCodeRepository.findActivityCodeByCode("64.19")
-                    .orElse(null);
-            Client client =
-                clientRepository.findByEmail("danielm@example.com")
-                    .orElse(null);
+        ActivityCode activityCode =
+            activityCodeRepository.findActivityCodeByCode("64.19")
+                .orElseThrow(() -> new RuntimeException("ActivityCode not found"));
 
-            if (activityCode != null) {
-                Company ourBank =
-                    Company.builder()
-                        .name("Bank 4")
-                        .tin("133456789")
-                        .crn("988654321")
-                        .address("123 Bank St")
-                        .activityCode(activityCode)
-                        .majorityOwner(client)
-                        .build();
+        Client client =
+            clientRepository.findById(CLIENT_BANK_SELF)
+                .orElseThrow(() -> new RuntimeException("Bank self client not found"));
 
-                companyRepository.save(ourBank);
+        Company ourBank =
+            Company.builder()
+                .id(COMPANY_RAFFEISEN_BANK)
+                .name("Raffeisen Bank")
+                .tin("133456789")
+                .crn("988654321")
+                .address("Kneza Mihaila 6")
+                .activityCode(activityCode)
+                .majorityOwner(client)
+                .build();
 
-                List<String> bankAccountNumbers =
-                    List.of(
-                        "4440001000000000010",
-                        "4440001000000000020",
-                        "4440001000000000120",
-                        "4440001000000000220",
-                        "4440001000000000320",
-                        "4440001000000000420",
-                        "4440001000000000520"
-                    );
+        companyRepository.saveAndFlush(ourBank);
 
-                List<Currency> currencies = currencyRepository.findAll();
-                List<Account> accounts = new ArrayList<>();
+        List<UUID> bankAccountIds =
+            List.of(
+                BANK_ACCOUNT_RSD,
+                BANK_ACCOUNT_EUR,
+                BANK_ACCOUNT_USD,
+                BANK_ACCOUNT_CHF,
+                BANK_ACCOUNT_JPY,
+                BANK_ACCOUNT_AUD,
+                BANK_ACCOUNT_CAD,
+                BANK_ACCOUNT_GBP
+            );
 
-                for (int i = 0; i < bankAccountNumbers.size(); i++) {
-                    String accountNumber = bankAccountNumbers.get(i);
-                    Currency currency = currencies.get(i);
+        List<String> bankAccountNumbers =
+            List.of(
+                BANK_ACCOUNT_RSD_NUMBER,
+                BANK_ACCOUNT_EUR_NUMBER,
+                BANK_ACCOUNT_USD_NUMBER,
+                BANK_ACCOUNT_CHF_NUMBER,
+                BANK_ACCOUNT_JPY_NUMBER,
+                BANK_ACCOUNT_AUD_NUMBER,
+                BANK_ACCOUNT_CAD_NUMBER,
+                BANK_ACCOUNT_GBP_NUMBER
+            );
 
-                    Account account =
-                        Account.builder()
-                            .accountNumber(accountNumber)
-                            .balance(BigDecimal.valueOf(1000000))
-                            .availableBalance(BigDecimal.valueOf(1000000))
-                            .accountMaintenance(BigDecimal.valueOf(100))
-                            .createdDate(LocalDate.now())
-                            .expirationDate(
-                                LocalDate.now()
-                                    .plusYears(5)
-                            )
-                            .active(true)
-                            .accountType(AccountType.DOO)
-                            .dailyLimit(BigDecimal.valueOf(100000))
-                            .monthlyLimit(BigDecimal.valueOf(1000000))
-                            .company(ourBank)
-                            .currency(currency)
-                            .build();
+        List<Currency> currencies = currencyRepository.findAll();
+        List<Account> accounts = new ArrayList<>();
 
-                    accounts.add(account);
-                }
+        for (int i = 0; i < bankAccountNumbers.size(); i++) {
+            UUID accountId = bankAccountIds.get(i);
+            String accountNumber = bankAccountNumbers.get(i);
+            Currency currency = currencies.get(i);
 
-                accountRepository.saveAll(accounts);
-                accountRepository.flush();
-            }
+            Account account =
+                Account.builder()
+                    .id(accountId)
+                    .accountNumber(accountNumber)
+                    .balance(BigDecimal.valueOf(1000000))
+                    .availableBalance(BigDecimal.valueOf(1000000))
+                    .accountMaintenance(BigDecimal.valueOf(100))
+                    .createdDate(LocalDate.now())
+                    .expirationDate(
+                        LocalDate.now()
+                            .plusYears(5)
+                    )
+                    .active(true)
+                    .accountType(AccountType.DOO)
+                    .dailyLimit(BigDecimal.valueOf(100000))
+                    .monthlyLimit(BigDecimal.valueOf(1000000))
+                    .company(ourBank)
+                    .currency(currency)
+                    .client(client)
+                    .build();
+
+            accounts.add(account);
         }
+
+        accountRepository.saveAllAndFlush(accounts);
     }
 }
