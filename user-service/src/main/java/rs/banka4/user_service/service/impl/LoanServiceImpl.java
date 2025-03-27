@@ -44,10 +44,7 @@ import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.exceptions.loan.NoLoansOnAccount;
 import rs.banka4.user_service.exceptions.user.InvalidPhoneNumber;
 import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
-import rs.banka4.user_service.repositories.InterestRateRepository;
-import rs.banka4.user_service.repositories.LoanInstallmentRepository;
-import rs.banka4.user_service.repositories.LoanRepository;
-import rs.banka4.user_service.repositories.LoanRequestRepository;
+import rs.banka4.user_service.repositories.*;
 import rs.banka4.user_service.service.abstraction.AccountService;
 import rs.banka4.user_service.service.abstraction.ClientService;
 import rs.banka4.user_service.service.abstraction.LoanService;
@@ -68,6 +65,9 @@ public class LoanServiceImpl implements LoanService {
     private final InterestRateRepository interestRateRepository;
     private final JwtUtil jwtUtil;
     private final LoanInstallmentRepository loanInstallmentRepository;
+    private final BankAccountServiceImpl bankAccountService;
+    private final TransactionServiceImpl transactionService;
+    private final AccountRepository accountRepository;
     private final UserService userService;
 
     /**
@@ -273,6 +273,39 @@ public class LoanServiceImpl implements LoanService {
         loanRepository.save(loan.get());
 
         makeLoanInstallmentFromLoan(loan.get());
+
+        Account bankAccount =
+            bankAccountService.getBankAccountForCurrency(
+                loan.get()
+                    .getAccount()
+                    .getCurrency()
+                    .getCode()
+            );
+        Account userAccount =
+            loan.get()
+                .getAccount();
+        BigDecimal loanAmount =
+            loan.get()
+                .getAmount();
+
+        bankAccount.setBalance(
+            bankAccount.getBalance()
+                .subtract(loanAmount)
+        );
+        userAccount.setBalance(
+            userAccount.getBalance()
+                .add(loanAmount)
+        );
+
+        accountRepository.save(bankAccount);
+        accountRepository.save(userAccount);
+
+        transactionService.createBankTransferTransaction(
+            bankAccount,
+            userAccount,
+            loanAmount,
+            "Loan disbursement"
+        );
     }
 
     private void makeLoanInstallmentFromLoan(Loan loan) {

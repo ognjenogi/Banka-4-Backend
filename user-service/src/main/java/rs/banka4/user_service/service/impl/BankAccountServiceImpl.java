@@ -28,7 +28,7 @@ import rs.banka4.user_service.utils.JwtUtil;
 @RequiredArgsConstructor
 public class BankAccountServiceImpl implements BankAccountService {
 
-    private static final String BANK_COMPANY_NAME = "Bank 4";
+    private static final String BANK_COMPANY_NAME = "Raffeisen Bank";
 
     private final CompanyRepository companyRepository;
     private final ClientRepository clientRepository;

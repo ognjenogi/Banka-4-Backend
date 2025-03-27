@@ -24,6 +24,8 @@ import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
+import rs.banka4.user_service.service.impl.BankAccountServiceImpl;
+import rs.banka4.user_service.service.impl.TransactionServiceImpl;
 import rs.banka4.user_service.utils.loans.LoanInstallmentScheduler;
 import rs.banka4.user_service.utils.loans.LoanRateUtil;
 
@@ -50,6 +52,12 @@ class LoanInstallmentSchedulerTest {
 
     @Mock
     private ApplicationContext applicationContext;
+
+    @Mock
+    private BankAccountServiceImpl bankAccountService;
+
+    @Mock
+    private TransactionServiceImpl transactionService;
 
     @InjectMocks
     private rs.banka4.user_service.utils.loans.LoanInstallmentScheduler loanInstallmentScheduler;
@@ -104,12 +112,21 @@ class LoanInstallmentSchedulerTest {
 
     @Test
     void testProcessDueInstallments_ShouldPayInstallmentIfPossible() {
+        Account bankAccount = new Account();
+        bankAccount.setBalance(new BigDecimal("10000"));
+
         when(
             loanInstallmentRepository.findByExpectedDueDateAndPaymentStatus(
                 LocalDate.now(),
                 PaymentStatus.UNPAID
             )
         ).thenReturn(List.of(installment));
+        when(
+            bankAccountService.getBankAccountForCurrency(
+                account.getCurrency()
+                    .getCode()
+            )
+        ).thenReturn(bankAccount);
 
         loanInstallmentScheduler.processDueInstallments();
 
@@ -117,6 +134,7 @@ class LoanInstallmentSchedulerTest {
         assertEquals(PaymentStatus.PAID, installment.getPaymentStatus());
         assertEquals(LoanStatus.PAID_OFF, loan.getStatus());
         verify(accountRepository).save(account);
+        verify(accountRepository).save(bankAccount);
         verify(loanRepository).save(loan);
         verify(loanInstallmentRepository).save(installment);
         verify(rabbitTemplate).convertAndSend(
@@ -124,11 +142,19 @@ class LoanInstallmentSchedulerTest {
             anyString(),
             any(NotificationTransferDto.class)
         );
+        verify(transactionService).createBankTransferTransaction(
+            account,
+            bankAccount,
+            installment.getInstallmentAmount(),
+            "Loan installment payment"
+        );
     }
 
     @Test
     void testRetryDelayedInstallments_ShouldRetryIfDelayed() {
-        // Given: Delayed installment with expected due date 3 days ago
+        Account bankAccount = new Account();
+        bankAccount.setBalance(new BigDecimal("10000"));
+
         installment.setPaymentStatus(PaymentStatus.DELAYED);
         installment.setExpectedDueDate(
             LocalDate.now()
@@ -142,11 +168,15 @@ class LoanInstallmentSchedulerTest {
                     .minusDays(3)
             )
         ).thenReturn(List.of(installment));
+        when(
+            bankAccountService.getBankAccountForCurrency(
+                account.getCurrency()
+                    .getCode()
+            )
+        ).thenReturn(bankAccount);
 
-        // When: Retrying delayed installment payments
         loanInstallmentScheduler.retryDelayedInstallments();
 
-        // Verify that payInstallmentIfPossible() was actually called
         verify(loanInstallmentRepository, times(1)).findRecentDelayedInstallments(
             PaymentStatus.DELAYED,
             LocalDate.now()
@@ -155,29 +185,30 @@ class LoanInstallmentSchedulerTest {
         verify(loanInstallmentRepository, times(1)).save(installment);
         verify(loanRepository, times(1)).save(loan);
         verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).save(bankAccount);
+        verify(transactionService).createBankTransferTransaction(
+            account,
+            bankAccount,
+            installment.getInstallmentAmount(),
+            "Loan installment payment"
+        );
 
-        // Then: Installment should now be PAID
         assertEquals(
             PaymentStatus.PAID,
             installment.getPaymentStatus(),
             "Installment should be marked as PAID"
         );
-
-        // Remaining debt should be reduced
         assertEquals(
             new BigDecimal("0"),
             loan.getRemainingDebt(),
             "Loan remaining debt should be zero after payment"
         );
-
-        // Available balance should be updated correctly
         assertEquals(
             new BigDecimal("4000"),
             account.getAvailableBalance(),
             "Account balance should be updated after payment"
         );
     }
-
 
     @Test
     void testApplyLatePaymentPenalties_ShouldApplyPenalty() {

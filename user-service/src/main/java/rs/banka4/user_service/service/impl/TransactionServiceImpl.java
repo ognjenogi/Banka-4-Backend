@@ -831,7 +831,7 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(conversionTransaction);
     }
 
-    private void createBankTransferTransaction(
+    public void createBankTransferTransaction(
         Account fromAccount,
         Account toAccount,
         BigDecimal amount,
