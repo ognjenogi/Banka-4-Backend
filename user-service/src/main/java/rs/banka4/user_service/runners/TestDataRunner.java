@@ -197,9 +197,10 @@ public class TestDataRunner implements CommandLineRunner {
                 .dateOfBirth(LocalDate.of(2025, 2, 10))
                 .gender(Gender.MALE)
                 .email("admin@bankcorp.com")
+                .password(passwordEncoder.encode("password"))
                 .phone("+381651231231")
                 .address("Mali Kalemegdan 8, Belgrade")
-                .enabled(false)
+                .enabled(true)
                 .build();
 
         clientRepository.saveAndFlush(bankSelfClient);
