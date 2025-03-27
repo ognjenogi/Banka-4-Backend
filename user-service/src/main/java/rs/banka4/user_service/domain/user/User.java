@@ -19,8 +19,8 @@ import org.hibernate.proxy.HibernateProxy;
 public abstract class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public UUID id;
+    @Builder.Default
+    public UUID id = UUID.randomUUID();
 
     @Column(nullable = false)
     public String firstName;

@@ -17,8 +17,8 @@ import lombok.*;
 public class InterestRate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(
         name = "min_amount",

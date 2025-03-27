@@ -101,7 +101,6 @@ public class AccountObjectMother {
         account.setCurrency(
             new Currency(
                 UUID.randomUUID(),
-                1L,
                 "Serbian Dinar",
                 "RSD",
                 "Serbian Dinar currency",
@@ -131,7 +130,6 @@ public class AccountObjectMother {
         account.setCurrency(
             new Currency(
                 UUID.randomUUID(),
-                1L,
                 "Serbian Dinar",
                 "RSD",
                 "Serbian Dinar currency",

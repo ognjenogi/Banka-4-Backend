@@ -8,3 +8,7 @@ trim_trailing_whitespace = true
 [*.kts]
 # Gradle Kotlin scripts use tabs for indentation, for some reason.
 indent_style = tab
+
+[*.java]
+indent_style = space
+indent_size = 4

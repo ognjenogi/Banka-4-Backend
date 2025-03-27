@@ -724,6 +724,13 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal fee,
         TransactionStatus status
     ) {
+        BigDecimal toAmount =
+            convertCurrency(
+                createPaymentDto.fromAmount(),
+                fromAccount.getCurrency(),
+                toAccount.getCurrency()
+            );
+
         return Transaction.builder()
             .transactionNumber(
                 UUID.randomUUID()
@@ -732,7 +739,7 @@ public class TransactionServiceImpl implements TransactionService {
             .fromAccount(fromAccount)
             .toAccount(toAccount)
             .from(new MonetaryAmount(createPaymentDto.fromAmount(), fromAccount.getCurrency()))
-            .to(new MonetaryAmount(createPaymentDto.fromAmount(), toAccount.getCurrency()))
+            .to(new MonetaryAmount(toAmount, toAccount.getCurrency()))
             .fee(new MonetaryAmount(fee, fromAccount.getCurrency()))
             .recipient(createPaymentDto.recipient())
             .paymentCode(createPaymentDto.paymentCode())
@@ -750,6 +757,13 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal fee,
         TransactionStatus status
     ) {
+        BigDecimal toAmount =
+            convertCurrency(
+                createTransferDto.fromAmount(),
+                fromAccount.getCurrency(),
+                toAccount.getCurrency()
+            );
+
         return Transaction.builder()
             .transactionNumber(
                 UUID.randomUUID()
@@ -758,7 +772,7 @@ public class TransactionServiceImpl implements TransactionService {
             .fromAccount(fromAccount)
             .toAccount(toAccount)
             .from(new MonetaryAmount(createTransferDto.fromAmount(), fromAccount.getCurrency()))
-            .to(new MonetaryAmount(createTransferDto.fromAmount(), toAccount.getCurrency()))
+            .to(new MonetaryAmount(toAmount, toAccount.getCurrency()))
             .fee(new MonetaryAmount(fee, fromAccount.getCurrency()))
             .recipient(toAccount.getClient().firstName)
             .paymentCode("101")
@@ -776,11 +790,15 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     private void createFeeTransaction(Account fromAccount, Account toAccount, BigDecimal fee) {
+        BigDecimal toAmount =
+            convertCurrency(fee, fromAccount.getCurrency(), toAccount.getCurrency());
+
         Transaction feeTransaction =
             buildSpecialTransaction(
                 fromAccount,
                 toAccount,
                 fee,
+                toAmount,
                 fee,
                 "Bank Fee",
                 "289",
@@ -795,11 +813,15 @@ public class TransactionServiceImpl implements TransactionService {
         Account toAccount,
         BigDecimal amount
     ) {
+        BigDecimal toAmount =
+            convertCurrency(amount, fromAccount.getCurrency(), toAccount.getCurrency());
+
         Transaction conversionTransaction =
             buildSpecialTransaction(
                 fromAccount,
                 toAccount,
                 amount,
+                toAmount,
                 BigDecimal.ZERO,
                 "Bank Conversion",
                 "285",
@@ -815,11 +837,15 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal amount,
         String purpose
     ) {
+        BigDecimal toAmount =
+            convertCurrency(amount, fromAccount.getCurrency(), toAccount.getCurrency());
+
         Transaction transaction =
             buildSpecialTransaction(
                 fromAccount,
                 toAccount,
                 amount,
+                toAmount,
                 BigDecimal.ZERO,
                 "Bank Transfer",
                 "290",
@@ -832,7 +858,8 @@ public class TransactionServiceImpl implements TransactionService {
     private Transaction buildSpecialTransaction(
         Account fromAccount,
         Account toAccount,
-        BigDecimal amount,
+        BigDecimal fromAmount,
+        BigDecimal toAmount,
         BigDecimal fee,
         String recipient,
         String paymentCode,
@@ -846,8 +873,8 @@ public class TransactionServiceImpl implements TransactionService {
             )
             .fromAccount(fromAccount)
             .toAccount(toAccount)
-            .from(new MonetaryAmount(amount, fromAccount.getCurrency()))
-            .to(new MonetaryAmount(amount, toAccount.getCurrency()))
+            .from(new MonetaryAmount(fromAmount, fromAccount.getCurrency()))
+            .to(new MonetaryAmount(toAmount, toAccount.getCurrency()))
             .fee(new MonetaryAmount(fee, fromAccount.getCurrency()))
             .recipient(recipient)
             .paymentCode(paymentCode)
@@ -863,6 +890,21 @@ public class TransactionServiceImpl implements TransactionService {
             .subtract(fee)
             .compareTo(BigDecimal.ZERO)
             >= 0;
+    }
+
+    private BigDecimal convertCurrency(
+        BigDecimal amount,
+        Currency fromCurrency,
+        Currency toCurrency
+    ) {
+        if (fromCurrency.equals(toCurrency)) {
+            return amount;
+        }
+        return exchangeRateService.convertCurrency(
+            amount,
+            fromCurrency.getCode(),
+            toCurrency.getCode()
+        );
     }
 
     private Map<String, Account> lockAccounts(String... accountNumbers) {

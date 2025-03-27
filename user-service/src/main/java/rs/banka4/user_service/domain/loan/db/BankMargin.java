@@ -14,8 +14,8 @@ import lombok.*;
 @Table(name = "bank_margins")
 public class BankMargin {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Enumerated(EnumType.STRING)
     @Column(

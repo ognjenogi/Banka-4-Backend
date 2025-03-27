@@ -32,6 +32,7 @@ import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.ClientContactRepository;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.TransactionRepository;
+import rs.banka4.user_service.service.impl.ExchangeRateService;
 import rs.banka4.user_service.service.impl.TotpServiceImpl;
 import rs.banka4.user_service.service.impl.TransactionServiceImpl;
 import rs.banka4.user_service.utils.JwtUtil;
@@ -54,6 +55,8 @@ public class TransactionServiceCreateTests {
     private TotpServiceImpl totpService;
     @Mock
     private EntityManager entityManager;
+    @Mock
+    private ExchangeRateService exchangeRateService;;
     @InjectMocks
     private TransactionServiceImpl transactionService;
     @Mock
