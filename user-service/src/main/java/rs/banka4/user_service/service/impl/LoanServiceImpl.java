@@ -225,7 +225,10 @@ public class LoanServiceImpl implements LoanService {
         List<Loan> listOfLoans = loansPage.toList();
         Stream<Loan> streamOfLoans =
             listOfLoans.stream()
-                .filter(loan -> loan.getStatus() != LoanStatus.PROCESSING);
+                .filter(
+                    loan -> loan.getStatus() != LoanStatus.PROCESSING
+                        && loan.getStatus() != LoanStatus.REJECTED
+                );
         listOfLoans = streamOfLoans.toList();
         loansPage = new PageImpl<>(listOfLoans);
 
