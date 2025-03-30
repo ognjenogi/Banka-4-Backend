@@ -7,7 +7,6 @@ import rs.banka4.testlib.integration.DbEnabledTest;
 @SpringBootTest
 @DbEnabledTest
 class StockServiceApplicationTests {
-
     @Test
     void contextLoads() {
     }

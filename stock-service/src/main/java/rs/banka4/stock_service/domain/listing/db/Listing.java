@@ -8,9 +8,7 @@ import java.util.UUID;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import rs.banka4.stock_service.domain.exchanges.db.Exchange;
-import rs.banka4.stock_service.domain.security.forex.db.ForexPair;
-import rs.banka4.stock_service.domain.security.future.db.Future;
-import rs.banka4.stock_service.domain.security.stock.db.Stock;
+import rs.banka4.stock_service.domain.security.Security;
 
 @Entity
 @AllArgsConstructor
@@ -21,17 +19,11 @@ import rs.banka4.stock_service.domain.security.stock.db.Stock;
 @Table(name = "listings")
 public class Listing {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @ManyToOne
-    private Stock stock;
-
-    @ManyToOne
-    private ForexPair forexPair;
-
-    @ManyToOne
-    private Future future;
+    private Security security;
 
     @Column(nullable = false)
     private String ticker;
@@ -50,6 +42,9 @@ public class Listing {
 
     @Column(nullable = false)
     private BigDecimal ask;
+
+    @Column(nullable = false)
+    private int contractSize;
 
     @Builder.Default
     private boolean active = true;
