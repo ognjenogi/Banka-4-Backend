@@ -1,7 +1,7 @@
 # Run tests and integration tests on the stock-service
 presubmits:
   - name: pull-banka-4-backend-stock-service-test
-    run_if_changed: "^(.*kts$|stock-service/|\\.prow/)"
+    run_if_changed: "^(.*kts$|(common|stock-service)/|\\.prow/)"
     decorate: true
     spec:
       containers:
