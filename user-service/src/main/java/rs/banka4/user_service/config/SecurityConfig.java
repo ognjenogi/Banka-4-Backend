@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,10 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import rs.banka4.user_service.config.filters.ExceptionHandlingFilter;
-import rs.banka4.user_service.config.filters.InvalidRouteFilter;
-import rs.banka4.user_service.config.filters.JwtAuthenticationFilter;
-import rs.banka4.user_service.config.filters.RateLimitingFilter;
+import rs.banka4.user_service.config.filters.*;
 
 @Configuration
 @EnableWebSecurity
@@ -41,15 +40,20 @@ public class SecurityConfig {
                 auth -> auth.requestMatchers(WhiteListConfig.WHITE_LIST_URL)
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/employee/search")
-                    .hasAuthority("ADMIN")
+                    .access(
+                        AuthorizationManagers.allOf(
+                            AuthorityAuthorizationManager.hasAuthority("EMPLOYEE"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
                     .requestMatchers(HttpMethod.GET, "/employee/privileges")
-                    .hasAuthority("ADMIN")
+                    .hasAuthority("EMPLOYEE")
                     .requestMatchers(HttpMethod.POST, "/employee")
-                    .hasAuthority("ADMIN")
+                    .hasAuthority("EMPLOYEE")
                     .requestMatchers(HttpMethod.PUT, "/employee/{id}")
-                    .hasAuthority("ADMIN")
+                    .hasAuthority("EMPLOYEE")
                     .requestMatchers(HttpMethod.GET, "/employee/{id}")
-                    .hasAuthority("ADMIN")
+                    .hasAuthority("EMPLOYEE")
                     .anyRequest()
                     .authenticated()
             )
