@@ -1,10 +1,12 @@
 package rs.banka4.user_service.domain.auth.db;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import rs.banka4.user_service.domain.user.User;
+import rs.banka4.user_service.domain.user.employee.db.Employee;
 
 public class SecuredUser implements UserDetails {
 
@@ -16,10 +18,19 @@ public class SecuredUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getPrivileges()
-            .stream()
-            .map(privilege -> (GrantedAuthority) privilege::name)
-            .collect(Collectors.toSet());
+        Set<GrantedAuthority> authorities =
+            user.getPrivileges()
+                .stream()
+                .map(privilege -> (GrantedAuthority) privilege::name)
+                .collect(Collectors.toSet());
+
+        if (user instanceof Employee) {
+            authorities.add((GrantedAuthority) () -> "EMPLOYEE");
+        } else {
+            authorities.add((GrantedAuthority) () -> "CLIENT");
+        }
+
+        return authorities;
     }
 
     @Override
