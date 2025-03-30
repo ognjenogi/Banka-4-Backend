@@ -1,0 +1,8 @@
+# Please exclude everything not relevant to the build.  -*- gitignore -*-
+# By doing so, you drastically reduce the build time.
+# Keep in mind that the compose 'watch' configuration should watch the same
+# files.
+*
+!src
+!*.gradle.kts
+!.dockerignore
