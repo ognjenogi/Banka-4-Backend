@@ -39,6 +39,12 @@ services:
     develop:
       watch:
         - action: sync+restart
+          path: ./common/build.gradle.kts
+          target: /code/common/build.gradle.kts
+        - action: sync+restart
+          path: ./common/src
+          target: /code/common/src
+        - action: sync+restart
           path: ./buildSrc/
           target: /code/buildSrc/
         - action: sync+restart
@@ -97,6 +103,12 @@ services:
     develop:
       watch:
         - action: sync+restart
+          path: ./common/build.gradle.kts
+          target: /code/common/build.gradle.kts
+        - action: sync+restart
+          path: ./common/src
+          target: /code/common/src
+        - action: sync+restart
           path: ./buildSrc/
           target: /code/buildSrc/
         - action: sync+restart
@@ -152,6 +164,12 @@ services:
         user: root
     develop:
       watch:
+        - action: sync+restart
+          path: ./common/build.gradle.kts
+          target: /code/common/build.gradle.kts
+        - action: sync+restart
+          path: ./common/src
+          target: /code/common/src
         - action: sync+restart
           path: ./buildSrc/
           target: /code/buildSrc/

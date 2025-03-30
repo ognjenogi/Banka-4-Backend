@@ -29,6 +29,7 @@ RUN mkdir /code && chown service: /code
 ADD --chown=service:service gradle /code/gradle
 ADD --chown=service:service testlib /code/testlib
 ADD --chown=service:service buildSrc /code/buildSrc
+ADD --chown=service:service common /code/common
 
 ADD --chown=service:service gradle.properties /code/
 ADD --chown=service:service gradlew /code/
