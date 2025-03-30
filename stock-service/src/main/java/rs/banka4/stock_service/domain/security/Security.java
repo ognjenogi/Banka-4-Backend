@@ -3,26 +3,24 @@ package rs.banka4.stock_service.domain.security;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
+import rs.banka4.stock_service.domain.options.db.Asset;
 
-@MappedSuperclass
+
 @Getter
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public abstract class Security {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public UUID id;
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class Security extends Asset {
 
     @Column
     private String name;
-
+    // ?????????
     @Transient
     private BigDecimal price;
 

@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import java.math.BigDecimal;
 import java.util.Objects;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -28,6 +29,9 @@ public class ForexPair extends Security {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ForexLiquidity liquidity;
+
+    @Column(nullable = false)
+    private BigDecimal exchangeRate;
 
     @Override
     public final boolean equals(Object o) {

@@ -81,6 +81,7 @@ public class TestDataRunner implements CommandLineRunner {
                         .quoteCurrency(currencyCode2)
                         .liquidity(forexLiquidities[i++])
                         .name(currencyCode1 + "/" + currencyCode2)
+                        .exchangeRate(new BigDecimal("3.5"))
                         .build()
                 );
                 i = i % 3;
