@@ -4,6 +4,7 @@ plugins {
 	id("io.spring.dependency-management")
 	id("banka4.test-conventions")
 	id("banka4.code-style-conventions")
+	id("banka4.migration-generator")
 }
 
 group = "rs.banka4"

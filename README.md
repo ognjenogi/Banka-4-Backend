@@ -65,6 +65,18 @@ This project uses
 docs](https://docs.spring.io/spring-boot/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway))
 to perform migrations on databases.
 
+As of recently, we've started versioning migrations with timestamps.  For
+convenience, you can run the following Gradle command to generate an empty
+migration file:
+
+
+```sh
+gradle :${PROJECT}:makeMigration --name=migration_name_1n_th1s_f0rmat
+```
+
+Migration names must match `[a-zA-Z0-9_]+`.  By convention, they're
+all-lowercase.
+
 <!-- TODO brief summary -->
 
 ### Development container specifics
