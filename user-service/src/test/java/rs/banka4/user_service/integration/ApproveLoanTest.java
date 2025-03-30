@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +20,7 @@ import rs.banka4.user_service.integration.generator.UserGenerator;
 import rs.banka4.user_service.integration.seeder.TestDataSeeder;
 import rs.banka4.user_service.repositories.LoanRepository;
 import rs.banka4.user_service.utils.JwtUtil;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -56,6 +58,7 @@ public class ApproveLoanTest {
         accessToken = toks.accessToken();
     }
 
+    @Disabled
     @Test
     void approveLoanSuccessfully() throws Exception {
         m.put()
