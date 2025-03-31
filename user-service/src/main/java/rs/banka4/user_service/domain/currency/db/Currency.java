@@ -1,12 +1,10 @@
 package rs.banka4.user_service.domain.currency.db;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
-import rs.banka4.user_service.exceptions.account.InvalidCurrency;
 
 @Entity
 @NoArgsConstructor
@@ -45,15 +43,6 @@ public class Currency {
         AUD,
         CAD,
         GBP;
-
-        @JsonCreator
-        public static Code fromString(String raw) {
-            try {
-                return Code.valueOf(raw);
-            } catch (IllegalArgumentException | NullPointerException e) {
-                throw new InvalidCurrency("Invalid currency code: " + raw);
-            }
-        }
     }
 
     @Override

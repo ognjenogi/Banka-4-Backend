@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import rs.banka4.user_service.domain.loan.db.LoanStatus;
+import rs.banka4.user_service.domain.loan.db.LoanType;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationResponseDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
@@ -86,8 +88,8 @@ public interface LoanDocumentation {
         Authentication auth,
         int page,
         int size,
-        String type,
-        String status,
+        LoanType type,
+        LoanStatus status,
         String accountNumber
     );
 
@@ -131,7 +133,7 @@ public interface LoanDocumentation {
         Authentication auth,
         int page,
         int size,
-        String type,
+        LoanType type,
         String accountNumber
     );
 
