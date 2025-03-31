@@ -89,7 +89,7 @@ public class BlockCardTest {
             .hasStatus(HttpStatus.NOT_FOUND);
     }
 
-    @Disabled
+    @Disabled("Disabled due to unexpected behaviour with the main branch compared to old forks")
     @Test
     void blockCardFailsForDeactivatedCard() throws Exception {
         m.put()

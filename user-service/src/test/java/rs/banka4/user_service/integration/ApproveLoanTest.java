@@ -58,7 +58,7 @@ public class ApproveLoanTest {
         accessToken = toks.accessToken();
     }
 
-    @Disabled
+    @Disabled("Disabled due to unexpected behaviour with the main branch compared to old forks")
     @Test
     void approveLoanSuccessfully() throws Exception {
         m.put()
