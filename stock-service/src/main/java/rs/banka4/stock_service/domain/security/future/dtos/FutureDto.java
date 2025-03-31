@@ -1,7 +1,6 @@
 package rs.banka4.stock_service.domain.security.future.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import rs.banka4.stock_service.domain.security.future.db.UnitName;
@@ -31,12 +30,6 @@ public record FutureDto(
     @Schema(
         description = "Settlement date of the future contract",
         example = "2025-12-31"
-    ) OffsetDateTime settlementDate,
-
-    @Schema(
-        description = "Current price of the future contract",
-        example = "75.50",
-        nullable = true
-    ) BigDecimal price
+    ) OffsetDateTime settlementDate
 ) {
 }

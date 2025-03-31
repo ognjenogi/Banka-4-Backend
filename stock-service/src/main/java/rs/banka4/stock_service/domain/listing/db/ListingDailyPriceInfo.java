@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import rs.banka4.stock_service.domain.exchanges.db.Exchange;
+import rs.banka4.stock_service.domain.security.Security;
 
 @Entity
 @AllArgsConstructor
@@ -22,11 +23,8 @@ public class ListingDailyPriceInfo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
-    private String ticker;
-
-    @Column(nullable = false)
-    private String name;
+    @ManyToOne
+    private Security security;
 
     @ManyToOne(
         optional = false,

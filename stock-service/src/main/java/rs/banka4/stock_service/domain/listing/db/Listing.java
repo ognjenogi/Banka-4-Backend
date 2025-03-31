@@ -25,12 +25,6 @@ public class Listing {
     @ManyToOne
     private Security security;
 
-    @Column(nullable = false)
-    private String ticker;
-
-    @Column(nullable = false)
-    private String name;
-
     @ManyToOne
     private Exchange exchange;
 
