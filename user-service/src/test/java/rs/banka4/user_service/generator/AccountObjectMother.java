@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.UUID;
+import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.user_service.domain.account.db.Account;
 import rs.banka4.user_service.domain.account.db.AccountType;
 import rs.banka4.user_service.domain.account.dtos.AccountClientIdDto;
@@ -15,7 +16,6 @@ import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.currency.db.Currency.Code;
 import rs.banka4.user_service.domain.currency.mapper.CurrencyMapper;
 import rs.banka4.user_service.domain.user.Gender;
-import rs.banka4.user_service.domain.user.Privilege;
 import rs.banka4.user_service.domain.user.client.dtos.ClientDto;
 import rs.banka4.user_service.domain.user.employee.dtos.EmployeeDto;
 
