@@ -56,7 +56,7 @@ public record CreateEmployeeDto(
 
     @Schema(
         description = "Employee's privileges",
-        example = "[\"TRADE_STOCKS\", \"CONTRACTS\"]"
+        example = "[\"ADMIN\"]"
     ) @NotNull(message = "Privileges are required") Set<Privilege> privilege,
 
     @Schema(

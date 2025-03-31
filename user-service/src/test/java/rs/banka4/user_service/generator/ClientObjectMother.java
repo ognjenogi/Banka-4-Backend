@@ -21,7 +21,7 @@ public class ClientObjectMother {
             "john.doe@example.com",
             "+381650312764",
             "123 Grove Street, City, Country",
-            Set.of(Privilege.SEARCH)
+            Set.of()
         );
     }
 
@@ -73,7 +73,7 @@ public class ClientObjectMother {
             "john.doe@example.com",
             "+381691023547",
             "123 Grove Street, City, Country",
-            Set.of(Privilege.SEARCH)
+            Set.of()
         );
     }
 

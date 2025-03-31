@@ -481,16 +481,14 @@ public class TestDataRunner implements CommandLineRunner {
             switch (employee.getPosition()) {
             case "Branch Manager",
                 "Investment Banker"
-                -> employee.setPrivileges(
-                    Arrays.asList(Privilege.ADMIN, Privilege.TRADE_STOCKS, Privilege.VIEW_STOCKS)
-                );
+                -> employee.setPrivileges(List.of(Privilege.ADMIN));
             case "Compliance Officer",
                 "Risk Manager"
-                -> employee.setPrivileges(Arrays.asList(Privilege.CONTRACTS, Privilege.FILTER));
+                -> employee.setPrivileges(List.of());
             case "Loan Officer",
                 "Credit Analyst"
-                -> employee.setPrivileges(Arrays.asList(Privilege.SEARCH, Privilege.VIEW_STOCKS));
-            default -> employee.setPrivileges(List.of(Privilege.VIEW_STOCKS));
+                -> employee.setPrivileges(List.of());
+            default -> employee.setPrivileges(List.of());
             }
         });
 

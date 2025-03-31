@@ -51,7 +51,7 @@ public record CreateClientDto(
 
     @Schema(
         description = "Client's privileges",
-        example = "[\"TRADE_STOCKS\", \"CONTRACTS\"]"
+        example = "[]"
     ) @NotNull(message = "Privileges are required") Set<Privilege> privilege
 
 ) {

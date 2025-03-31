@@ -58,7 +58,7 @@ public record UpdateEmployeeDto(
 
     @Schema(
         description = "Employee's privileges",
-        example = "[\"TRADE_STOCKS\", \"CONTRACTS\"]"
+        example = "[\"ADMIN\"]"
     ) Set<Privilege> privilege,
 
     @Schema(

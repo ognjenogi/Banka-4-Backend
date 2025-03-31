@@ -48,7 +48,7 @@ public record UpdateClientDto(
 
     @Schema(
         description = "Client's privileges",
-        example = "[\"TRADE_STOCKS\", \"CONTRACTS\"]"
+        example = "[]"
     ) Set<Privilege> privilege
 ) {
 }

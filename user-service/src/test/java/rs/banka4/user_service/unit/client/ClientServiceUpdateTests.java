@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import rs.banka4.user_service.domain.user.Gender;
-import rs.banka4.user_service.domain.user.Privilege;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.client.dtos.UpdateClientDto;
 import rs.banka4.user_service.exceptions.user.DuplicateEmail;
@@ -54,7 +53,7 @@ public class ClientServiceUpdateTests {
                 "new.email@example.com",
                 "1234567890",
                 "New Address",
-                Set.of(Privilege.SEARCH)
+                Set.of()
             );
     }
 

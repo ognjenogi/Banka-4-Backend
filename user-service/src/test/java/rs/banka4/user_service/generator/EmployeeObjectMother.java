@@ -25,7 +25,7 @@ public class EmployeeObjectMother {
             "john.doe@example.com",
             "+381634567890",
             "123 Main St",
-            Set.of(Privilege.SEARCH),
+            Set.of(),
             "Developer",
             "IT",
             true
@@ -63,7 +63,7 @@ public class EmployeeObjectMother {
             "johndoe",
             "+381623456789",
             "123 Main St",
-            Set.of(Privilege.TRADE_STOCKS, Privilege.CONTRACTS),
+            Set.of(),
             "Developer",
             "IT",
             true
@@ -80,7 +80,7 @@ public class EmployeeObjectMother {
             "johndoe",
             "+381652147896",
             "123 Main St",
-            Set.of(Privilege.TRADE_STOCKS, Privilege.CONTRACTS),
+            Set.of(),
             "Developer",
             "IT",
             true
@@ -97,7 +97,7 @@ public class EmployeeObjectMother {
             "duplicateusername",
             "+381649632587",
             "123 Main St",
-            Set.of(Privilege.TRADE_STOCKS, Privilege.CONTRACTS),
+            Set.of(),
             "Developer",
             "IT",
             true
@@ -114,7 +114,7 @@ public class EmployeeObjectMother {
             "nonexistentuser",
             "+381638745230",
             "123 Main St",
-            Set.of(Privilege.TRADE_STOCKS, Privilege.CONTRACTS),
+            Set.of(),
             "Developer",
             "IT",
             true
@@ -132,7 +132,7 @@ public class EmployeeObjectMother {
         employee.setUsername("johndoe");
         employee.setPhone("+381626598741");
         employee.setAddress("123 Main St");
-        employee.setPrivileges(Set.of(Privilege.TRADE_STOCKS, Privilege.CONTRACTS));
+        employee.setPrivileges(Set.of());
         employee.setPosition("Developer");
         employee.setDepartment("IT");
         employee.setActive(true);
@@ -169,7 +169,7 @@ public class EmployeeObjectMother {
             "johndoe",
             "Developer",
             "IT",
-            EnumSet.of(Privilege.TRADE_STOCKS, Privilege.CONTRACTS),
+            EnumSet.noneOf(Privilege.class),
             true
         );
     }
