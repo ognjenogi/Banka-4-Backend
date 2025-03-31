@@ -19,8 +19,8 @@ import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
 public class Exchange {
     // https://drive.google.com/file/d/1H8FPNSkKhvkHjkJtMSJxwsnMMt7VIQjG/view za seed
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Builder.Default
+    public UUID id = UUID.randomUUID();
 
     @Column(nullable = false)
     private String exchangeName;
