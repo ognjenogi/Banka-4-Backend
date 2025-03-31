@@ -21,7 +21,7 @@ abstract class MakeMigrationTask @Inject constructor(
 	fun action() {
 		val currentTime = OffsetDateTime.now(ZoneOffset.UTC);
 		val currentTimeStr = currentTime.format(
-			DateTimeFormatter.ofPattern("YYYY'.'mm'.'dd")
+			DateTimeFormatter.ofPattern("YYYY'.2'MM'.'dd")
 		)
 		val migName = migrationName.get()
 		if (!migName.matches("[a-zA-Z0-9_]+".toRegex()))
