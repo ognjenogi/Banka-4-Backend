@@ -20,12 +20,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import rs.banka4.user_service.config.filters.JwtAuthenticationFilter;
 import rs.banka4.user_service.controller.TransactionController;
 import rs.banka4.user_service.domain.transaction.dtos.CreatePaymentDto;
 import rs.banka4.user_service.domain.transaction.dtos.TransactionDto;
 import rs.banka4.user_service.generator.TransactionObjectMother;
 import rs.banka4.user_service.service.abstraction.TransactionService;
-import rs.banka4.user_service.service.impl.CustomUserDetailsService;
 import rs.banka4.user_service.util.MockMvcUtil;
 import rs.banka4.user_service.utils.JwtUtil;
 
@@ -99,8 +99,8 @@ public class TransactionControllerTests {
         }
 
         @Bean
-        public CustomUserDetailsService customUserDetailsService() {
-            return Mockito.mock(CustomUserDetailsService.class);
+        public JwtAuthenticationFilter jwtAuthenticationFilter() {
+            return new NoopJwtAuthenticationFilter();
         }
     }
 }

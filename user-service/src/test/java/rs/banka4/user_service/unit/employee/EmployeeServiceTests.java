@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,7 +26,9 @@ import rs.banka4.user_service.exceptions.user.IncorrectCredentials;
 import rs.banka4.user_service.exceptions.user.NotAuthenticated;
 import rs.banka4.user_service.generator.EmployeeObjectMother;
 import rs.banka4.user_service.repositories.EmployeeRepository;
-import rs.banka4.user_service.service.impl.CustomUserDetailsService;
+import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
+import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.impl.EmployeeServiceImpl;
 import rs.banka4.user_service.utils.JwtUtil;
 
@@ -32,8 +36,6 @@ public class EmployeeServiceTests {
 
     @Mock
     private AuthenticationManager authenticationManager;
-    @Mock
-    private CustomUserDetailsService userDetailsService;
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock
@@ -55,11 +57,19 @@ public class EmployeeServiceTests {
         employee.setActive(true);
         employee.setPassword("encoded-password");
 
-        when(authenticationManager.authenticate(any())).thenReturn(null);
+        when(authenticationManager.authenticate(any())).thenReturn(
+            new AuthenticatedBankUserAuthentication(
+                new AuthenticatedBankUserPrincipal(
+                    UserType.EMPLOYEE,
+                    UUID.fromString("c5df725f-9715-462b-ab27-2562c78c10e2")
+                ),
+                null,
+                EnumSet.noneOf(Privilege.class)
+            )
+        );
         when(employeeRepository.findByEmail("user@example.com")).thenReturn(Optional.of(employee));
         when(jwtUtil.generateToken(employee)).thenReturn("access-token");
-        when(jwtUtil.generateRefreshToken(any(), any())).thenReturn("refresh-token");
-        when(userDetailsService.loadUserByUsername("user@example.com")).thenReturn(null);
+        when(jwtUtil.generateRefreshToken(any(), any(), any())).thenReturn("refresh-token");
 
         // Act
         LoginResponseDto response = employeeService.login(loginDto);

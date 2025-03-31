@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import rs.banka4.user_service.config.filters.JwtAuthenticationFilter;
 import rs.banka4.user_service.controller.LoanController;
 import rs.banka4.user_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.user_service.domain.loan.dtos.LoanFilterDto;
@@ -28,9 +29,7 @@ import rs.banka4.user_service.domain.loan.dtos.LoanInformationDto;
 import rs.banka4.user_service.generator.LoanObjectMother;
 import rs.banka4.user_service.service.abstraction.LoanInstallmentService;
 import rs.banka4.user_service.service.abstraction.LoanService;
-import rs.banka4.user_service.service.impl.CustomUserDetailsService;
 import rs.banka4.user_service.util.MockMvcUtil;
-import rs.banka4.user_service.utils.JwtUtil;
 
 @WebMvcTest(LoanController.class)
 @Import(LoanControllerTests.MockBeansConfig.class)
@@ -89,13 +88,8 @@ public class LoanControllerTests {
         }
 
         @Bean
-        public JwtUtil jwtUtil() {
-            return Mockito.mock(JwtUtil.class);
-        }
-
-        @Bean
-        public CustomUserDetailsService customUserDetailsService() {
-            return Mockito.mock(CustomUserDetailsService.class);
+        public JwtAuthenticationFilter jwtAuthenticationFilter() {
+            return new NoopJwtAuthenticationFilter();
         }
     }
 }

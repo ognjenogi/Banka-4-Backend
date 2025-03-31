@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,10 @@ import rs.banka4.user_service.domain.user.employee.mapper.EmployeeMapper;
 import rs.banka4.user_service.exceptions.user.*;
 import rs.banka4.user_service.exceptions.user.client.NotActivated;
 import rs.banka4.user_service.repositories.EmployeeRepository;
+import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.user_service.security.PreAuthBankUserAuthentication;
+import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
+import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.EmployeeService;
 import rs.banka4.user_service.utils.JwtUtil;
 import rs.banka4.user_service.utils.specification.EmployeeSpecification;
@@ -41,7 +44,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServiceImpl.class);
 
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService userDetailsService;
     private final EmployeeRepository employeeRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
@@ -49,14 +51,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public LoginResponseDto login(LoginDto loginDto) {
-        CustomUserDetailsService.role = "employee"; // Consider refactoring this into a more robust
-                                                    // role management system
-
+        final var principal =
+            new UnauthenticatedBankUserPrincipal(UserType.EMPLOYEE, loginDto.email());
+        AuthenticatedBankUserAuthentication token;
         try {
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
-            );
-        } catch (BadCredentialsException e) {
+            token =
+                (AuthenticatedBankUserAuthentication) authenticationManager.authenticate(
+                    new PreAuthBankUserAuthentication(principal, loginDto.password())
+                );
+        } catch (UsernameNotFoundException | BadCredentialsException e) {
             LOGGER.debug("Login for {} failed", loginDto, e);
             throw new IncorrectCredentials();
         }
@@ -71,10 +74,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         String accessToken = jwtUtil.generateToken(employee);
         String refreshToken =
-            jwtUtil.generateRefreshToken(
-                userDetailsService.loadUserByUsername(loginDto.email()),
-                "employee"
-            );
+            jwtUtil.generateRefreshToken(token.getPrincipal(), principal, UserType.EMPLOYEE);
 
         return new LoginResponseDto(accessToken, refreshToken);
     }

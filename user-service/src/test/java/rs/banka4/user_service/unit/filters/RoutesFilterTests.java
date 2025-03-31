@@ -2,10 +2,10 @@ package rs.banka4.user_service.unit.filters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import jakarta.servlet.FilterChain;
-import java.util.ArrayList;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,9 +18,11 @@ import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;
 import rs.banka4.user_service.config.filters.InvalidRouteFilter;
 import rs.banka4.user_service.config.filters.JwtAuthenticationFilter;
+import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.exceptions.RouteNotFound;
 import rs.banka4.user_service.exceptions.jwt.NoJwtProvided;
-import rs.banka4.user_service.service.impl.CustomUserDetailsService;
+import rs.banka4.user_service.repositories.ClientRepository;
+import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.utils.JwtUtil;
 
 public class RoutesFilterTests {
@@ -34,8 +36,13 @@ public class RoutesFilterTests {
     @Mock
     private JwtUtil jwtUtil;
 
+    /* TODO(arsen): part of the kludge in JwtAuthenticationFilter. */
     @Mock
-    private CustomUserDetailsService customUserDetailsService;
+    private ClientRepository clientRepository;
+
+    /* TODO(arsen): part of the kludge in JwtAuthenticationFilter. */
+    @Mock
+    private EmployeeRepository employeeRepository;
 
     @InjectMocks
     private InvalidRouteFilter invalidRouteFilter;
@@ -76,12 +83,12 @@ public class RoutesFilterTests {
         HandlerExecutionChain handlerExecutionChain = new HandlerExecutionChain(new Object());
         when(handlerMapping.getHandler(request)).thenReturn(handlerExecutionChain);
         when(jwtUtil.extractUsername(token)).thenReturn("username");
+        when(jwtUtil.extractRole(token)).thenReturn("client");
         when(jwtUtil.validateToken(token, "username")).thenReturn(true);
-        when(customUserDetailsService.loadUserByUsername("username")).thenReturn(
-            new org.springframework.security.core.userdetails.User(
-                "username",
-                "",
-                new ArrayList<>()
+        when(clientRepository.findById(any())).thenReturn(
+            Optional.of(
+                Client.builder()
+                    .build()
             )
         );
 

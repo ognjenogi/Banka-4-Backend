@@ -24,15 +24,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import rs.banka4.user_service.config.filters.JwtAuthenticationFilter;
 import rs.banka4.user_service.controller.ClientController;
 import rs.banka4.user_service.domain.user.client.dtos.ClientDto;
 import rs.banka4.user_service.domain.user.client.dtos.CreateClientDto;
 import rs.banka4.user_service.domain.user.client.dtos.UpdateClientDto;
 import rs.banka4.user_service.generator.ClientObjectMother;
 import rs.banka4.user_service.service.abstraction.ClientService;
-import rs.banka4.user_service.service.impl.CustomUserDetailsService;
 import rs.banka4.user_service.util.MockMvcUtil;
-import rs.banka4.user_service.utils.JwtUtil;
 
 @WebMvcTest(ClientController.class)
 @Import(ClientControllerTests.MockBeansConfig.class)
@@ -118,13 +117,8 @@ public class ClientControllerTests {
         }
 
         @Bean
-        public JwtUtil jwtUtil() {
-            return Mockito.mock(JwtUtil.class);
-        }
-
-        @Bean
-        public CustomUserDetailsService customUserDetailsService() {
-            return Mockito.mock(CustomUserDetailsService.class);
+        public JwtAuthenticationFilter jwtAuthenticationFilter() {
+            return new NoopJwtAuthenticationFilter();
         }
     }
 }
