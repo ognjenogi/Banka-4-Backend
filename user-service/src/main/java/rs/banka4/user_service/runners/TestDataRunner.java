@@ -63,6 +63,8 @@ public class TestDataRunner implements CommandLineRunner {
         UUID.fromString("259A9DFB-E5A6-46F0-AAD8-5E29496503C0");
     private static final UUID COMPANY_RAFFEISEN_BANK =
         UUID.fromString("073F00D9-D258-4CF2-8559-BADCDF0D1350");
+    private static final UUID STATE_COMPANY =
+        UUID.fromString("6B730AA0-0E1C-11F0-B4C8-0800200C9A66");
 
     private static final UUID LOAN_INTEREST_0_500000 =
         UUID.fromString("B0513B81-D32E-4F64-A9BF-D939AFE0E6A6");
@@ -100,6 +102,10 @@ public class TestDataRunner implements CommandLineRunner {
         UUID.fromString("54F5792B-95B7-4E26-8E13-87A5A1520244");
     private static final String CARD_DOO_NUMBER = "8765432107654321";
     private static final String CARD_DOO_CVV = "321";
+
+    private static final UUID STATE_ACCOUNT =
+        UUID.fromString("1F969C90-0E1D-11F0-B4C8-0800200C9A66");
+    private static final String STATE_ACCOUNT_NUMBER = "4440001000000000999";
 
     private static final UUID BANK_ACCOUNT_RSD =
         UUID.fromString("8142AA92-D71E-461C-AD92-A3228FE46488");
@@ -168,6 +174,7 @@ public class TestDataRunner implements CommandLineRunner {
         activityCodeSeeder();
         bankSelfClientSeeder();
         bankSeeder();
+        seedStateCompany();
 
         /* Dev-only seeders. */
         if (environment.matchesProfiles("dev")) {
@@ -1096,6 +1103,41 @@ public class TestDataRunner implements CommandLineRunner {
         cardRepository.saveAndFlush(card);
     }
 
+    private void seedStateCompany() {
+        Company stateCompany =
+            Company.builder()
+                .id(STATE_COMPANY)
+                .name("The State")
+                .tin("100100100")
+                .crn("200200200")
+                .address("Government Square, Belgrade")
+                .build();
+
+        companyRepository.saveAndFlush(stateCompany);
+
+        Currency rsdCurrency = currencyRepository.findByCode(Currency.Code.RSD);
+
+        Account stateAccount =
+            Account.builder()
+                .id(STATE_ACCOUNT)
+                .accountNumber(STATE_ACCOUNT_NUMBER)
+                .balance(BigDecimal.ZERO)
+                .availableBalance(BigDecimal.ZERO)
+                .accountMaintenance(BigDecimal.ZERO)
+                .createdDate(LocalDate.now())
+                .expirationDate(
+                    LocalDate.now()
+                        .plusYears(5)
+                )
+                .active(true)
+                .accountType(AccountType.DOO)
+                .company(stateCompany)
+                .currency(rsdCurrency)
+                .build();
+
+        accountRepository.saveAndFlush(stateAccount);
+    }
+
     private void bankSeeder() {
         ActivityCode activityCode =
             activityCodeRepository.findActivityCodeByCode("64.19")
@@ -1176,4 +1218,5 @@ public class TestDataRunner implements CommandLineRunner {
 
         accountRepository.saveAllAndFlush(accounts);
     }
+
 }
