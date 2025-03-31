@@ -98,12 +98,11 @@ public class GetAllLoansTests {
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
                 new Currency(
-                    UUID.randomUUID(),
+                    Currency.Code.RSD,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
-                    true,
-                    Currency.Code.RSD
+                    true
                 ),
                 LoanStatus.APPROVED,
                 Loan.InterestType.FIXED
@@ -123,12 +122,11 @@ public class GetAllLoansTests {
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
                 new Currency(
-                    UUID.randomUUID(),
+                    Currency.Code.RSD,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
-                    true,
-                    Currency.Code.RSD
+                    true
                 ),
                 LoanStatus.APPROVED,
                 Loan.InterestType.FIXED
@@ -149,12 +147,11 @@ public class GetAllLoansTests {
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
                 new Currency(
-                    UUID.randomUUID(),
+                    Currency.Code.RSD,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
-                    true,
-                    Currency.Code.RSD
+                    true
                 ),
                 LoanStatus.APPROVED,
                 Loan.InterestType.FIXED
@@ -174,7 +171,7 @@ public class GetAllLoansTests {
         loan1.setAccount(account1);
 
         Currency currency = new Currency();
-        currency.setId(UUID.randomUUID());
+        currency.setCode(Currency.Code.EUR);
         currency.setName("EUR");
         currency.setActive(true);
         currency.setSymbol("E");
