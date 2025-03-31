@@ -1,6 +1,5 @@
 package rs.banka4.user_service.domain.loan.db;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import rs.banka4.user_service.exceptions.loan.InvalidLoanStatus;
 
 public enum LoanStatus {
@@ -10,7 +9,6 @@ public enum LoanStatus {
     DELAYED,
     PROCESSING;
 
-    @JsonCreator
     public static LoanStatus fromString(String raw) {
         try {
             return LoanStatus.valueOf(raw);

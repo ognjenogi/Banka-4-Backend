@@ -1,6 +1,5 @@
 package rs.banka4.user_service.domain.currency.db;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,7 +45,6 @@ public class Currency {
         CAD,
         GBP;
 
-        @JsonCreator
         public static Code fromString(String raw) {
             try {
                 return Code.valueOf(raw);
