@@ -15,7 +15,7 @@ public enum LoanStatus {
         try {
             return LoanStatus.valueOf(raw);
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidLoanStatus("Invalid Loan Status: " + raw);
+            throw new InvalidLoanStatus(raw);
         }
     }
 }

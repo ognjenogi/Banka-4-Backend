@@ -51,7 +51,7 @@ public class Currency {
             try {
                 return Code.valueOf(raw);
             } catch (IllegalArgumentException | NullPointerException e) {
-                throw new InvalidCurrency("Invalid currency code: " + raw);
+                throw new InvalidCurrency(raw);
             }
         }
     }
