@@ -8,7 +8,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +36,12 @@ public class TestDataRunner implements CommandLineRunner {
     private final ExchangeRepository exchangeRepository;
     private final ListingDailyPriceInfoRepository listingDailyPriceInfoRepository;
 
-    private static final UUID STOCK_APPLE =
-        UUID.fromString("67681711-43C0-413C-B7EC-EF78AB19BB71");
+    private static final UUID STOCK_APPLE = UUID.fromString("67681711-43C0-413C-B7EC-EF78AB19BB71");
     private static final UUID STOCK_MICROSOFT =
         UUID.fromString("7E5CD697-7E53-4855-82F9-EB241E614ECA");
     private static final UUID STOCK_AMAZON =
         UUID.fromString("8AFF460F-1636-4CD2-BEDC-909C7E00BC35");
-    private static final UUID STOCK_TESLA =
-        UUID.fromString("13A4391A-4F1C-4883-A5D3-1A82719E9DD2");
+    private static final UUID STOCK_TESLA = UUID.fromString("13A4391A-4F1C-4883-A5D3-1A82719E9DD2");
     private static final UUID STOCK_NVIDIA =
         UUID.fromString("E8A56709-F90A-421E-A17B-0C20D9A2D9AA");
     private static final UUID FOREX_USD_EUR =
@@ -74,163 +71,165 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedProductionStocks() {
-                List<Stock> productionStocks = List.of(
-                    Stock.builder()
-                        .id(STOCK_APPLE)
-                        .name("Apple")
-                        .outstandingShares(16000000)
-                        .dividendYield(new BigDecimal("0.005"))
-                        .createdAt(OffsetDateTime.now())
-                        .build(),
-                    Stock.builder()
-                        .id(STOCK_MICROSOFT)
-                        .name("Microsoft")
-                        .outstandingShares(7500000000L)
-                        .dividendYield(new BigDecimal("0.008"))
-                        .createdAt(OffsetDateTime.now())
-                        .build(),
-                    Stock.builder()
-                        .id(STOCK_AMAZON)
-                        .name("Amazon")
-                        .outstandingShares(1020000000)
-                        .dividendYield(new BigDecimal("0"))
-                        .createdAt(OffsetDateTime.now())
-                        .build(),
-                    Stock.builder()
-                        .id(STOCK_TESLA)
-                        .name("Tesla")
-                        .outstandingShares(3200000000L)
-                        .dividendYield(new BigDecimal("0"))
-                        .createdAt(OffsetDateTime.now())
-                        .build(),
-                    Stock.builder()
-                        .id(STOCK_NVIDIA)
-                        .name("Nvidia")
-                        .outstandingShares(2500000000L)
-                        .dividendYield(new BigDecimal("0.002"))
-                        .createdAt(OffsetDateTime.now())
-                        .build()
-                );
-                stockRepository.saveAllAndFlush(productionStocks);
-                LOGGER.info("Production stocks seeded successfully");
-    }
-
-    private void seedDevStocks() {
-        if (stockRepository.count() < 37) {
-            List<Stock> devStocks = List.of(
+        List<Stock> productionStocks =
+            List.of(
                 Stock.builder()
-                    .id(UUID.fromString("74A6489D-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Google (Alphabet)")
-                    .outstandingShares(600000000)
-                    .dividendYield(new BigDecimal("0"))
+                    .id(STOCK_APPLE)
+                    .name("Apple")
+                    .outstandingShares(16000000)
+                    .dividendYield(new BigDecimal("0.005"))
                     .createdAt(OffsetDateTime.now())
                     .build(),
                 Stock.builder()
-                    .id(UUID.fromString("74A6489E-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Meta (Facebook)")
-                    .outstandingShares(2700000000L)
-                    .dividendYield(new BigDecimal("0"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A6489F-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Berkshire Hathaway")
-                    .outstandingShares(2200000000L)
-                    .dividendYield(new BigDecimal("0"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648A0-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Johnson & Johnson")
-                    .outstandingShares(2600000000L)
-                    .dividendYield(new BigDecimal("0.025"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648A5-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("JPMorgan Chase")
-                    .outstandingShares(2900000000L)
-                    .dividendYield(new BigDecimal("0.029"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648A6-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Visa")
-                    .outstandingShares(2200000000L)
+                    .id(STOCK_MICROSOFT)
+                    .name("Microsoft")
+                    .outstandingShares(7500000000L)
                     .dividendYield(new BigDecimal("0.008"))
                     .createdAt(OffsetDateTime.now())
                     .build(),
                 Stock.builder()
-                    .id(UUID.fromString("74A648A7-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Procter & Gamble")
-                    .outstandingShares(2500000000L)
-                    .dividendYield(new BigDecimal("0.026"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648A9-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("UnitedHealth Group")
-                    .outstandingShares(900000000)
-                    .dividendYield(new BigDecimal("0.016"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648AA-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("ExxonMobil")
-                    .outstandingShares(4000000000L)
-                    .dividendYield(new BigDecimal("0.031"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648AB-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Walmart")
-                    .outstandingShares(2800000000L)
-                    .dividendYield(new BigDecimal("0.014"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648AC-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Pfizer")
-                    .outstandingShares(5600000000L)
-                    .dividendYield(new BigDecimal("0.046"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648AE-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Chevron")
-                    .outstandingShares(1900000000L)
-                    .dividendYield(new BigDecimal("0.041"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648AF-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Coca-Cola")
-                    .outstandingShares(4300000000L)
-                    .dividendYield(new BigDecimal("0.029"))
-                    .createdAt(OffsetDateTime.now())
-                    .build(),
-                Stock.builder()
-                    .id(UUID.fromString("74A648B0-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Disney")
-                    .outstandingShares(1800000000L)
+                    .id(STOCK_AMAZON)
+                    .name("Amazon")
+                    .outstandingShares(1020000000)
                     .dividendYield(new BigDecimal("0"))
                     .createdAt(OffsetDateTime.now())
                     .build(),
                 Stock.builder()
-                    .id(UUID.fromString("74A648B1-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("PepsiCo")
-                    .outstandingShares(1400000000L)
-                    .dividendYield(new BigDecimal("0.028"))
+                    .id(STOCK_TESLA)
+                    .name("Tesla")
+                    .outstandingShares(3200000000L)
+                    .dividendYield(new BigDecimal("0"))
                     .createdAt(OffsetDateTime.now())
                     .build(),
                 Stock.builder()
-                    .id(UUID.fromString("74A648B2-0DBD-11F0-B4C8-0800200C9A66"))
-                    .name("Intel")
-                    .outstandingShares(4200000000L)
-                    .dividendYield(new BigDecimal("0.016"))
+                    .id(STOCK_NVIDIA)
+                    .name("Nvidia")
+                    .outstandingShares(2500000000L)
+                    .dividendYield(new BigDecimal("0.002"))
                     .createdAt(OffsetDateTime.now())
                     .build()
             );
+        stockRepository.saveAllAndFlush(productionStocks);
+        LOGGER.info("Production stocks seeded successfully");
+    }
+
+    private void seedDevStocks() {
+        if (stockRepository.count() < 37) {
+            List<Stock> devStocks =
+                List.of(
+                    Stock.builder()
+                        .id(UUID.fromString("74A6489D-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Google (Alphabet)")
+                        .outstandingShares(600000000)
+                        .dividendYield(new BigDecimal("0"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A6489E-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Meta (Facebook)")
+                        .outstandingShares(2700000000L)
+                        .dividendYield(new BigDecimal("0"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A6489F-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Berkshire Hathaway")
+                        .outstandingShares(2200000000L)
+                        .dividendYield(new BigDecimal("0"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648A0-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Johnson & Johnson")
+                        .outstandingShares(2600000000L)
+                        .dividendYield(new BigDecimal("0.025"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648A5-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("JPMorgan Chase")
+                        .outstandingShares(2900000000L)
+                        .dividendYield(new BigDecimal("0.029"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648A6-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Visa")
+                        .outstandingShares(2200000000L)
+                        .dividendYield(new BigDecimal("0.008"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648A7-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Procter & Gamble")
+                        .outstandingShares(2500000000L)
+                        .dividendYield(new BigDecimal("0.026"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648A9-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("UnitedHealth Group")
+                        .outstandingShares(900000000)
+                        .dividendYield(new BigDecimal("0.016"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648AA-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("ExxonMobil")
+                        .outstandingShares(4000000000L)
+                        .dividendYield(new BigDecimal("0.031"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648AB-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Walmart")
+                        .outstandingShares(2800000000L)
+                        .dividendYield(new BigDecimal("0.014"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648AC-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Pfizer")
+                        .outstandingShares(5600000000L)
+                        .dividendYield(new BigDecimal("0.046"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648AE-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Chevron")
+                        .outstandingShares(1900000000L)
+                        .dividendYield(new BigDecimal("0.041"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648AF-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Coca-Cola")
+                        .outstandingShares(4300000000L)
+                        .dividendYield(new BigDecimal("0.029"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648B0-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Disney")
+                        .outstandingShares(1800000000L)
+                        .dividendYield(new BigDecimal("0"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648B1-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("PepsiCo")
+                        .outstandingShares(1400000000L)
+                        .dividendYield(new BigDecimal("0.028"))
+                        .createdAt(OffsetDateTime.now())
+                        .build(),
+                    Stock.builder()
+                        .id(UUID.fromString("74A648B2-0DBD-11F0-B4C8-0800200C9A66"))
+                        .name("Intel")
+                        .outstandingShares(4200000000L)
+                        .dividendYield(new BigDecimal("0.016"))
+                        .createdAt(OffsetDateTime.now())
+                        .build()
+                );
             for (Stock stock : devStocks) {
                 if (!stockRepository.existsById(stock.getId())) {
                     stockRepository.saveAndFlush(stock);
@@ -240,7 +239,8 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedProductionForexPairs() {
-            List<ForexPair> prodForexPairs = List.of(
+        List<ForexPair> prodForexPairs =
+            List.of(
                 ForexPair.builder()
                     .id(FOREX_USD_EUR)
                     .baseCurrency(CurrencyCode.USD)
@@ -258,8 +258,8 @@ public class TestDataRunner implements CommandLineRunner {
                     .liquidity(ForexLiquidity.HIGH)
                     .build()
             );
-            forexPairRepository.saveAllAndFlush(prodForexPairs);
-            LOGGER.info("Production forex pairs seeded successfully");
+        forexPairRepository.saveAllAndFlush(prodForexPairs);
+        LOGGER.info("Production forex pairs seeded successfully");
     }
 
     private void seedDevForexPairs() {
@@ -289,24 +289,29 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedProductionFutures() {
-            List<Future> prodFutures = List.of(
+        List<Future> prodFutures =
+            List.of(
                 Future.builder()
                     .id(FUTURE_CRUDE_OIL)
                     .name("Crude Oil")
                     .contractSize(1000)
                     .contractUnit(UnitName.BARREL)
-                    .settlementDate(OffsetDateTime.now().plusMonths(13))
+                    .settlementDate(
+                        OffsetDateTime.now()
+                            .plusMonths(13)
+                    )
                     .build()
             );
-            futureRepository.saveAllAndFlush(prodFutures);
-            LOGGER.info("Production futures seeded successfully");
+        futureRepository.saveAllAndFlush(prodFutures);
+        LOGGER.info("Production futures seeded successfully");
     }
 
     private void seedDevFutures() {
         List<Future> devFutures =
             List.of(
                 Future.builder()
-                    .id(UUID.fromString("74A648B4-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Corn")
+                    .id(UUID.fromString("74A648B4-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Corn")
                     .contractSize(5000)
                     .contractUnit(UnitName.BUSHEL)
                     .settlementDate(
@@ -315,7 +320,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648B5-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Soybean")
+                    .id(UUID.fromString("74A648B5-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Soybean")
                     .contractSize(5000)
                     .contractUnit(UnitName.BUSHEL)
                     .settlementDate(
@@ -324,7 +330,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648B8-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Soybean Oil")
+                    .id(UUID.fromString("74A648B8-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Soybean Oil")
                     .contractSize(60000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -333,7 +340,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648B7-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Soybean Meal")
+                    .id(UUID.fromString("74A648B7-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Soybean Meal")
                     .contractSize(180000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -342,7 +350,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648BA-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Chicago Wheat")
+                    .id(UUID.fromString("74A648BA-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Chicago Wheat")
                     .contractSize(5000)
                     .contractUnit(UnitName.BUSHEL)
                     .settlementDate(
@@ -351,7 +360,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648BB-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Live Cattle")
+                    .id(UUID.fromString("74A648BB-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Live Cattle")
                     .contractSize(40000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -360,7 +370,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648BC-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Wheat")
+                    .id(UUID.fromString("74A648BC-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Wheat")
                     .contractSize(5000)
                     .contractUnit(UnitName.BUSHEL)
                     .settlementDate(
@@ -369,7 +380,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648BD-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Feeder Cattle")
+                    .id(UUID.fromString("74A648BD-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Feeder Cattle")
                     .contractSize(50000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -378,7 +390,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648BE-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Lean Hog")
+                    .id(UUID.fromString("74A648BE-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Lean Hog")
                     .contractSize(40000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -387,7 +400,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648BF-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Pork Cutout")
+                    .id(UUID.fromString("74A648BF-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Pork Cutout")
                     .contractSize(40000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -396,7 +410,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C0-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Nonfat Dry Milk")
+                    .id(UUID.fromString("74A648C0-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Nonfat Dry Milk")
                     .contractSize(44000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -405,7 +420,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C1-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Class 3 Milk")
+                    .id(UUID.fromString("74A648C1-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Class 3 Milk")
                     .contractSize(200000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -414,7 +430,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C2-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Class 4 Milk")
+                    .id(UUID.fromString("74A648C2-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Class 4 Milk")
                     .contractSize(200000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -423,7 +440,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C3-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Cash-Settled Butter")
+                    .id(UUID.fromString("74A648C3-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Cash-Settled Butter")
                     .contractSize(20000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -432,7 +450,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C4-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Cash-Settled Cheese")
+                    .id(UUID.fromString("74A648C4-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Cash-Settled Cheese")
                     .contractSize(20000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -441,7 +460,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C5-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Block Cheese")
+                    .id(UUID.fromString("74A648C5-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Block Cheese")
                     .contractSize(2000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -450,7 +470,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C6-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Oats")
+                    .id(UUID.fromString("74A648C6-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Oats")
                     .contractSize(5000)
                     .contractUnit(UnitName.BUSHEL)
                     .settlementDate(
@@ -459,7 +480,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C7-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Rough Rice")
+                    .id(UUID.fromString("74A648C7-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Rough Rice")
                     .contractSize(180000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -468,7 +490,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C8-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Urea")
+                    .id(UUID.fromString("74A648C8-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Urea")
                     .contractSize(200000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -477,7 +500,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648C9-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Crude Oil")
+                    .id(UUID.fromString("74A648C9-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Crude Oil")
                     .contractSize(1000)
                     .contractUnit(UnitName.BARREL)
                     .settlementDate(
@@ -486,7 +510,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648CA-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Natural Gas")
+                    .id(UUID.fromString("74A648CA-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Natural Gas")
                     .contractSize(10000)
                     .contractUnit(UnitName.MMBTU)
                     .settlementDate(
@@ -495,7 +520,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648CB-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Gasoline")
+                    .id(UUID.fromString("74A648CB-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Gasoline")
                     .contractSize(42000)
                     .contractUnit(UnitName.GALLON)
                     .settlementDate(
@@ -504,7 +530,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648CC-0DBD-11F0-B4C8-0800200C9A66"))                    .name("E-Mini Crude Oil")
+                    .id(UUID.fromString("74A648CC-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("E-Mini Crude Oil")
                     .contractSize(500)
                     .contractUnit(UnitName.BARREL)
                     .settlementDate(
@@ -513,7 +540,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648CD-0DBD-11F0-B4C8-0800200C9A66"))                    .name("NY Harbor ULSD")
+                    .id(UUID.fromString("74A648CD-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("NY Harbor ULSD")
                     .contractSize(42000)
                     .contractUnit(UnitName.GALLON)
                     .settlementDate(
@@ -522,7 +550,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648CE-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Micro Crude Oil")
+                    .id(UUID.fromString("74A648CE-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Micro Crude Oil")
                     .contractSize(100)
                     .contractUnit(UnitName.BARREL)
                     .settlementDate(
@@ -531,7 +560,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648CF-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Henry Hub Natural Gas")
+                    .id(UUID.fromString("74A648CF-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Henry Hub Natural Gas")
                     .contractSize(10000)
                     .contractUnit(UnitName.MMBTU)
                     .settlementDate(
@@ -540,7 +570,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D0-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Buckeye Jet Fuel")
+                    .id(UUID.fromString("74A648D0-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Buckeye Jet Fuel")
                     .contractSize(42000)
                     .contractUnit(UnitName.GALLON)
                     .settlementDate(
@@ -549,7 +580,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D1-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Gold")
+                    .id(UUID.fromString("74A648D1-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Gold")
                     .contractSize(100)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -558,7 +590,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D2-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Silver")
+                    .id(UUID.fromString("74A648D2-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Silver")
                     .contractSize(5000)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -567,7 +600,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D3-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Platinum")
+                    .id(UUID.fromString("74A648D3-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Platinum")
                     .contractSize(50)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -576,7 +610,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D4-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Copper")
+                    .id(UUID.fromString("74A648D4-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Copper")
                     .contractSize(25000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -585,7 +620,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D5-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Aluminum")
+                    .id(UUID.fromString("74A648D5-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Aluminum")
                     .contractSize(50000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -594,7 +630,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D6-0DBD-11F0-B4C8-0800200C9A66"))                    .name("E-Mini Copper")
+                    .id(UUID.fromString("74A648D6-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("E-Mini Copper")
                     .contractSize(12500)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -603,7 +640,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D7-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Copper Mini")
+                    .id(UUID.fromString("74A648D7-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Copper Mini")
                     .contractSize(12500)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -612,7 +650,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D8-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Silver Mini")
+                    .id(UUID.fromString("74A648D8-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Silver Mini")
                     .contractSize(1000)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -621,7 +660,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648D9-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Platinum Mini")
+                    .id(UUID.fromString("74A648D9-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Platinum Mini")
                     .contractSize(10)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -630,7 +670,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648DA-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Gold Options")
+                    .id(UUID.fromString("74A648DA-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Gold Options")
                     .contractSize(100)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -639,7 +680,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648DB-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Silver Options")
+                    .id(UUID.fromString("74A648DB-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Silver Options")
                     .contractSize(5000)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -648,7 +690,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648DC-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Palladium Options")
+                    .id(UUID.fromString("74A648DC-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Palladium Options")
                     .contractSize(100)
                     .contractUnit(UnitName.TROY_OUNCE)
                     .settlementDate(
@@ -657,7 +700,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648DD-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Cotton")
+                    .id(UUID.fromString("74A648DD-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Cotton")
                     .contractSize(50000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -666,7 +710,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648DE-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Coffee")
+                    .id(UUID.fromString("74A648DE-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Coffee")
                     .contractSize(37500)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -675,7 +720,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648DF-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Sugar")
+                    .id(UUID.fromString("74A648DF-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Sugar")
                     .contractSize(112000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -684,7 +730,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648E0-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Cocoa")
+                    .id(UUID.fromString("74A648E0-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Cocoa")
                     .contractSize(10)
                     .contractUnit(UnitName.METRIC_TON)
                     .settlementDate(
@@ -693,7 +740,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648E1-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Orange Juice")
+                    .id(UUID.fromString("74A648E1-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Orange Juice")
                     .contractSize(15000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -702,7 +750,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("74A648E2-0DBD-11F0-B4C8-0800200C9A66"))                    .name("Lumber Options")
+                    .id(UUID.fromString("74A648E2-0DBD-11F0-B4C8-0800200C9A66"))
+                    .name("Lumber Options")
                     .contractSize(1100)
                     .contractUnit(UnitName.BOARD_FEET)
                     .settlementDate(
@@ -711,7 +760,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("6AE088E0-0DBF-11F0-B4C8-0800200C9A66"))                    .name("Lean Hog Options")
+                    .id(UUID.fromString("6AE088E0-0DBF-11F0-B4C8-0800200C9A66"))
+                    .name("Lean Hog Options")
                     .contractSize(40000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -720,7 +770,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("6AE088E1-0DBF-11F0-B4C8-0800200C9A66"))                    .name("Live Cattle Options")
+                    .id(UUID.fromString("6AE088E1-0DBF-11F0-B4C8-0800200C9A66"))
+                    .name("Live Cattle Options")
                     .contractSize(40000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -729,7 +780,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("6AE088E2-0DBF-11F0-B4C8-0800200C9A66"))                    .name("Feeder Cattle Options")
+                    .id(UUID.fromString("6AE088E2-0DBF-11F0-B4C8-0800200C9A66"))
+                    .name("Feeder Cattle Options")
                     .contractSize(50000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -738,7 +790,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("6AE088E3-0DBF-11F0-B4C8-0800200C9A66"))                    .name("Butter Options")
+                    .id(UUID.fromString("6AE088E3-0DBF-11F0-B4C8-0800200C9A66"))
+                    .name("Butter Options")
                     .contractSize(20000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -747,7 +800,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("6AE088E4-0DBF-11F0-B4C8-0800200C9A66"))                    .name("Cheese Options")
+                    .id(UUID.fromString("6AE088E4-0DBF-11F0-B4C8-0800200C9A66"))
+                    .name("Cheese Options")
                     .contractSize(20000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -756,7 +810,8 @@ public class TestDataRunner implements CommandLineRunner {
                     )
                     .build(),
                 Future.builder()
-                    .id(UUID.fromString("6AE088E5-0DBF-11F0-B4C8-0800200C9A66"))                    .name("Pork Belly Options")
+                    .id(UUID.fromString("6AE088E5-0DBF-11F0-B4C8-0800200C9A66"))
+                    .name("Pork Belly Options")
                     .contractSize(40000)
                     .contractUnit(UnitName.POUND)
                     .settlementDate(
@@ -774,7 +829,8 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedProductionExchanges() {
-        List<Exchange> exchanges = List.of(
+        List<Exchange> exchanges =
+            List.of(
                 Exchange.builder()
                     .id(EXCHANGE_NASDAQ)
                     .exchangeName("Nasdaq")
@@ -783,11 +839,23 @@ public class TestDataRunner implements CommandLineRunner {
                     .polity("USA")
                     .currency(CurrencyCode.USD)
                     .timeZone("America/New_York")
-                    .openTime(OffsetDateTime.of(LocalDate.now(), LocalTime.of(9, 30), ZoneOffset.of("-04:00")))
-                    .closeTime(OffsetDateTime.of(LocalDate.now(), LocalTime.of(16, 0), ZoneOffset.of("-04:00")))
+                    .openTime(
+                        OffsetDateTime.of(
+                            LocalDate.now(),
+                            LocalTime.of(9, 30),
+                            ZoneOffset.of("-04:00")
+                        )
+                    )
+                    .closeTime(
+                        OffsetDateTime.of(
+                            LocalDate.now(),
+                            LocalTime.of(16, 0),
+                            ZoneOffset.of("-04:00")
+                        )
+                    )
                     .createdAt(LocalDate.now())
                     .build()
-        );
+            );
         exchangeRepository.saveAllAndFlush(exchanges);
     }
 
@@ -1179,7 +1247,8 @@ public class TestDataRunner implements CommandLineRunner {
                     .createdAt(LocalDate.now())
                     .build(),
                 Exchange.builder()
-                    .id(UUID.fromString("6AE088F6-0DBF-11F0-B4C8-0800200C9A66"))                    .exchangeName("London Metal Exchange")
+                    .id(UUID.fromString("6AE088F6-0DBF-11F0-B4C8-0800200C9A66"))
+                    .exchangeName("London Metal Exchange")
                     .exchangeAcronym("LME")
                     .exchangeMICCode("XLME")
                     .polity("United Kingdom")
@@ -1202,7 +1271,8 @@ public class TestDataRunner implements CommandLineRunner {
                     .createdAt(LocalDate.now())
                     .build(),
                 Exchange.builder()
-                    .id(UUID.fromString("6AE088F7-0DBF-11F0-B4C8-0800200C9A66"))                    .exchangeName("Multi Commodity Exchange Of India Ltd.")
+                    .id(UUID.fromString("6AE088F7-0DBF-11F0-B4C8-0800200C9A66"))
+                    .exchangeName("Multi Commodity Exchange Of India Ltd.")
                     .exchangeAcronym("MCX")
                     .exchangeMICCode("XIMC")
                     .polity("India")
@@ -1225,7 +1295,8 @@ public class TestDataRunner implements CommandLineRunner {
                     .createdAt(LocalDate.now())
                     .build(),
                 Exchange.builder()
-                    .id(UUID.fromString("6AE088F8-0DBF-11F0-B4C8-0800200C9A66"))                    .exchangeName(
+                    .id(UUID.fromString("6AE088F8-0DBF-11F0-B4C8-0800200C9A66"))
+                    .exchangeName(
                         "Cassa Di Compensazione E Garanzia Spa - Ccp Agricultural Commodity Derivatives"
                     )
                     .exchangeAcronym("CCGAGRIDER")
@@ -1250,7 +1321,8 @@ public class TestDataRunner implements CommandLineRunner {
                     .createdAt(LocalDate.now())
                     .build(),
                 Exchange.builder()
-                    .id(UUID.fromString("6AE088F9-0DBF-11F0-B4C8-0800200C9A66"))                    .exchangeName("Toronto Stock Exchange - Drk")
+                    .id(UUID.fromString("6AE088F9-0DBF-11F0-B4C8-0800200C9A66"))
+                    .exchangeName("Toronto Stock Exchange - Drk")
                     .exchangeAcronym("TSX DRK")
                     .exchangeMICCode("XDRK")
                     .polity("Canada")
