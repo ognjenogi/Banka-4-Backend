@@ -1,19 +1,9 @@
 package rs.banka4.user_service.domain.loan.db;
 
-import rs.banka4.user_service.exceptions.loan.InvalidLoanType;
-
 public enum LoanType {
     CASH,
     MORTGAGE,
     AUTO_LOAN,
     REFINANCING,
     STUDENT_LOAN;
-
-    public static LoanType fromString(String raw) {
-        try {
-            return LoanType.valueOf(raw);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidLoanType(raw);
-        }
-    }
 }

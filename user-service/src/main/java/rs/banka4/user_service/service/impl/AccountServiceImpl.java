@@ -33,7 +33,6 @@ import rs.banka4.user_service.domain.user.client.mapper.ClientMapper;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.exceptions.account.*;
 import rs.banka4.user_service.exceptions.account.AccountNotFound;
-import rs.banka4.user_service.exceptions.account.InvalidCurrency;
 import rs.banka4.user_service.exceptions.company.CompanyNotFound;
 import rs.banka4.user_service.exceptions.user.IncorrectCredentials;
 import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
@@ -106,7 +105,6 @@ public class AccountServiceImpl implements AccountService {
      * it will be set to {@link AccountType#DOO}. Currency will be set if the provided currency code
      * exists.
      *
-     * @throws InvalidCurrency if the currency code doesn't exist
      * @throws CompanyNotFound if the company with the given id is not found
      * @throws ClientNotFound if the client with the given id is not found
      * @param createAccountDto the details of the account to be created
@@ -318,14 +316,13 @@ public class AccountServiceImpl implements AccountService {
      *
      * @param account the account to which the currency is to be connected
      * @param createAccountDto contains the details of the currency code {@link Currency.Code}
-     * @throws InvalidCurrency if the currency code does not exist in the repository
+     * @throws IllegalStateException if the currency code does not exist in the repository
      */
     private void connectCurrencyToAccount(Account account, CreateAccountDto createAccountDto) {
         Currency currency = currencyRepository.findByCode(createAccountDto.currency());
         if (currency == null)
-            throw new InvalidCurrency(
-                createAccountDto.currency()
-                    .toString()
+            throw new IllegalStateException(
+                "Currency  by code %s not in database".formatted(createAccountDto.currency())
             );
 
         account.setCurrency(currency);

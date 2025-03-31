@@ -17,7 +17,7 @@ import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.loan.db.Loan;
 import rs.banka4.user_service.domain.loan.db.LoanStatus;
 import rs.banka4.user_service.exceptions.jwt.Unauthorized;
-import rs.banka4.user_service.exceptions.loan.InvalidLoanStatus;
+import rs.banka4.user_service.exceptions.loan.LoanAlreadyJudged;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.repositories.AccountRepository;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
@@ -78,7 +78,7 @@ public class ManageLoansTests {
         when(loanRepository.save(loan)).thenReturn(loan);
 
 
-        assertThrows(InvalidLoanStatus.class, () -> loanService.approveLoan(loanNumber, "jwt"));
+        assertThrows(LoanAlreadyJudged.class, () -> loanService.approveLoan(loanNumber, "jwt"));
         verify(loanRepository, never()).save(loan);
     }
 
@@ -96,7 +96,7 @@ public class ManageLoansTests {
         when(loanRepository.save(loan)).thenReturn(loan);
 
 
-        assertThrows(InvalidLoanStatus.class, () -> loanService.rejectLoan(loanNumber, "jwt"));
+        assertThrows(LoanAlreadyJudged.class, () -> loanService.rejectLoan(loanNumber, "jwt"));
         verify(loanRepository, never()).save(loan);
     }
 

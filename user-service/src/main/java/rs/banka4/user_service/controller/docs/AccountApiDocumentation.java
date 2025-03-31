@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
 import rs.banka4.user_service.domain.account.dtos.CreateAccountDto;
 import rs.banka4.user_service.domain.account.dtos.SetAccountLimitsDto;
-import rs.banka4.user_service.exceptions.account.InvalidCurrency;
 import rs.banka4.user_service.exceptions.company.CompanyNotFound;
 import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
 import rs.banka4.user_service.exceptions.user.employee.EmployeeNotFound;
@@ -136,11 +135,6 @@ public interface AccountApiDocumentation {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successfully created new account"
-            ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "Invalid currency",
-                content = @Content(schema = @Schema(implementation = InvalidCurrency.class))
             ),
             @ApiResponse(
                 responseCode = "400",

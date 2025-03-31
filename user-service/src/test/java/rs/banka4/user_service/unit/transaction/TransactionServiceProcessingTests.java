@@ -42,11 +42,11 @@ public class TransactionServiceProcessingTests {
     void testProcessTransactionSameCurrency() {
         // Arrange
         Account fromAccount = new Account();
-        fromAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        fromAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         fromAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account toAccount = new Account();
-        toAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        toAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         toAccount.setBalance(BigDecimal.valueOf(500));
 
         BigDecimal amount = BigDecimal.valueOf(100);
@@ -73,11 +73,11 @@ public class TransactionServiceProcessingTests {
     void testProcessTransactionRsdToForeign() {
         // Arrange
         Account fromAccount = new Account();
-        fromAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        fromAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         fromAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account toAccount = new Account();
-        toAccount.setCurrency(TransactionObjectMother.generateCurrency("USD"));
+        toAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.USD));
         toAccount.setBalance(BigDecimal.valueOf(500));
 
         BigDecimal amount = BigDecimal.valueOf(100);
@@ -89,11 +89,11 @@ public class TransactionServiceProcessingTests {
             .thenReturn(BigDecimal.valueOf(1));
 
         Account rsdBankAccount = new Account();
-        rsdBankAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        rsdBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         rsdBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account usdBankAccount = new Account();
-        usdBankAccount.setCurrency(TransactionObjectMother.generateCurrency("USD"));
+        usdBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.USD));
         usdBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         when(bankAccountServiceImpl.getBankAccountForCurrency(Currency.Code.RSD)).thenReturn(
@@ -123,11 +123,11 @@ public class TransactionServiceProcessingTests {
     void testProcessTransactionForeignToRsd() {
         // Arrange
         Account fromAccount = new Account();
-        fromAccount.setCurrency(TransactionObjectMother.generateCurrency("USD"));
+        fromAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.USD));
         fromAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account toAccount = new Account();
-        toAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        toAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         toAccount.setBalance(BigDecimal.valueOf(500));
 
         BigDecimal amount = BigDecimal.valueOf(100);
@@ -139,11 +139,11 @@ public class TransactionServiceProcessingTests {
             .thenReturn(BigDecimal.valueOf(1000));
 
         Account usdBankAccount = new Account();
-        usdBankAccount.setCurrency(TransactionObjectMother.generateCurrency("USD"));
+        usdBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.USD));
         usdBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account rsdBankAccount = new Account();
-        rsdBankAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        rsdBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         rsdBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         when(bankAccountServiceImpl.getBankAccountForCurrency(Currency.Code.USD)).thenReturn(
@@ -173,11 +173,11 @@ public class TransactionServiceProcessingTests {
     void testProcessTransactionForeignToForeign() {
         // Arrange
         Account fromAccount = new Account();
-        fromAccount.setCurrency(TransactionObjectMother.generateCurrency("EUR"));
+        fromAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.EUR));
         fromAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account toAccount = new Account();
-        toAccount.setCurrency(TransactionObjectMother.generateCurrency("USD"));
+        toAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.USD));
         toAccount.setBalance(BigDecimal.valueOf(500));
 
         BigDecimal amount = BigDecimal.valueOf(100);
@@ -196,15 +196,15 @@ public class TransactionServiceProcessingTests {
         ).thenReturn(BigDecimal.valueOf(1));
 
         Account eurBankAccount = new Account();
-        eurBankAccount.setCurrency(TransactionObjectMother.generateCurrency("EUR"));
+        eurBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.EUR));
         eurBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account rsdBankAccount = new Account();
-        rsdBankAccount.setCurrency(TransactionObjectMother.generateCurrency("RSD"));
+        rsdBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.RSD));
         rsdBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         Account usdBankAccount = new Account();
-        usdBankAccount.setCurrency(TransactionObjectMother.generateCurrency("USD"));
+        usdBankAccount.setCurrency(TransactionObjectMother.generateCurrency(Currency.Code.USD));
         usdBankAccount.setBalance(BigDecimal.valueOf(1000));
 
         when(bankAccountServiceImpl.getBankAccountForCurrency(Currency.Code.EUR)).thenReturn(

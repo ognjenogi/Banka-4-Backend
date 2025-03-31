@@ -39,7 +39,7 @@ import rs.banka4.user_service.exceptions.account.AccountNotActive;
 import rs.banka4.user_service.exceptions.account.NotAccountOwner;
 import rs.banka4.user_service.exceptions.jwt.Unauthorized;
 import rs.banka4.user_service.exceptions.loan.InterestRateAmountNotSupported;
-import rs.banka4.user_service.exceptions.loan.InvalidLoanStatus;
+import rs.banka4.user_service.exceptions.loan.LoanAlreadyJudged;
 import rs.banka4.user_service.exceptions.loan.LoanNotFound;
 import rs.banka4.user_service.exceptions.loan.NoLoansOnAccount;
 import rs.banka4.user_service.exceptions.user.InvalidPhoneNumber;
@@ -248,12 +248,7 @@ public class LoanServiceImpl implements LoanService {
             !loan.get()
                 .getStatus()
                 .equals(LoanStatus.PROCESSING)
-        )
-            throw new InvalidLoanStatus(
-                loan.get()
-                    .getStatus()
-                    .name()
-            );
+        ) throw new LoanAlreadyJudged(loan.get());
 
         loan.get()
             .setNextInstallmentDate(
@@ -349,12 +344,7 @@ public class LoanServiceImpl implements LoanService {
             !loan.get()
                 .getStatus()
                 .equals(LoanStatus.PROCESSING)
-        )
-            throw new InvalidLoanStatus(
-                loan.get()
-                    .getStatus()
-                    .name()
-            );
+        ) throw new LoanAlreadyJudged(loan.get());
 
         loan.get()
             .setStatus(LoanStatus.REJECTED);

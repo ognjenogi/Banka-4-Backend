@@ -59,18 +59,11 @@ public class LoanController implements LoanDocumentation {
         Authentication auth,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String loanType,
-        @RequestParam(required = false) String loanStatus,
+        @RequestParam(required = false) LoanType loanType,
+        @RequestParam(required = false) LoanStatus loanStatus,
         @RequestParam(required = false) String accountNumber
     ) {
-        LoanFilterDto filter =
-            new LoanFilterDto(
-                (loanType != null && !loanType.isEmpty()) ? LoanType.fromString(loanType) : null,
-                (loanStatus != null && !loanStatus.isEmpty())
-                    ? LoanStatus.fromString(loanStatus)
-                    : null,
-                accountNumber
-            );
+        LoanFilterDto filter = new LoanFilterDto(loanType, loanStatus, accountNumber);
 
         return loanService.getAllLoans(
             (String) auth.getCredentials(),
@@ -85,15 +78,10 @@ public class LoanController implements LoanDocumentation {
         Authentication auth,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String loanType,
+        @RequestParam(required = false) LoanType loanType,
         @RequestParam(required = false) String accountNumber
     ) {
-        LoanFilterDto filter =
-            new LoanFilterDto(
-                (loanType != null && !loanType.isEmpty()) ? LoanType.fromString(loanType) : null,
-                LoanStatus.PROCESSING,
-                accountNumber
-            );
+        LoanFilterDto filter = new LoanFilterDto(loanType, LoanStatus.PROCESSING, accountNumber);
 
         return loanService.getAllLoansProcessing(
             (String) auth.getCredentials(),

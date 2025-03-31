@@ -18,7 +18,6 @@ import rs.banka4.user_service.domain.company.dtos.CompanyDto;
 import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
-import rs.banka4.user_service.exceptions.account.InvalidCurrency;
 import rs.banka4.user_service.exceptions.company.CompanyNotFound;
 import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
 import rs.banka4.user_service.exceptions.user.employee.EmployeeNotFound;
@@ -126,7 +125,10 @@ public class AccountServiceCreateTests {
         );
 
         // Act & Assert
-        assertThrows(InvalidCurrency.class, () -> accountService.createAccount(dto, "authToken"));
+        assertThrows(
+            IllegalStateException.class,
+            () -> accountService.createAccount(dto, "authToken")
+        );
     }
 
     @Test

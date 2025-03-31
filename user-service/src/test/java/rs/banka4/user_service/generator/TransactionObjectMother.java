@@ -73,9 +73,9 @@ public class TransactionObjectMother {
             .transactionNumber("1265463698391")
             .fromAccount(fromAccount)
             .toAccount(toAccount)
-            .from(new MonetaryAmount(BigDecimal.valueOf(1.00), generateCurrency("EUR")))
-            .to(new MonetaryAmount(BigDecimal.valueOf(1.00), generateCurrency("RSD")))
-            .fee(new MonetaryAmount(BigDecimal.valueOf(0.10), generateCurrency("EUR")))
+            .from(new MonetaryAmount(BigDecimal.valueOf(1.00), generateCurrency(Currency.Code.EUR)))
+            .to(new MonetaryAmount(BigDecimal.valueOf(1.00), generateCurrency(Currency.Code.RSD)))
+            .fee(new MonetaryAmount(BigDecimal.valueOf(0.10), generateCurrency(Currency.Code.EUR)))
             .recipient("Milutin Joncic")
             .paymentCode("289")
             .referenceNumber("1176926")
@@ -85,14 +85,14 @@ public class TransactionObjectMother {
             .build();
     }
 
-    public static Currency generateCurrency(String code) {
+    public static Currency generateCurrency(Currency.Code code) {
         return Currency.builder()
             .id(UUID.randomUUID())
             .name("Fake")
             .symbol("X")
             .description("Fake currency")
             .active(true)
-            .code(Currency.Code.fromString(code))
+            .code(code)
             .build();
     }
 
