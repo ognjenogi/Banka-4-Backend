@@ -5,8 +5,8 @@ import java.util.UUID;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Entity(name = "assets")
+@Inheritance(strategy = InheritanceType.JOINED)
 @AllArgsConstructor
 @Getter
 @Setter
@@ -16,4 +16,8 @@ public abstract class Asset {
     @Id
     @Builder.Default
     private UUID id = UUID.randomUUID();
+
+    private String name;
+
+    private String ticker;
 }

@@ -17,7 +17,6 @@ public class SecurityMapperImpl {
             return new SecurityDto(
                 security.getId(),
                 security.getName(),
-                security.getPrice(),
                 StockMapper.INSTANCE.toDto((Stock) security),
                 null,
                 null
@@ -26,7 +25,6 @@ public class SecurityMapperImpl {
             return new SecurityDto(
                 security.getId(),
                 security.getName(),
-                security.getPrice(),
                 null,
                 FutureMapper.INSTANCE.toDto((Future) security),
                 null
@@ -35,7 +33,6 @@ public class SecurityMapperImpl {
             return new SecurityDto(
                 security.getId(),
                 security.getName(),
-                security.getPrice(),
                 null,
                 null,
                 ForexPairMapper.INSTANCE.toDto((ForexPair) security)
