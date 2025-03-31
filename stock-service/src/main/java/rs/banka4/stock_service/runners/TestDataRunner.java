@@ -397,11 +397,7 @@ public class TestDataRunner implements CommandLineRunner {
                     .createdAt(OffsetDateTime.now())
                     .build()
             );
-        for (Stock stock : devStocks) {
-            if (!stockRepository.existsById(stock.getId())) {
-                stockRepository.saveAndFlush(stock);
-            }
-        }
+        stockRepository.saveAllAndFlush(devStocks);
     }
 
     private void seedProductionForexPairs() {
