@@ -6,7 +6,6 @@ import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,10 @@ import rs.banka4.user_service.exceptions.user.client.NonexistantSortByField;
 import rs.banka4.user_service.exceptions.user.client.NotActivated;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.UserTotpSecretRepository;
+import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.user_service.security.PreAuthBankUserAuthentication;
+import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
+import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.ClientService;
 import rs.banka4.user_service.utils.JwtUtil;
 import rs.banka4.user_service.utils.specification.ClientSpecification;
@@ -37,7 +40,6 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final UserTotpSecretRepository userTotpSecretRepository;
 
@@ -95,14 +97,15 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public LoginResponseDto login(LoginDto loginDto) {
-        CustomUserDetailsService.role = "client"; // Consider refactoring this into a more robust
-                                                  // role management system
-
+        final var principal =
+            new UnauthenticatedBankUserPrincipal(UserType.CLIENT, loginDto.email());
+        AuthenticatedBankUserAuthentication token;
         try {
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
-            );
-        } catch (BadCredentialsException e) {
+            token =
+                (AuthenticatedBankUserAuthentication) authenticationManager.authenticate(
+                    new PreAuthBankUserAuthentication(principal, loginDto.password())
+                );
+        } catch (UsernameNotFoundException | BadCredentialsException e) {
             throw new IncorrectCredentials();
         }
 
@@ -115,10 +118,7 @@ public class ClientServiceImpl implements ClientService {
 
         String accessToken = jwtUtil.generateToken(client);
         String refreshToken =
-            jwtUtil.generateRefreshToken(
-                userDetailsService.loadUserByUsername(loginDto.email()),
-                "client"
-            );
+            jwtUtil.generateRefreshToken(token.getPrincipal(), principal, UserType.CLIENT);
 
         return new LoginResponseDto(accessToken, refreshToken);
     }

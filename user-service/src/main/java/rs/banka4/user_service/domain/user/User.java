@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
+import rs.banka4.user_service.security.UserType;
 
 @MappedSuperclass
 @Getter
@@ -107,4 +108,6 @@ public abstract class User {
     public String toString() {
         return "User{" + "id=" + id + ", email='" + email + '\'' + '}';
     }
+
+    public abstract UserType getUserType();
 }

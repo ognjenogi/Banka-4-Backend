@@ -5,15 +5,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import rs.banka4.user_service.config.WhiteListConfig;
 import rs.banka4.user_service.exceptions.jwt.NoJwtProvided;
-import rs.banka4.user_service.service.impl.CustomUserDetailsService;
+import rs.banka4.user_service.repositories.ClientRepository;
+import rs.banka4.user_service.repositories.EmployeeRepository;
+import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
+import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.utils.JwtUtil;
 
 
@@ -21,15 +24,12 @@ import rs.banka4.user_service.utils.JwtUtil;
  * Filter that checks if the request has a valid JWT token in the Authorization header.
  */
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtils;
-    private final CustomUserDetailsService userDetailsService;
-
-    public JwtAuthenticationFilter(JwtUtil jwtUtils, CustomUserDetailsService userDetailsService) {
-        this.jwtUtils = jwtUtils;
-        this.userDetailsService = userDetailsService;
-    }
+    private final EmployeeRepository employeeRepository;
+    private final ClientRepository clientRepository;
 
     /**
      * Filters the incoming request to check if it contains a valid JWT token in the Authorization
@@ -74,25 +74,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     == null
         ) {
             if (jwtUtils.validateToken(token, username)) {
-                String role = jwtUtils.extractRole(token);
-                if (Objects.equals(role, "client")) {
-                    CustomUserDetailsService.role = "client";
-                } else {
-                    CustomUserDetailsService.role = "employee";
+                final var role = jwtUtils.extractRole(token);
+                final var userId = jwtUtils.extractUserId(token);
+
+                /*
+                 * XXX: temporary kludge in order to populate user privileges.
+                 */
+                final var userType = UserType.valueOf(role.toUpperCase());
+                final var user = switch (userType) {
+                /* DO NOT ADD A DEFAULT CASE. */
+                case CLIENT -> clientRepository.findById(userId);
+                case EMPLOYEE -> employeeRepository.findById(userId);
+                };
+                if (!user.isPresent()) {
+                    throw new NoJwtProvided();
                 }
 
-                UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                        username,
+                final var authentication =
+                    new AuthenticatedBankUserAuthentication(
+                        new AuthenticatedBankUserPrincipal(userType, userId),
                         token,
-                        userDetailsService.loadUserByUsername(username)
-                            .getAuthorities()
+                        user.get()
+                            .getPrivileges()
                     );
+
                 authentication.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                CustomUserDetailsService.role = "";
                 SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
             }

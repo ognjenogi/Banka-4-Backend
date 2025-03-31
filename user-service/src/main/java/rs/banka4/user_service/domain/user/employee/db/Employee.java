@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import rs.banka4.user_service.domain.user.User;
+import rs.banka4.user_service.security.UserType;
 
 @Entity(name = "employees")
 @Getter
@@ -57,5 +58,10 @@ public class Employee extends User {
                 .getPersistentClass()
                 .hashCode()
             : getClass().hashCode();
+    }
+
+    @Override
+    public UserType getUserType() {
+        return UserType.EMPLOYEE;
     }
 }

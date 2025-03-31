@@ -26,6 +26,7 @@ public class LoanRateScheduler {
      * month. It affects variable interest rate loans.
      */
     @Getter
+    /* TODO(arsen): destaticify. */
     private static BigDecimal interestRateVariant = generateRandomPercentage();
     private final LoanRepository loanRepository;
 

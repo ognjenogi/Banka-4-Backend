@@ -7,16 +7,16 @@ import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rs.banka4.user_service.domain.auth.db.SecuredUser;
-import rs.banka4.user_service.domain.user.client.db.Client;
-import rs.banka4.user_service.domain.user.employee.db.Employee;
+import rs.banka4.user_service.domain.user.User;
 import rs.banka4.user_service.exceptions.jwt.ExpiredJwt;
 import rs.banka4.user_service.exceptions.jwt.IllegalArgumentJwt;
 import rs.banka4.user_service.exceptions.jwt.MalformedJwt;
 import rs.banka4.user_service.exceptions.jwt.UnsupportedJwt;
+import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
+import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
+import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.TokenService;
 
 @Service
@@ -74,37 +74,45 @@ public class JwtUtil {
         }
     }
 
-    public String generateToken(Client client) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", client.getId());
-        claims.put("role", "client");
-        claims.put("privileges", client.getPrivileges());
-        return generateToken(claims, new SecuredUser(client), jwtExpiration);
+        claims.put("id", user.getId());
+        claims.put(
+            "role",
+            user.getUserType()
+                .name()
+                .toLowerCase()
+        );
+        claims.put("privileges", user.getPrivileges());
+        return generateToken(claims, user.getEmail(), jwtExpiration);
     }
 
-    public String generateToken(Employee employee) {
+    public String generateRefreshToken(
+        AuthenticatedBankUserPrincipal principal,
+        /* TODO(arsen): remove */
+        UnauthenticatedBankUserPrincipal preAuthPrincipal,
+        UserType type
+    ) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", employee.getId());
-        claims.put("role", "employee");
-        claims.put("privileges", employee.getPrivileges());
-        return generateToken(claims, new SecuredUser(employee), jwtExpiration);
-    }
+        claims.put(
+            "role",
+            type.name()
+                .toLowerCase()
+        );
+        claims.put("id", principal.userId());
 
-    public String generateRefreshToken(UserDetails userDetails, String role) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
-
-        return generateToken(claims, userDetails, refreshExpiration);
+        return generateToken(claims, preAuthPrincipal.email(), refreshExpiration);
     }
 
     public String generateToken(
         Map<String, Object> extraClaims,
-        UserDetails userDetails,
+        /* TODO(arsen): remove */
+        String email,
         long expiration
     ) {
         return Jwts.builder()
             .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
+            .setSubject(email)
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -131,5 +139,9 @@ public class JwtUtil {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public UUID extractUserId(String token) {
+        return UUID.fromString(extractClaim(token, x -> x.get("id", String.class)));
     }
 }

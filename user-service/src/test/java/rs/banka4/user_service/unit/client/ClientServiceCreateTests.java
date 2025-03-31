@@ -53,7 +53,7 @@ public class ClientServiceCreateTests {
                 rabbitTemplate
             );
         clientService =
-            new ClientServiceImpl(userService, clientRepository, null, null, null, null, null);
+            new ClientServiceImpl(userService, clientRepository, null, null, null, null);
 
         CreateClientDto createClientDto = ClientObjectMother.generateBasicCreateClientDto();
         VerificationCode verificationCode = new VerificationCode();
