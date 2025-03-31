@@ -9,7 +9,7 @@ public record PrivilegesDto(
     @JsonProperty("privileges")
     @Schema(
         description = "List of employee privileges",
-        example = "[\"ADMIN\", \"FILTER\", \"SEARCH\", \"TRADE_STOCKS\", \"VIEW_STOCKS\", \"CONTRACTS\", \"NEW_INSURANCES\"]"
+        example = "[\"ADMIN\"]"
     ) List<String> privileges
 ) {
 }

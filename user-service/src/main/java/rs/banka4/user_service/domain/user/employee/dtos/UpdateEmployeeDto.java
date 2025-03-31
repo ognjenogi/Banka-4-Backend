@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.Set;
+import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.user_service.domain.user.Gender;
-import rs.banka4.user_service.domain.user.Privilege;
 
 @Schema(description = "DTO for employee update")
 public record UpdateEmployeeDto(
@@ -58,7 +58,7 @@ public record UpdateEmployeeDto(
 
     @Schema(
         description = "Employee's privileges",
-        example = "[\"TRADE_STOCKS\", \"CONTRACTS\"]"
+        example = "[\"ADMIN\"]"
     ) Set<Privilege> privilege,
 
     @Schema(

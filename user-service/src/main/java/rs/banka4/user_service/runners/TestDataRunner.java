@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.user_service.domain.account.db.Account;
 import rs.banka4.user_service.domain.account.db.AccountType;
 import rs.banka4.user_service.domain.card.db.*;
@@ -18,7 +19,6 @@ import rs.banka4.user_service.domain.company.db.Company;
 import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.loan.db.*;
 import rs.banka4.user_service.domain.user.Gender;
-import rs.banka4.user_service.domain.user.Privilege;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.client.db.ClientContact;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
@@ -481,16 +481,14 @@ public class TestDataRunner implements CommandLineRunner {
             switch (employee.getPosition()) {
             case "Branch Manager",
                 "Investment Banker"
-                -> employee.setPrivileges(
-                    Arrays.asList(Privilege.ADMIN, Privilege.TRADE_STOCKS, Privilege.VIEW_STOCKS)
-                );
+                -> employee.setPrivileges(List.of(Privilege.ADMIN));
             case "Compliance Officer",
                 "Risk Manager"
-                -> employee.setPrivileges(Arrays.asList(Privilege.CONTRACTS, Privilege.FILTER));
+                -> employee.setPrivileges(List.of());
             case "Loan Officer",
                 "Credit Analyst"
-                -> employee.setPrivileges(Arrays.asList(Privilege.SEARCH, Privilege.VIEW_STOCKS));
-            default -> employee.setPrivileges(List.of(Privilege.VIEW_STOCKS));
+                -> employee.setPrivileges(List.of());
+            default -> employee.setPrivileges(List.of());
             }
         });
 

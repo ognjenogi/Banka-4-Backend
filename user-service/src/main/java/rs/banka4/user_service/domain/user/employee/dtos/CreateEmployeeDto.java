@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
+import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.user_service.domain.user.Gender;
-import rs.banka4.user_service.domain.user.Privilege;
 
 @Schema(description = "DTO for creating employee")
 public record CreateEmployeeDto(
@@ -56,7 +56,7 @@ public record CreateEmployeeDto(
 
     @Schema(
         description = "Employee's privileges",
-        example = "[\"TRADE_STOCKS\", \"CONTRACTS\"]"
+        example = "[\"ADMIN\"]"
     ) @NotNull(message = "Privileges are required") Set<Privilege> privilege,
 
     @Schema(

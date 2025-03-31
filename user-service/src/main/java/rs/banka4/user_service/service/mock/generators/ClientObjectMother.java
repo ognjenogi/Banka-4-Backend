@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
+import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.user_service.domain.user.Gender;
-import rs.banka4.user_service.domain.user.Privilege;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.client.dtos.*;
 
@@ -20,7 +20,7 @@ public class ClientObjectMother {
             "john.doe@example.com",
             "1234567890",
             "123 Grove Street, City, Country",
-            Set.of(Privilege.SEARCH)
+            Set.of()
         );
     }
 
@@ -72,7 +72,7 @@ public class ClientObjectMother {
             "john.doe@example.com",
             "+381630124756",
             "123 Grove Street, City, Country",
-            Set.of(Privilege.SEARCH)
+            Set.of()
         );
     }
 
