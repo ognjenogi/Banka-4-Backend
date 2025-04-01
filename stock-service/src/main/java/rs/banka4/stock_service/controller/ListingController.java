@@ -2,6 +2,7 @@ package rs.banka4.stock_service.controller;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.stock_service.controller.docs.ListingApiDocumentation;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
-import rs.banka4.stock_service.domain.listing.dtos.ListingDto;
+import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
+import rs.banka4.stock_service.domain.listing.dtos.ListingInfoDto;
 import rs.banka4.stock_service.domain.listing.dtos.OptionDto;
 import rs.banka4.stock_service.domain.listing.dtos.PriceChangeDto;
 import rs.banka4.stock_service.service.abstraction.ListingService;
@@ -26,12 +28,16 @@ public class ListingController implements ListingApiDocumentation {
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<ListingDto>> getListings(
-        @RequestParam(required = false) String securityType,
+    public ResponseEntity<Page<ListingInfoDto>> getListings(
+        @ModelAttribute ListingFilterDto filter,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        return listingService.getListings(securityType, PageRequest.of(page, size));
+        return ResponseEntity.of(
+            Optional.ofNullable(
+                listingService.getListings(filter, PageRequest.of(page, size), false)
+            )
+        );
     }
 
     @GetMapping("/priceChange")

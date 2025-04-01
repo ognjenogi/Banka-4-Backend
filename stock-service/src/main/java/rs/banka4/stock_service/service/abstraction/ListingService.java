@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
-import rs.banka4.stock_service.domain.listing.dtos.ListingDto;
+import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
+import rs.banka4.stock_service.domain.listing.dtos.ListingInfoDto;
 import rs.banka4.stock_service.domain.listing.dtos.OptionDto;
 import rs.banka4.stock_service.domain.listing.dtos.PriceChangeDto;
 
@@ -18,7 +18,7 @@ public interface ListingService {
     BigDecimal calculateChange(UUID securityId, BigDecimal currentPrice);
 
     // TODO resiti se ovoga pod hitno
-    ResponseEntity<Page<ListingDto>> getListings(String securityType, Pageable pageable);
+    Page<ListingInfoDto> getListings(ListingFilterDto filter, Pageable pageable, boolean isClient);
 
     List<PriceChangeDto> getPriceChanges();
 
