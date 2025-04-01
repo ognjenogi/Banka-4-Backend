@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Schema(description = "Payload for actuary-specific information")
-public record ActuatorPayloadDto(
+public record ActuaryPayloadDto(
 
     @Schema(
         description = "Indicates whether the actuary needs approval for operations",
