@@ -87,7 +87,6 @@ public class TransactionObjectMother {
 
     public static Currency generateCurrency(Currency.Code code) {
         return Currency.builder()
-            .id(UUID.randomUUID())
             .name("Fake")
             .symbol("X")
             .description("Fake currency")

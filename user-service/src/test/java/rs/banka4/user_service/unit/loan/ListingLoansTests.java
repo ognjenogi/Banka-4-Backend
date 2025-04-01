@@ -74,8 +74,8 @@ public class ListingLoansTests {
 
         UUID accountId = UUID.randomUUID();
 
-        rs.banka4.user_service.domain.currency.db.Currency currency = new Currency();
-        currency.setId(UUID.randomUUID());
+        Currency currency = new Currency();
+        currency.setCode(Currency.Code.EUR);
         currency.setName("EUR");
         currency.setActive(true);
         currency.setSymbol("E");
