@@ -112,7 +112,7 @@ public class ListingSpecification {
                 predicates.add(cb.lessThanOrEqualTo(root.get("bid"), filter.getBidMax()));
             }
             if (
-                List.of(SecurityType.FUTURE, SecurityType.OPTION)
+                List.of(SecurityType.FUTURE)
                     .contains(filter.getSecurityType())
             ) {
                 if (
