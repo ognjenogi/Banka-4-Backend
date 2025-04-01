@@ -51,6 +51,7 @@ public class Exchange {
     private OffsetDateTime closeTime;
 
     @Builder.Default
+    @Column(nullable = false)
     private LocalDate createdAt = LocalDate.now();
 
     @Override
