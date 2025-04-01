@@ -42,7 +42,7 @@ public interface ListingApiDocumentation {
             )
         }
     )
-    ResponseEntity<Page<ListingInfoDto>> getListings(
+    Page<ListingInfoDto> getListings(
         @Parameter(description = "Filters for listing") ListingFilterDto filter,
         @Parameter(description = "Page number") int page,
         @Parameter(description = "Number of listings per page") int size

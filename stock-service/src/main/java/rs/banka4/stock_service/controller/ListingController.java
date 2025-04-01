@@ -2,7 +2,6 @@ package rs.banka4.stock_service.controller;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,16 +27,12 @@ public class ListingController implements ListingApiDocumentation {
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<ListingInfoDto>> getListings(
+    public Page<ListingInfoDto> getListings(
         @ModelAttribute ListingFilterDto filter,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.of(
-            Optional.ofNullable(
-                listingService.getListings(filter, PageRequest.of(page, size), false)
-            )
-        );
+        return listingService.getListings(filter, PageRequest.of(page, size), false);
     }
 
     @GetMapping("/priceChange")
