@@ -115,18 +115,15 @@ public class ListingServiceImpl implements ListingService {
             if (security instanceof Stock) {
                 StockDto stockDto = ListingMapper.INSTANCE.toStockDto((Stock) security);
                 setupDto(stockDto, listing.get());
-                stockDto.setSecurityType(SecurityType.STOCK);
                 return stockDto;
             } else if (security instanceof Future) {
                 FutureDto futureDto = ListingMapper.INSTANCE.toFutureDto((Future) security);
                 setupDto(futureDto, listing.get());
-                futureDto.setSecurityType(SecurityType.FUTURE);
                 return futureDto;
             } else {
                 ForexPairDto forexPairDto =
                     ListingMapper.INSTANCE.toForexPairDto((ForexPair) security);
                 setupDto(forexPairDto, listing.get());
-                forexPairDto.setSecurityType(SecurityType.FOREX_PAIR);
                 return forexPairDto;
             }
         }
