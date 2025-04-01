@@ -5,18 +5,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import rs.banka4.stock_service.domain.listing.dtos.specific.ForexPairDto;
 import rs.banka4.stock_service.domain.listing.dtos.specific.FutureDto;
 import rs.banka4.stock_service.domain.listing.dtos.specific.StockDto;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 @Schema(
     description = "Dto for showing details after clicking on one listing, this Dto can be of 3 types.\n"
         + "Look for StockDto, ForexPairDto and FutureDto for exact information about each of them.\n"
