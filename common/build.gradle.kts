@@ -24,7 +24,17 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	api("org.springframework.security:spring-security-core")
 
-	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-	implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
-	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+	val jjwtVer = "0.12.6"
+	api("io.jsonwebtoken:jjwt-api:${jjwtVer}")
+	api("io.jsonwebtoken:jjwt-impl:${jjwtVer}")
+	api("io.jsonwebtoken:jjwt-jackson:${jjwtVer}")
+
+	testImplementation("org.assertj:assertj-core")
+	testImplementation("org.junit.jupiter:junit-jupiter")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
