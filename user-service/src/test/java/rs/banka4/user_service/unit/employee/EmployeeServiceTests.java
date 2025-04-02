@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.domain.auth.dtos.LoginDto;
 import rs.banka4.user_service.domain.auth.dtos.LoginResponseDto;
 import rs.banka4.user_service.domain.user.PrivilegesDto;
@@ -28,7 +29,6 @@ import rs.banka4.user_service.generator.EmployeeObjectMother;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
-import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.impl.EmployeeServiceImpl;
 

@@ -1,4 +1,4 @@
-package rs.banka4.user_service.security;
+package rs.banka4.rafeisen.common.security;
 
 import org.springframework.security.core.GrantedAuthority;
 

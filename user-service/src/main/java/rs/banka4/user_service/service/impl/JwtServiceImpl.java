@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import rs.banka4.rafeisen.common.exception.MalformedJwt;
 import rs.banka4.rafeisen.common.exception.UnsupportedJwt;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.rafeisen.common.utils.jwt.JwtTokenGenerator;
 import rs.banka4.rafeisen.common.utils.jwt.JwtUtil;
 import rs.banka4.rafeisen.common.utils.jwt.UnverifiedToken;
@@ -20,7 +21,6 @@ import rs.banka4.user_service.exceptions.jwt.ExpiredJwt;
 import rs.banka4.user_service.exceptions.jwt.IllegalArgumentJwt;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
-import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.abstraction.TokenService;
 

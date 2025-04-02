@@ -11,13 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.config.WhiteListConfig;
 import rs.banka4.user_service.exceptions.jwt.NoJwtProvided;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
-import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.JwtService;
 
 
