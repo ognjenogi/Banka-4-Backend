@@ -78,6 +78,7 @@ public class AssetGenerator {
                 .baseCurrency(CurrencyCode.JPY)
                 .quoteCurrency(CurrencyCode.EUR)
                 .name("JPY/EUR")
+                .ticker("JPY/EUR")
                 .exchangeRate(new BigDecimal("0.6181"))
                 .liquidity(ForexLiquidity.HIGH)
                 .build(),
@@ -86,6 +87,7 @@ public class AssetGenerator {
                 .baseCurrency(CurrencyCode.EUR)
                 .quoteCurrency(CurrencyCode.USD)
                 .name("EUR/USD")
+                .ticker("USD/EUR")
                 .exchangeRate(new BigDecimal("1.10"))
                 .liquidity(ForexLiquidity.MEDIUM)
                 .build(),
@@ -93,6 +95,7 @@ public class AssetGenerator {
             Future.builder()
                 .id(FUTURE_CRUDE_OIL_UUID)
                 .name("Crude Oil")
+                .ticker("FUT")
                 .contractSize(1000)
                 .contractUnit(UnitName.BARREL)
                 .settlementDate(
