@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rs.banka4.rafeisen.common.test.BadUUIDGenerator;
 import rs.banka4.stock_service.domain.exchanges.db.Exchange;
 import rs.banka4.stock_service.domain.listing.db.Listing;
@@ -26,6 +28,7 @@ import rs.banka4.stock_service.repositories.ListingRepository;
 public class ListingGenerator {
     public static final UUID LISTING_1_UUID =
         UUID.fromString("8d795b5d-506b-4256-a420-4246f64f5e12");
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListingGenerator.class);
 
     private static UUID makeBadUUID(Random generator) {
         return BadUUIDGenerator.generateBadUUIDv4(generator.nextLong(), generator.nextLong());
@@ -61,6 +64,7 @@ public class ListingGenerator {
             security.getId(),
             "Securities passed to makeExampleListings must have IDs as IDs are used as seeds"
         );
+
         final var generator =
             new Random(
                 security.getId()
@@ -70,6 +74,7 @@ public class ListingGenerator {
             );
 
         final var now = OffsetDateTime.now();
+        var yesterdayLastPrice = (BigDecimal) null;
         for (int dayOffset = -5; dayOffset <= 0; dayOffset++) {
             final var dayStart =
                 now.plusDays(/* Negative. */ dayOffset)
@@ -104,29 +109,34 @@ public class ListingGenerator {
                 bidLow = bidLow == null ? bid : bid.min(bidLow);
 
                 /* TODO(arsen): lol, there's no way that's right */
-                lastPrice =
-                    ask.add(
-                        bid.subtract(ask)
-                            .multiply(new BigDecimal(generator.nextDouble(0, 1)))
-                    );
+                lastPrice = ask;
+                LOGGER.debug("Saving listing {}", listing);
                 listingRepo.save(listing);
             }
 
-            listingHistoryRepo.save(
-                ListingDailyPriceInfo
-                        .builder()
-                        .id(makeBadUUID(generator))
-                        .security(security)
-                        .exchange(exchange)
-                        .date(dayStart)
-                        .lastPrice(lastPrice)
-                        .askHigh(askHigh)
-                        .bigLow(bidLow)
-                        /* TODO(arsen) */
-                        .change(new BigDecimal(123))
-                        .volume(generator.nextInt(1, 100))
-                        .build()
-            );
+            if (dayOffset == 0) continue;
+
+            final var summary =
+                ListingDailyPriceInfo.builder()
+                    .id(makeBadUUID(generator))
+                    .security(security)
+                    .exchange(exchange)
+                    .date(dayStart)
+                    .lastPrice(lastPrice)
+                    .askHigh(askHigh)
+                    .bigLow(bidLow)
+                    /* TODO(arsen) */
+                    .change(
+                        yesterdayLastPrice != null
+                            ? lastPrice.subtract(yesterdayLastPrice)
+                            : lastPrice
+                    )
+                    .volume(generator.nextInt(1, 100))
+                    .build();
+            LOGGER.debug("Saving daily summary {}", summary);
+            yesterdayLastPrice = lastPrice;
+
+            listingHistoryRepo.save(summary);
         }
     }
 }

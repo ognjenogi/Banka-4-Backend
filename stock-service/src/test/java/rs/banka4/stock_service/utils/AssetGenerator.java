@@ -33,8 +33,10 @@ public class AssetGenerator {
     public static final UUID FUTURE_CRUDE_OIL_UUID =
         UUID.fromString("08bd0b34-5316-41b9-ace5-66d5654f9172");
 
-    public static final UUID OPTION_EX1_UUID =
+    public static final UUID OPTION_EX1_PUT_UUID =
         UUID.fromString("65d965c1-0d7c-4506-a424-4fe81a1f6357");
+    public static final UUID OPTION_EX1_CALL_UUID =
+        UUID.fromString("b5b843a4-c90c-4a14-8bdf-06da1b543f97");
 
     public static List<Asset> makeExampleAssets() {
         final var stock1 =
@@ -95,17 +97,18 @@ public class AssetGenerator {
                 .build(),
 
             Option.builder()
-                .id(OPTION_EX1_UUID)
+                .id(OPTION_EX1_PUT_UUID)
                 .name(optionNameCall)
                 .ticker(optionNameCall)
-                .optionType(OptionType.CALL)
+                .optionType(OptionType.PUT)
                 .strikePrice(new MonetaryAmount(new BigDecimal("170"), CurrencyCode.USD))
                 .impliedVolatility(412.5)
                 .openInterest(565)
                 .settlementDate(settlementDate)
+                .stock(stock1)
                 .build(),
             Option.builder()
-                .id(OPTION_EX1_UUID)
+                .id(OPTION_EX1_CALL_UUID)
                 .name(optionNamePut)
                 .ticker(optionNamePut)
                 .optionType(OptionType.CALL)
@@ -113,6 +116,7 @@ public class AssetGenerator {
                 .impliedVolatility(412.5)
                 .openInterest(565)
                 .settlementDate(settlementDate)
+                .stock(stock1)
                 .build()
         );
     }
