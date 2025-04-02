@@ -2,6 +2,7 @@ package rs.banka4.stock_service.integration;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -128,5 +129,58 @@ public class ListingTests {
                   }
                 ]
                 """);
+    }
+
+    @Test
+    public void test_getPriceChanges_basic() {
+        /*
+         * Verify that getPriceChanges returns all changes from oldest to newest.
+         */
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        ListingGenerator.makeExampleListings(
+            ex1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+
+        mvc.get()
+            .uri("/listings/priceChange")
+            .assertThat()
+            .bodyJson()
+            .isLenientlyEqualTo("""
+                [
+                  {
+                    "price": 28.74
+                  },
+                  {
+                    "price": 5.90
+                  },
+                  {
+                    "price": 12.18
+                  },
+                  {
+                    "price": 19.21
+                  },
+                  {
+                    "price": 44.44
+                  }
+                ]
+                """)
+            .extractingPath("$..date")
+            .asArray()
+            .isSortedAccordingTo(
+                Comparator.comparing(
+                    maybeDate -> OffsetDateTime.parse(
+                        (String) maybeDate,
+                        DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                    )
+                )
+            );
     }
 }
