@@ -10,6 +10,7 @@ import lombok.Setter;
 public class UnverifiedAccessToken extends UnverifiedToken {
 
     private List<String> privileges;
+    protected String role;
 
     public UnverifiedAccessToken(Claims claims) {
         super(claims);
@@ -17,5 +18,6 @@ public class UnverifiedAccessToken extends UnverifiedToken {
         if (privClaim instanceof List<?>) {
             this.privileges = (List<String>) privClaim;
         }
+        this.role = (String) claims.get("role");
     }
 }

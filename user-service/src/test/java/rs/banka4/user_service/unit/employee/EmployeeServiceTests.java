@@ -29,8 +29,8 @@ import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.user_service.security.UserType;
+import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.impl.EmployeeServiceImpl;
-import rs.banka4.user_service.utils.JwtUtil;
 
 public class EmployeeServiceTests {
 
@@ -39,7 +39,7 @@ public class EmployeeServiceTests {
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
     @InjectMocks
     private EmployeeServiceImpl employeeService;
 
@@ -68,8 +68,8 @@ public class EmployeeServiceTests {
             )
         );
         when(employeeRepository.findByEmail("user@example.com")).thenReturn(Optional.of(employee));
-        when(jwtUtil.generateToken(employee)).thenReturn("access-token");
-        when(jwtUtil.generateRefreshToken(any(), any(), any())).thenReturn("refresh-token");
+        when(jwtService.generateAccessToken(employee)).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(any(), any(), any())).thenReturn("refresh-token");
 
         // Act
         LoginResponseDto response = employeeService.login(loginDto);
@@ -113,11 +113,15 @@ public class EmployeeServiceTests {
         String token = "valid-token";
         String email = "user@example.com";
         Employee employee = new Employee();
+        employee.setId(UUID.fromString("44e128a5-ac7a-4c9a-be4c-224b6bf81b20"));
         employee.setEmail(email);
 
-        when(jwtUtil.extractUsername(token)).thenReturn(email);
-        when(jwtUtil.isTokenExpired(token)).thenReturn(false);
+        when(jwtService.extractUserId(token)).thenReturn(
+            UUID.fromString("44e128a5-ac7a-4c9a-be4c-224b6bf81b20")
+        );
+        when(jwtService.isTokenExpired(token)).thenReturn(false);
         when(employeeRepository.findByEmail(email)).thenReturn(Optional.of(employee));
+        when(employeeRepository.findById(employee.getId())).thenReturn(Optional.of(employee));
 
         // Act
         EmployeeResponseDto response = employeeService.getMe("Bearer " + token);
@@ -132,7 +136,7 @@ public class EmployeeServiceTests {
         // Arrange
         String token = "expired-token";
 
-        when(jwtUtil.isTokenExpired(token)).thenReturn(true);
+        when(jwtService.isTokenExpired(token)).thenReturn(true);
 
         // Act & Assert
         assertThrows(NotAuthenticated.class, () -> employeeService.getMe("Bearer " + token));

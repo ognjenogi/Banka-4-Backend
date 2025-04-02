@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import jakarta.servlet.FilterChain;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,7 +24,7 @@ import rs.banka4.user_service.exceptions.RouteNotFound;
 import rs.banka4.user_service.exceptions.jwt.NoJwtProvided;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
-import rs.banka4.user_service.utils.JwtUtil;
+import rs.banka4.user_service.service.abstraction.JwtService;
 
 public class RoutesFilterTests {
 
@@ -34,7 +35,7 @@ public class RoutesFilterTests {
     private HandlerMapping handlerMapping;
 
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
 
     /* TODO(arsen): part of the kludge in JwtAuthenticationFilter. */
     @Mock
@@ -82,9 +83,9 @@ public class RoutesFilterTests {
         request.addHeader("Authorization", "Bearer " + token);
         HandlerExecutionChain handlerExecutionChain = new HandlerExecutionChain(new Object());
         when(handlerMapping.getHandler(request)).thenReturn(handlerExecutionChain);
-        when(jwtUtil.extractUsername(token)).thenReturn("username");
-        when(jwtUtil.extractRole(token)).thenReturn("client");
-        when(jwtUtil.validateToken(token, "username")).thenReturn(true);
+        when(jwtService.extractUserId(token)).thenReturn(UUID.randomUUID());
+        when(jwtService.extractRole(token)).thenReturn("client");
+        when(jwtService.validateToken(token)).thenReturn(true);
         when(clientRepository.findById(any())).thenReturn(
             Optional.of(
                 Client.builder()

@@ -70,6 +70,7 @@ public class UserGenerator {
             customizer.apply(
                 /* Keep in sync with the Javadoc above. */
                 Employee.builder()
+                    .id(UUID.fromString("6ea50113-da6f-4693-b9d3-ac27f807d7f5"))
                     .firstName("John")
                     .lastName("Doe")
                     .dateOfBirth(LocalDate.of(1990, 1, 1))

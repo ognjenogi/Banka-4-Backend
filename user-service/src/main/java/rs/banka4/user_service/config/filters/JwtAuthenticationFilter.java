@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -17,7 +18,7 @@ import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.user_service.security.UserType;
-import rs.banka4.user_service.utils.JwtUtil;
+import rs.banka4.user_service.service.abstraction.JwtService;
 
 
 /**
@@ -27,7 +28,7 @@ import rs.banka4.user_service.utils.JwtUtil;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtils;
+    private final JwtService jwtService;
     private final EmployeeRepository employeeRepository;
     private final ClientRepository clientRepository;
 
@@ -55,27 +56,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
-        String username = null;
+        UUID userId = null;
         String token = null;
 
         if (!WhiteListConfig.isWhitelisted(request.getRequestURI())) {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 token = authorizationHeader.substring(7);
-                username = jwtUtils.extractUsername(token);
+                userId = jwtService.extractUserId(token);
             } else {
                 throw new NoJwtProvided();
             }
         }
 
         if (
-            username != null
+            userId != null
                 && SecurityContextHolder.getContext()
                     .getAuthentication()
                     == null
         ) {
-            if (jwtUtils.validateToken(token, username)) {
-                final var role = jwtUtils.extractRole(token);
-                final var userId = jwtUtils.extractUserId(token);
+            if (jwtService.validateToken(token)) {
+                final var role = jwtService.extractRole(token);
 
                 /*
                  * XXX: temporary kludge in order to populate user privileges.

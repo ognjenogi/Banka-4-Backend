@@ -1,8 +1,9 @@
 package rs.banka4.rafeisen.common.utils.jwt;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import rs.banka4.rafeisen.common.exception.MalformedJwt;
+import rs.banka4.rafeisen.common.exception.UnsupportedJwt;
 
 public class JwtUtil {
 
@@ -14,7 +15,7 @@ public class JwtUtil {
 
         String[] parts = jwt.split("\\.");
         if (parts.length != 3) {
-            throw new JwtException("Malformed JWT token");
+            throw new MalformedJwt();
         }
 
         String unsignedToken = parts[0] + "." + parts[1] + ".";
@@ -33,7 +34,7 @@ public class JwtUtil {
         } else if ("REFRESH".equalsIgnoreCase(tokenType)) {
             token = new UnverifiedRefreshToken(claims);
         } else {
-            throw new JwtException("Unknown token type: " + tokenType);
+            throw new UnsupportedJwt();
         }
         return token;
     }
