@@ -32,6 +32,8 @@ public class ListingController implements ListingApiDocumentation {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
+        // TODO(ognjen): When security is finished add check for client from jwt and set isClient
+        // flag
         return listingService.getListings(filter, PageRequest.of(page, size), false);
     }
 
