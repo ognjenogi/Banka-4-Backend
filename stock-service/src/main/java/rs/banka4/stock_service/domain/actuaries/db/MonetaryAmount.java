@@ -17,5 +17,6 @@ public class MonetaryAmount {
 
     private BigDecimal amount;
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "currency")
     private CurrencyCode currency;
 }
