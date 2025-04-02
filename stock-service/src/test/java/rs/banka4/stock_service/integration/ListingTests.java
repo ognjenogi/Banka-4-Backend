@@ -60,7 +60,7 @@ public class ListingTests {
                   "name": "Example One™",
                   "ticker": "EX1",
                   "change": 21.96,
-                  "price": 4.57,
+                  "price": 66.40,
                   "outstandingShares": 325000,
                   "dividendYield": 0.05
                 }
