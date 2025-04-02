@@ -38,6 +38,11 @@ public class AssetGenerator {
     public static final UUID OPTION_EX1_CALL_UUID =
         UUID.fromString("b5b843a4-c90c-4a14-8bdf-06da1b543f97");
 
+    public static final UUID OPTION_EX1_PUT2_UUID =
+        UUID.fromString("18995f03-540e-455e-b44c-ce819c00e562");
+    public static final UUID OPTION_EX1_CALL2_UUID =
+        UUID.fromString("964919c6-2e54-4de2-8115-24f44a5c2ea5");
+
     public static List<Asset> makeExampleAssets() {
         final var stock1 =
             Stock.builder()
@@ -113,8 +118,31 @@ public class AssetGenerator {
                 .ticker(optionNamePut)
                 .optionType(OptionType.CALL)
                 .strikePrice(new MonetaryAmount(new BigDecimal("170"), CurrencyCode.USD))
-                .impliedVolatility(412.5)
-                .openInterest(565)
+                .impliedVolatility(337.8)
+                .openInterest(445)
+                .settlementDate(settlementDate)
+                .stock(stock1)
+                .build(),
+
+            Option.builder()
+                .id(OPTION_EX1_PUT2_UUID)
+                .name(optionNameCall)
+                .ticker(optionNameCall)
+                .optionType(OptionType.PUT)
+                .strikePrice(new MonetaryAmount(new BigDecimal("140"), CurrencyCode.USD))
+                .impliedVolatility(338.9)
+                .openInterest(878)
+                .settlementDate(settlementDate)
+                .stock(stock1)
+                .build(),
+            Option.builder()
+                .id(OPTION_EX1_CALL2_UUID)
+                .name(optionNamePut)
+                .ticker(optionNamePut)
+                .optionType(OptionType.CALL)
+                .strikePrice(new MonetaryAmount(new BigDecimal("140"), CurrencyCode.USD))
+                .impliedVolatility(122.4)
+                .openInterest(914)
                 .settlementDate(settlementDate)
                 .stock(stock1)
                 .build()
