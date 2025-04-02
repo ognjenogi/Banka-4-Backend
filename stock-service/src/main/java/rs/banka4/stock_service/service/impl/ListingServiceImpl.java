@@ -37,9 +37,9 @@ import rs.banka4.stock_service.service.abstraction.ListingService;
 @RequiredArgsConstructor
 public class ListingServiceImpl implements ListingService {
     private final ListingRepository listingRepository;
-    private OrderRepository orderRepository;
-    private ListingDailyPriceInfoRepository listingDailyPriceInfoRepository;
-    private OptionsRepository optionsRepository;
+    private final OrderRepository orderRepository;
+    private final ListingDailyPriceInfoRepository listingDailyPriceInfoRepository;
+    private final OptionsRepository optionsRepository;
 
     @Override
     public int getVolumeOfAsset(UUID securityId) {
