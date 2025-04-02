@@ -66,7 +66,6 @@ public class ListingServiceImpl implements ListingService {
             .orElse(null);
     }
 
-    // TODO ovo da leti napolje sto pre
     @Override
     public Page<ListingInfoDto> getListings(
         ListingFilterDto filter,

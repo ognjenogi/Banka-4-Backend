@@ -20,7 +20,7 @@ public class ListingSpecification {
         ListingFilterDto filter,
         boolean isClient
     ) {
-        return ((root, query, cb) -> {
+        return isLatest().and((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             var secJoin = root.join("security");
             var exchangesJoin = root.join("exchanges");
@@ -195,6 +195,21 @@ public class ListingSpecification {
 
 
             return cb.and(predicates.toArray(new Predicate[0]));
+        });
+    }
+
+    /**
+     * For a given listing, accept it only if it is the latest for its security
+     */
+    static Specification<Listing> isLatest() {
+        return ((root, query, cb) -> {
+            final var subquery = query.subquery(OffsetDateTime.class);
+            final var subRoot = subquery.from(Listing.class);
+
+            subquery.select(cb.greatest(subRoot.get("lastRefresh")))
+                .where(cb.equal(subRoot.get("securityId"), root.get("securityId")));
+
+            return cb.equal(root.get("lastRefresh"), subquery);
         });
     }
 
