@@ -201,15 +201,21 @@ public class CardServiceImpl implements CardService {
 
         Set<Account> accounts = accountRepository.findAllByClient(client.get());
 
-        boolean found =
-            accounts.stream()
-                .map(Account::getAccountNumber)
-                .collect(Collectors.toSet())
-                .contains(accountNumber);
+        List<Card> clientCards;
 
-        if (!found) throw new NotAccountOwner();
+        if (accountNumber != null) {
+            boolean found =
+                accounts.stream()
+                    .map(Account::getAccountNumber)
+                    .collect(Collectors.toSet())
+                    .contains(accountNumber);
 
-        List<Card> clientCards = cardRepository.findByAccountAccountNumber(accountNumber);
+            if (!found) throw new NotAccountOwner();
+
+            clientCards = cardRepository.findByAccountAccountNumber(accountNumber);
+        } else {
+            clientCards = cardRepository.findByAccount_Client(client.get());
+        }
 
         List<CardDto> cardDtos =
             clientCards.stream()
