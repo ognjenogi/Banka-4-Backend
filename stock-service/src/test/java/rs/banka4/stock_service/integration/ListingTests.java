@@ -183,4 +183,47 @@ public class ListingTests {
                 )
             );
     }
+
+    /**
+     * Verify that getListings returns all up-to-date listings. Given that we only generate a bunch
+     * of listings for {@link AssetGenerator#STOCK_EX1_UUID} currently, that will be only one
+     * element.
+     */
+    @Test
+    public void test_getListings_no_filter_only_one_stock() {
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        ListingGenerator.makeExampleListings(
+            ex1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+
+        mvc.get()
+            .uri("/listings?page=0&size=2")
+            .assertThat()
+            .bodyJson()
+            .isLenientlyEqualTo("""
+                {
+                  "content": [
+                    {
+                      "name": "Example One™",
+                      "ticker": "EX1",
+                      "volume": 0,
+                      "change": 21.96,
+                      "price": 66.40
+                    }
+                  ],
+                  "totalElements": 1
+                }
+                """)
+            .extractingPath("$.content")
+            .asArray()
+            .hasSize(1);
+    }
 }
