@@ -106,7 +106,7 @@ public class ListingServiceImpl implements ListingService {
     public ListingDetailsDto getListingDetails(UUID listingId) {
         Optional<Listing> listing = listingRepository.findById(listingId);
         if (listing.isEmpty()) {
-            throw new ListingNotFoundException(listingId.toString());
+            throw new ListingNotFoundException(listingId);
         } else {
             Security security =
                 listing.get()
@@ -150,7 +150,7 @@ public class ListingServiceImpl implements ListingService {
                 || !(listing.get()
                     .getSecurity() instanceof Stock)
         ) {
-            throw new ListingNotFoundException(listingId.toString());
+            throw new ListingNotFoundException(listingId);
         }
         UUID stockId =
             listing.get()
