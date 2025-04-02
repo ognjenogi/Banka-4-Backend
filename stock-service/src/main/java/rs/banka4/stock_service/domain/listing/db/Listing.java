@@ -12,10 +12,9 @@ import rs.banka4.stock_service.domain.security.Security;
 
 @Entity
 @AllArgsConstructor
-@Getter
-@Setter
-@RequiredArgsConstructor
 @Builder
+@Data
+@NoArgsConstructor
 @Table(name = "listings")
 public class Listing {
     @Id
