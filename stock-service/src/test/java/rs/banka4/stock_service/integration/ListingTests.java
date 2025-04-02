@@ -230,7 +230,7 @@ public class ListingTests {
                       "price": 66.40
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """)
             .extractingPath("$.content")
@@ -268,7 +268,7 @@ public class ListingTests {
                       "ticker": "EX1"
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -330,7 +330,7 @@ public class ListingTests {
                       "ticker": "EX1"
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -391,7 +391,7 @@ public class ListingTests {
                       "price": 66.40
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -425,7 +425,7 @@ public class ListingTests {
                       "price": 66.40
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -487,7 +487,7 @@ public class ListingTests {
                       "ticker": "EX1"
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -524,7 +524,7 @@ public class ListingTests {
                       "volume": 0
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -574,7 +574,7 @@ public class ListingTests {
                       "ticker": "FUT"
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -614,7 +614,7 @@ public class ListingTests {
                       "price": 66.40
                     }
                   ],
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
@@ -765,7 +765,7 @@ public class ListingTests {
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
-                  "totalElements": 1
+                  "page": {"totalElements": 1}
                 }
                 """);
     }
