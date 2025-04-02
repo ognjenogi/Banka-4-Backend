@@ -94,7 +94,9 @@ public interface ListingApiDocumentation {
         }
     )
     ResponseEntity<ListingDetailsDto> getListingDetails(
-        @Parameter(description = "Security id as path param to get details of latest listing created for it") UUID securityId
+        @Parameter(
+            description = "Security id as path param to get details of latest listing created for it"
+        ) UUID securityId
     );
 
     @Operation(

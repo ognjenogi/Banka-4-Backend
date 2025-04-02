@@ -8,11 +8,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
+import rs.banka4.stock_service.domain.exchanges.db.Exchange_;
 import rs.banka4.stock_service.domain.listing.db.Listing;
+import rs.banka4.stock_service.domain.listing.db.Listing_;
 import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
 import rs.banka4.stock_service.domain.listing.dtos.SecurityType;
+import rs.banka4.stock_service.domain.options.db.Asset_;
 import rs.banka4.stock_service.domain.orders.db.Order;
+import rs.banka4.stock_service.domain.orders.db.Order_;
+import rs.banka4.stock_service.domain.security.Security_;
 import rs.banka4.stock_service.domain.security.future.db.Future;
+import rs.banka4.stock_service.domain.security.future.db.Future_;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
 
 public class ListingSpecification {
@@ -22,8 +28,8 @@ public class ListingSpecification {
     ) {
         return isLatest().and((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            var secJoin = root.join("security");
-            var exchangesJoin = root.join("exchanges");
+            var secJoin = root.join(Listing_.security);
+            var exchangesJoin = root.join(Listing_.exchange);
             if (isClient) {
                 if (
                     filter.getSecurityType() != null
@@ -61,7 +67,7 @@ public class ListingSpecification {
             ) {
                 predicates.add(
                     cb.like(
-                        cb.lower(secJoin.get("name")),
+                        cb.lower(secJoin.get(Security_.name)),
                         "%"
                             + filter.getSearchName()
                                 .toLowerCase()
@@ -76,7 +82,7 @@ public class ListingSpecification {
             ) {
                 predicates.add(
                     cb.like(
-                        cb.lower(secJoin.get("ticker")),
+                        cb.lower(secJoin.get(Security_.ticker)),
                         "%"
                             + filter.getSearchTicker()
                                 .toLowerCase()
@@ -92,7 +98,7 @@ public class ListingSpecification {
             ) {
                 predicates.add(
                     cb.like(
-                        cb.lower(exchangesJoin.get("exchangeName")),
+                        cb.lower(exchangesJoin.get(Exchange_.exchangeName)),
                         filter.getExchangePrefix()
                             .toLowerCase()
                             + "%"
@@ -100,21 +106,18 @@ public class ListingSpecification {
                 );
             }
             if (filter.getAskMin() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("ask"), filter.getAskMin()));
+                predicates.add(cb.greaterThanOrEqualTo(root.get(Listing_.ask), filter.getAskMin()));
             }
             if (filter.getAskMax() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("ask"), filter.getAskMax()));
+                predicates.add(cb.lessThanOrEqualTo(root.get(Listing_.ask), filter.getAskMax()));
             }
             if (filter.getBidMin() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("bid"), filter.getBidMin()));
+                predicates.add(cb.greaterThanOrEqualTo(root.get(Listing_.bid), filter.getBidMin()));
             }
             if (filter.getBidMax() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("bid"), filter.getBidMax()));
+                predicates.add(cb.lessThanOrEqualTo(root.get(Listing_.bid), filter.getBidMax()));
             }
-            if (
-                List.of(SecurityType.FUTURE)
-                    .contains(filter.getSecurityType())
-            ) {
+            if (SecurityType.FUTURE.equals(filter.getSecurityType())) {
                 if (
                     filter.getSettlementDateFrom() != null || filter.getSettlementDateTo() != null
                 ) {
@@ -124,7 +127,7 @@ public class ListingSpecification {
                     ) {
                         predicates.add(
                             cb.between(
-                                secJoin.get("settlementDate"),
+                                secJoin.get(Future_.SETTLEMENT_DATE),
                                 filter.getSettlementDateFrom(),
                                 filter.getSettlementDateTo()
                             )
@@ -132,14 +135,14 @@ public class ListingSpecification {
                     } else if (filter.getSettlementDateFrom() != null) {
                         predicates.add(
                             cb.greaterThanOrEqualTo(
-                                secJoin.get("settlementDate"),
+                                secJoin.get(Future_.SETTLEMENT_DATE),
                                 filter.getSettlementDateFrom()
                             )
                         );
                     } else {
                         predicates.add(
                             cb.lessThanOrEqualTo(
-                                secJoin.get("settlementDate"),
+                                secJoin.get(Future_.SETTLEMENT_DATE),
                                 filter.getSettlementDateTo()
                             )
                         );
@@ -155,12 +158,12 @@ public class ListingSpecification {
             volumeSubquery.select(cb.count(orderRoot));
             volumeSubquery.where(
                 cb.equal(
-                    orderRoot.get("asset")
-                        .get("id"),
-                    root.get("security")
-                        .get("id")
+                    orderRoot.get(Order_.asset)
+                        .get(Asset_.id),
+                    root.get(Listing_.security)
+                        .get(Security_.id)
                 ),
-                cb.between(orderRoot.get("createdAt"), start, end)
+                cb.between(orderRoot.get(Order_.createdAt), start, end)
             );
 
             if (filter.getVolumeMin() != null || filter.getVolumeMax() != null) {
@@ -174,22 +177,28 @@ public class ListingSpecification {
             }
             if (filter.getSortBy() != null && filter.getSortDirection() != null) {
                 switch (filter.getSortBy()) {
-                    case PRICE:
-                        if (filter.getSortDirection().equals(ListingFilterDto.SortDirection.ASC)) {
-                            query.orderBy(cb.asc(root.get("ask")));
-                        } else {
-                            query.orderBy(cb.desc(root.get("ask")));
-                        }
-                        break;
-                    case VOLUME:
-                        if (filter.getSortDirection().equals(ListingFilterDto.SortDirection.ASC)) {
-                            query.orderBy(cb.asc(volumeSubquery));
-                        } else {
-                            query.orderBy(cb.desc(volumeSubquery));
-                        }
-                        break;
-                    default:
-                        break;
+                case PRICE:
+                    if (
+                        filter.getSortDirection()
+                            .equals(ListingFilterDto.SortDirection.ASC)
+                    ) {
+                        query.orderBy(cb.asc(root.get(Listing_.ask)));
+                    } else {
+                        query.orderBy(cb.desc(root.get(Listing_.ask)));
+                    }
+                    break;
+                case VOLUME:
+                    if (
+                        filter.getSortDirection()
+                            .equals(ListingFilterDto.SortDirection.ASC)
+                    ) {
+                        query.orderBy(cb.asc(volumeSubquery));
+                    } else {
+                        query.orderBy(cb.desc(volumeSubquery));
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -206,10 +215,17 @@ public class ListingSpecification {
             final var subquery = query.subquery(OffsetDateTime.class);
             final var subRoot = subquery.from(Listing.class);
 
-            subquery.select(cb.greatest(subRoot.get("lastRefresh")))
-                .where(cb.equal(subRoot.get("securityId"), root.get("securityId")));
+            subquery.select(cb.greatest(subRoot.get(Listing_.lastRefresh)))
+                .where(
+                    cb.equal(
+                        subRoot.get(Listing_.security)
+                            .get(Security_.id),
+                        root.get(Listing_.security)
+                            .get(Security_.id)
+                    )
+                );
 
-            return cb.equal(root.get("lastRefresh"), subquery);
+            return cb.equal(root.get(Listing_.lastRefresh), subquery);
         });
     }
 

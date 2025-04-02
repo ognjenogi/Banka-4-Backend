@@ -1,9 +1,7 @@
 package rs.banka4.stock_service.domain.listing.dtos;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,10 +26,14 @@ public class ListingFilterDto {
     private Long volumeMax;
     private SortBy sortBy;
     private SortDirection sortDirection;
-    public static enum SortBy{
-        PRICE,VOLUME
+
+    public static enum SortBy {
+        PRICE,
+        VOLUME
     }
-    public static enum SortDirection{
-        ASC,DESC
+
+    public static enum SortDirection {
+        ASC,
+        DESC
     }
 }
