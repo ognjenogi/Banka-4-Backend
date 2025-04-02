@@ -17,15 +17,14 @@ public interface ListingService {
 
     BigDecimal calculateChange(UUID securityId, BigDecimal currentPrice);
 
-    // TODO resiti se ovoga pod hitno
     Page<ListingInfoDto> getListings(ListingFilterDto filter, Pageable pageable, boolean isClient);
 
     List<PriceChangeDto> getPriceChanges();
 
-    ListingDetailsDto getListingDetails(UUID listingId);
+    ListingDetailsDto getListingDetails(UUID securityId);
 
     List<OptionDto> getOptionsWithSettlementDateForStock(
-        UUID listingId,
+        UUID stockId,
         OffsetDateTime settlementDate
     );
 }

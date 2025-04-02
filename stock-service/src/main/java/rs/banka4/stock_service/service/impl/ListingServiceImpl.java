@@ -102,10 +102,10 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public ListingDetailsDto getListingDetails(UUID listingId) {
-        Optional<Listing> listing = listingRepository.findById(listingId);
+    public ListingDetailsDto getListingDetails(UUID securityId) {
+        Optional<Listing> listing = listingRepository.getLatestListing(securityId, Limit.of(1));
         if (listing.isEmpty()) {
-            throw new ListingNotFoundException(listingId);
+            throw new ListingNotFoundException(securityId);
         } else {
             Security security =
                 listing.get()
@@ -131,7 +131,7 @@ public class ListingServiceImpl implements ListingService {
     /**
      * @return Specific format of two options in one Dto that should fit one row in table on
      *         frontend
-     * @param listingId Id of a specific listing for stock that we look Options for
+     * @param stockId Id of a specific stock that we look Options for
      * @param settlementDate Date on which Options should expire function gets all options for a
      *        listed stock that are expiring on a settlement date, and filters them to two maps
      *        based on Option type where key is a strike price. After that its just filing dto in
@@ -140,21 +140,9 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<OptionDto> getOptionsWithSettlementDateForStock(
-        UUID listingId,
+        UUID stockId,
         OffsetDateTime settlementDate
     ) {
-        Optional<Listing> listing = listingRepository.findById(listingId);
-        if (
-            listing.isEmpty()
-                || !(listing.get()
-                    .getSecurity() instanceof Stock)
-        ) {
-            throw new ListingNotFoundException(listingId);
-        }
-        UUID stockId =
-            listing.get()
-                .getSecurity()
-                .getId();
         var start = settlementDate.truncatedTo(ChronoUnit.DAYS);
         var end = start.plusDays(1);
         List<Option> options =

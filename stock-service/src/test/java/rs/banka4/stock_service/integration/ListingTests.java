@@ -52,7 +52,7 @@ public class ListingTests {
 
         mvc.get()
             /* TODO(arsen): swap with security id? */
-            .uri("/listings/{id}", "5b0d1174-2894-49ed-8648-6ba9d3faa2ca")
+            .uri("/listings/{stockId}", AssetGenerator.STOCK_EX1_UUID)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -89,7 +89,7 @@ public class ListingTests {
 
         mvc.get()
             /* TODO(arsen): swap with security id? */
-            .uri("/listings/options/{id}", "5b0d1174-2894-49ed-8648-6ba9d3faa2ca")
+            .uri("/listings/options/{stockId}", AssetGenerator.STOCK_EX1_UUID)
             .param("settlementDate", settlementDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
             .assertThat()
             .bodyJson()

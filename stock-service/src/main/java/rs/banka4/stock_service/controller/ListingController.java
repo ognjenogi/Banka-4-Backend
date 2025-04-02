@@ -40,18 +40,18 @@ public class ListingController implements ListingApiDocumentation {
         return new ResponseEntity<>(listingService.getPriceChanges(), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ListingDetailsDto> getListingDetails(@PathVariable UUID id) {
-        return new ResponseEntity<>(listingService.getListingDetails(id), HttpStatus.OK);
+    @GetMapping("/{securityId}")
+    public ResponseEntity<ListingDetailsDto> getListingDetails(@PathVariable UUID securityId) {
+        return new ResponseEntity<>(listingService.getListingDetails(securityId), HttpStatus.OK);
     }
 
-    @GetMapping("/options/{listingId}")
+    @GetMapping("/options/{stockId}")
     public ResponseEntity<List<OptionDto>> getListingOptions(
-        @PathVariable UUID listingId,
+        @PathVariable UUID stockId,
         @RequestParam OffsetDateTime settlementDate
     ) {
         return new ResponseEntity<>(
-            listingService.getOptionsWithSettlementDateForStock(listingId, settlementDate),
+            listingService.getOptionsWithSettlementDateForStock(stockId, settlementDate),
             HttpStatus.OK
         );
     }

@@ -71,8 +71,8 @@ public interface ListingApiDocumentation {
     ResponseEntity<List<PriceChangeDto>> getPriceChanges();
 
     @Operation(
-        summary = "Get details for one listing",
-        description = "Retrieves all data specific to a listing",
+        summary = "Get details for latest listing for a security",
+        description = "Retrieves all data specific to a listing of security",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(
@@ -94,7 +94,7 @@ public interface ListingApiDocumentation {
         }
     )
     ResponseEntity<ListingDetailsDto> getListingDetails(
-        @Parameter(description = "Listing id as path param to get it's details") UUID id
+        @Parameter(description = "Security id as path param to get details of latest listing created for it") UUID securityId
     );
 
     @Operation(
@@ -122,7 +122,7 @@ public interface ListingApiDocumentation {
     )
     ResponseEntity<List<OptionDto>> getListingOptions(
         @Parameter(
-            description = "Path parameter for stock listing that we want to show all options for"
+            description = "Path parameter for stockId that we want to show all options for"
         ) UUID listingId,
         @Parameter(
             description = "Request parameter for dateTime with timezone"
