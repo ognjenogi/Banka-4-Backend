@@ -41,23 +41,17 @@ public class ListingController implements ListingApiDocumentation {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ListingDetailsDto> getListingDetails(@PathVariable String id) {
-        return new ResponseEntity<>(
-            listingService.getListingDetails(UUID.fromString(id)),
-            HttpStatus.OK
-        );
+    public ResponseEntity<ListingDetailsDto> getListingDetails(@PathVariable UUID id) {
+        return new ResponseEntity<>(listingService.getListingDetails(id), HttpStatus.OK);
     }
 
     @GetMapping("/options/{listingId}")
     public ResponseEntity<List<OptionDto>> getListingOptions(
-        @PathVariable String listingId,
+        @PathVariable UUID listingId,
         @RequestParam OffsetDateTime settlementDate
     ) {
         return new ResponseEntity<>(
-            listingService.getOptionsWithSettlementDateForStock(
-                UUID.fromString(listingId),
-                settlementDate
-            ),
+            listingService.getOptionsWithSettlementDateForStock(listingId, settlementDate),
             HttpStatus.OK
         );
     }

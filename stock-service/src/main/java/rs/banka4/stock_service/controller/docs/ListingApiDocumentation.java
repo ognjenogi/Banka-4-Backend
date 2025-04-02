@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
@@ -93,7 +94,7 @@ public interface ListingApiDocumentation {
         }
     )
     ResponseEntity<ListingDetailsDto> getListingDetails(
-        @Parameter(description = "Listing id as path param to get it's details") String id
+        @Parameter(description = "Listing id as path param to get it's details") UUID id
     );
 
     @Operation(
@@ -122,7 +123,7 @@ public interface ListingApiDocumentation {
     ResponseEntity<List<OptionDto>> getListingOptions(
         @Parameter(
             description = "Path parameter for stock listing that we want to show all options for"
-        ) String listingId,
+        ) UUID listingId,
         @Parameter(
             description = "Request parameter for dateTime with timezone"
                 + " to filter options that are expiring on that date"
