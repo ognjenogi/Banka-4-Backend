@@ -235,7 +235,7 @@ public class CardServiceImpl implements CardService {
 
         if (
             !jwtService.extractRole(token)
-                .equals("employee")
+                .equalsIgnoreCase("employee")
         ) throw new NotAuthenticated();
 
         if (pageable == null) {
