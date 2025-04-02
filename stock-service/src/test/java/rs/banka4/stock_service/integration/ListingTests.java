@@ -33,7 +33,7 @@ public class ListingTests {
     private ListingDailyPriceInfoRepository listingHistoryRepo;
 
     @Test
-    public void test_getListings_no_filter() {
+    public void test_getListingDetails_basic() {
         final var ber1 = ExchangeGenerator.makeBer1();
         exchangeRepo.save(ber1);
         AssetGenerator.makeExampleAssets()
