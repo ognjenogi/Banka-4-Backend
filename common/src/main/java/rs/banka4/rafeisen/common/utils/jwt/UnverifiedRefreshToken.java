@@ -4,11 +4,7 @@ import io.jsonwebtoken.Claims;
 
 
 public class UnverifiedRefreshToken extends UnverifiedToken {
-
-    protected String role;
-
     public UnverifiedRefreshToken(Claims claims) {
         super(claims);
-        this.role = (String) claims.get("role");
     }
 }

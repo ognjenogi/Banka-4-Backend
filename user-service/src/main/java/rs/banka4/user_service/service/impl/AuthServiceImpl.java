@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException();
         }
 
-        if (role.equals("employee")) {
+        if (role.equalsIgnoreCase("employee")) {
             Employee employee = (Employee) findUserById(userId);
             newAccessToken = jwtService.generateAccessToken(employee);
         } else {

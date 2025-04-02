@@ -175,7 +175,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountNumber != null && !accountNumber.isEmpty()) {
             combinator.and(AccountSpecification.hasAccountNumber(accountNumber));
         }
-        if (role.equals("client")) {
+        if (role.equalsIgnoreCase("client")) {
             combinator.and(
                 AccountSpecification.hasEmail(
                     client.get()

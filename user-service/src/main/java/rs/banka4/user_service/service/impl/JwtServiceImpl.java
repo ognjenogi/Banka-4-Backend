@@ -14,7 +14,6 @@ import rs.banka4.rafeisen.common.exception.MalformedJwt;
 import rs.banka4.rafeisen.common.exception.UnsupportedJwt;
 import rs.banka4.rafeisen.common.utils.jwt.JwtTokenGenerator;
 import rs.banka4.rafeisen.common.utils.jwt.JwtUtil;
-import rs.banka4.rafeisen.common.utils.jwt.UnverifiedAccessToken;
 import rs.banka4.rafeisen.common.utils.jwt.UnverifiedToken;
 import rs.banka4.user_service.domain.user.User;
 import rs.banka4.user_service.exceptions.jwt.ExpiredJwt;
@@ -118,19 +117,15 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean validateToken(String token) {
-        UnverifiedToken unverified = parseToken(token);
         return !isTokenExpired(token);
     }
 
     @Override
     public String extractRole(String token) {
         UnverifiedToken tokenObj = parseToken(token);
-        if (tokenObj instanceof UnverifiedAccessToken accessToken) {
-            return Optional.ofNullable(accessToken.getRole())
-                .map(Object::toString)
-                .orElse(null);
-        }
-        return null;
+        return Optional.ofNullable(tokenObj.getRole())
+            .map(Object::toString)
+            .orElse(null);
     }
 
     @Override

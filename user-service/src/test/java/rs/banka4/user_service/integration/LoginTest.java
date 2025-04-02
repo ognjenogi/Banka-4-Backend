@@ -33,7 +33,7 @@ public class LoginTest {
 
     @Test
     void loginTest() throws Exception {
-        userGen.createEmployee(x -> x);
+        userGen.createEmployeeLogin(x -> x);
 
         m.post()
             .uri("/auth/employee/login")
@@ -60,7 +60,7 @@ public class LoginTest {
 
     @Test
     void refreshTokenTestEmployee() throws Exception {
-        userGen.createEmployee(x -> x);
+        userGen.createEmployeeLogin(x -> x);
         var toks = userGen.doEmployeeLogin("john.doe@example.com", "test");
 
 

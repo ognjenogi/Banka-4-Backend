@@ -14,6 +14,7 @@ public abstract class UnverifiedToken {
     protected Date exp;
     protected String typ;
     protected Integer ver;
+    protected String role;
 
     protected UnverifiedToken(Claims claims) {
         this.jti = claims.getId();
@@ -22,5 +23,6 @@ public abstract class UnverifiedToken {
         this.typ = (String) claims.get("typ");
         Object verClaim = claims.get("ver");
         this.ver = (verClaim instanceof Number) ? ((Number) verClaim).intValue() : null;
+        this.role = (String) claims.get("role");
     }
 }

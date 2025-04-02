@@ -47,6 +47,7 @@ public class JwtTokenGenerator {
             .setExpiration(exp)
             .claim("typ", "REFRESH")
             .claim("ver", currentVersion)
+            .claim("role", role)
             .signWith(signingKey, SignatureAlgorithm.HS256)
             .compact();
     }
