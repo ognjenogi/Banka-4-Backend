@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.domain.security.forex.db;
 
+
 public enum CurrencyCode {
     RSD,
     EUR,
@@ -7,5 +8,6 @@ public enum CurrencyCode {
     CHF,
     JPY,
     AUD,
-    CAD
+    CAD,
+    GBP
 }
