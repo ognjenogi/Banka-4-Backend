@@ -35,7 +35,10 @@ public class Exchange {
     private String polity;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(
+        nullable = false,
+        columnDefinition = "currency"
+    )
     private CurrencyCode currency;
 
     @Column(nullable = false)

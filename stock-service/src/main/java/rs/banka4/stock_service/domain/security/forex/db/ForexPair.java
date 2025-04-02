@@ -19,11 +19,17 @@ import rs.banka4.stock_service.domain.security.Security;
 @SuperBuilder
 public class ForexPair extends Security {
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(
+        nullable = false,
+        columnDefinition = "currency"
+    )
     private CurrencyCode baseCurrency;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(
+        nullable = false,
+        columnDefinition = "currency"
+    )
     private CurrencyCode quoteCurrency;
 
     @Enumerated(EnumType.STRING)
