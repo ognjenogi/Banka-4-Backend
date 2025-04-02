@@ -131,11 +131,11 @@ public class ListingTests {
                 """);
     }
 
+    /**
+     * Verify that getPriceChanges returns all changes from oldest to newest.
+     */
     @Test
     public void test_getPriceChanges_basic() {
-        /*
-         * Verify that getPriceChanges returns all changes from oldest to newest.
-         */
         final var ber1 = ExchangeGenerator.makeBer1();
         exchangeRepo.save(ber1);
         AssetGenerator.makeExampleAssets()
