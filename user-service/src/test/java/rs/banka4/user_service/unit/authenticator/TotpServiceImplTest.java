@@ -12,11 +12,6 @@ import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.domain.authenticator.db.UserTotpSecret;
@@ -34,30 +29,24 @@ import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.impl.TotpServiceImpl;
 
-@ExtendWith(MockitoExtension.class)
-@Ignore
 public class TotpServiceImplTest {
-
-    @Mock
     private JwtService jwtService;
-
-    @Mock
     private UserTotpSecretRepository repository;
-
-    @Mock
     private ClientRepository clientRepository;
-
-    @Mock
     private EmployeeRepository employeeRepository;
-
-    @InjectMocks
     private TotpServiceImpl totpService;
 
     private final String testSecret = "TEST_SECRET_1234567890";
 
     @BeforeEach
     void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this);
+        totpService =
+            new TotpServiceImpl(
+                jwtService = mock(JwtService.class),
+                repository = mock(UserTotpSecretRepository.class),
+                clientRepository = mock(ClientRepository.class),
+                employeeRepository = mock(EmployeeRepository.class)
+            );
     }
 
     private AuthenticatedBankUserAuthentication makeAuthentication(UserType userType) {
@@ -79,13 +68,12 @@ public class TotpServiceImplTest {
         final var auth = makeAuthentication(UserType.CLIENT);
         Client client =
             ClientObjectMother.generateClient(UUID.randomUUID(), "5ujtruje@example.com");
-        when(auth.getCredentials()).thenReturn("Bearer validToken");
         when(jwtService.extractRole(any())).thenReturn("client");
         when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
         when(jwtService.extractUserId(any())).thenReturn(UUID.randomUUID());
         UserTotpSecret totpSecret =
             new UserTotpSecret(UUID.randomUUID(), testSecret, client, null, false);
-        when(repository.findByClient_Id(client.getId())).thenReturn(Optional.of(totpSecret));
+        when(repository.findByClient_Id(any())).thenReturn(Optional.of(totpSecret));
 
         String validCode = generateCodeForSecret(testSecret);
 
@@ -102,7 +90,6 @@ public class TotpServiceImplTest {
     void verifyNewAuthenticator_invalidCode_throwsException() {
         // Arrange
         final var auth = makeAuthentication(UserType.CLIENT);
-        when(auth.getCredentials()).thenReturn("Bearer validToken");
         UserTotpSecret totpSecret =
             new UserTotpSecret(UUID.randomUUID(), testSecret, null, null, false);
         when(repository.findByClient_Id(any())).thenReturn(Optional.of(totpSecret));
@@ -144,8 +131,8 @@ public class TotpServiceImplTest {
     void regenerateSecret_clientExistingSecret_updatesSecret() {
         // Arrange
         final var auth = makeAuthentication(UserType.CLIENT);
-        when(auth.getCredentials()).thenReturn("Bearer validToken");
-        Client client = new Client();
+        Client client =
+            ClientObjectMother.generateClient(UUID.randomUUID(), "5ujtruje@example.com");
         UserTotpSecret existingSecret =
             new UserTotpSecret(UUID.randomUUID(), "OLD_SECRET", client, null, true);
         when(clientRepository.findById(any())).thenReturn(Optional.of(client));
@@ -165,7 +152,6 @@ public class TotpServiceImplTest {
     void regenerateSecret_noUser_throwsNotFound() {
         // Arrange
         final var auth = makeAuthentication(UserType.CLIENT);
-        when(auth.getCredentials()).thenReturn("Bearer validToken");
         when(clientRepository.findById(any())).thenReturn(Optional.empty());
         when(employeeRepository.findById(any())).thenReturn(Optional.empty());
 
