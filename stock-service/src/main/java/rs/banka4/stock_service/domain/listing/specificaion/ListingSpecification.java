@@ -23,32 +23,36 @@ import rs.banka4.stock_service.domain.security.stock.db.Stock;
 
 public class ListingSpecification {
     /**
-     * Builds a JPA {@link Specification} for filtering and sorting {@link Listing} entities
-     * based on the provided filter criteria and client role.
+     * Builds a JPA {@link Specification} for filtering and sorting {@link Listing} entities based
+     * on the provided filter criteria and client role.
      * <p>
      * This specification performs the following:
      * <ul>
-     *   <li>Ensures that only the latest {@code Listing} per security is returned via the {@code isLatest()} predicate.</li>
-     *   <li>Filters by security type (for clients, only FUTURE and STOCK are allowed; for employees, the specified type is applied).</li>
-     *   <li>Performs "like" search on the security's name and ticker.</li>
-     *   <li>Filters by exchange prefix.</li>
-     *   <li>Applies range filters on ask and bid prices.</li>
-     *   <li>If the security type is {@code FUTURE}, applies range filtering on the settlement date.</li>
-     *   <li>Computes volume for each listing by counting {@link Order} entities created for the security
-     *       during the current day and applies volume range filters.</li>
-     *   <li>Applies dynamic sorting based on the {@code sortBy} and {@code sortDirection} parameters.
-     *       For instance, sorting by price will use the Listing's {@code ask} value, and sorting by volume
-     *       will use the computed volume from the subquery.</li>
+     * <li>Ensures that only the latest {@code Listing} per security is returned via the
+     * {@code isLatest()} predicate.</li>
+     * <li>Filters by security type (for clients, only FUTURE and STOCK are allowed; for employees,
+     * the specified type is applied).</li>
+     * <li>Performs "like" search on the security's name and ticker.</li>
+     * <li>Filters by exchange prefix.</li>
+     * <li>Applies range filters on ask and bid prices.</li>
+     * <li>If the security type is {@code FUTURE}, applies range filtering on the settlement
+     * date.</li>
+     * <li>Computes volume for each listing by counting {@link Order} entities created for the
+     * security during the current day and applies volume range filters.</li>
+     * <li>Applies dynamic sorting based on the {@code sortBy} and {@code sortDirection} parameters.
+     * For instance, sorting by price will use the Listing's {@code ask} value, and sorting by
+     * volume will use the computed volume from the subquery.</li>
      * </ul>
      * </p>
      *
-     * @param filter   the {@link ListingFilterDto} containing filter, search, and sorting parameters;
-     *                 may include search text, price ranges, exchange prefix, settlement date range, volume range,
-     *                 and sort options.
-     * @param isClient {@code true} if the filtering should restrict the results to only {@code STOCK} and {@code FUTURE}
-     *                 security types (for client users); {@code false} if no such restriction should be applied.
-     * @return a {@link Specification} that can be used with Spring Data JPA repositories to query {@link Listing} entities
-     *         based on the provided criteria.
+     * @param filter the {@link ListingFilterDto} containing filter, search, and sorting parameters;
+     *        may include search text, price ranges, exchange prefix, settlement date range, volume
+     *        range, and sort options.
+     * @param isClient {@code true} if the filtering should restrict the results to only
+     *        {@code STOCK} and {@code FUTURE} security types (for client users); {@code false} if
+     *        no such restriction should be applied.
+     * @return a {@link Specification} that can be used with Spring Data JPA repositories to query
+     *         {@link Listing} entities based on the provided criteria.
      */
     public static Specification<Listing> getSpecification(
         ListingFilterDto filter,

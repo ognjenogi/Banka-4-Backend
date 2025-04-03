@@ -28,11 +28,11 @@ import rs.banka4.stock_service.domain.listing.dtos.specific.StockDto;
     ),
     @Type(
         value = ForexPairDto.class,
-        name = "STOCK"
+        name = "FOREX-PAIR"
     ),
     @Type(
         value = FutureDto.class,
-        name = "STOCK"
+        name = "FUTURE"
     )
 })
 public class ListingDetailsDto {
