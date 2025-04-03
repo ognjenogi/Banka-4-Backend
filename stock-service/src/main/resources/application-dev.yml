@@ -49,3 +49,7 @@ springdoc:
     path: /docs/api
   swagger-ui:
     path: /docs/ui
+
+jwt:
+  keys:
+    verification: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
