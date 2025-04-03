@@ -182,13 +182,15 @@ public class ListingServiceImpl implements ListingService {
                     call.getImpliedVolatility(),
                     getVolumeOfAsset(call.getId()),
                     call.getOpenInterest(),
+                    call.getPremium(),
                     strike,
                     puts.getId(),
                     new BigDecimal("0"),
                     new BigDecimal("0"),
                     puts.getImpliedVolatility(),
                     getVolumeOfAsset(puts.getId()),
-                    puts.getOpenInterest()
+                    puts.getOpenInterest(),
+                    puts.getPremium()
                 )
             );
         }

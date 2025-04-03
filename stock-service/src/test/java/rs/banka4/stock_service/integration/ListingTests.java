@@ -114,13 +114,23 @@ public class ListingTests {
                     "callsImpliedVolatility": 337.8,
                     "callsVolume": 0,
                     "callsOpenInterest": 445,
+                    "callsPremium":
+                    {
+                        "amount":1.50,
+                        "currency":"USD"
+                    },
                     "strike": 170.00,
                     "putsId": "65d965c1-0d7c-4506-a424-4fe81a1f6357",
                     "putsLastPrice": 0,
                     "putsChange": 0,
                     "putsImpliedVolatility": 412.5,
                     "putsVolume": 0,
-                    "putsOpenInterest": 565
+                    "putsOpenInterest": 565,
+                    "putsPremium":
+                    {
+                        "amount":1.50,
+                        "currency":"USD"
+                    }
                   },
 
                   {
@@ -130,13 +140,23 @@ public class ListingTests {
                     "callsImpliedVolatility": 122.4,
                     "callsVolume": 0,
                     "callsOpenInterest": 914,
+                    "callsPremium":
+                    {
+                        "amount":1.50,
+                        "currency":"USD"
+                    },
                     "strike": 140.00,
                     "putsId": "18995f03-540e-455e-b44c-ce819c00e562",
                     "putsLastPrice": 0,
                     "putsChange": 0,
                     "putsImpliedVolatility": 338.9,
                     "putsVolume": 0,
-                    "putsOpenInterest": 878
+                    "putsOpenInterest": 878,
+                    "putsPremium":
+                    {
+                        "amount":1.50,
+                        "currency":"USD"
+                    }
                   }
                 ]
                 """);
