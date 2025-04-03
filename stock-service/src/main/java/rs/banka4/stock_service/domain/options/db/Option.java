@@ -25,6 +25,9 @@ public class Option extends Asset {
     @Column(nullable = false)
     private MonetaryAmount strikePrice;
 
+    @Column(nullable = false)
+    private MonetaryAmount premium;
+
     /**
      * Implied volatility, measured in percent (so, 40% means {@code
      * impliedVolatility = 40})
