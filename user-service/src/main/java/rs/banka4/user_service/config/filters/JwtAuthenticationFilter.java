@@ -78,6 +78,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private static UnverifiedToken parseAuthHeader(String header) {
+        if (header == null) return null;
+
         final var bearerPrefix = "bearer ";
         try {
             if (
