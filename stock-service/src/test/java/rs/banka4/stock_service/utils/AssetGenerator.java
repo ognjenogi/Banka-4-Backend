@@ -114,6 +114,7 @@ public class AssetGenerator {
                 .openInterest(565)
                 .settlementDate(settlementDate)
                 .stock(stock1)
+                .premium(new MonetaryAmount(new BigDecimal("1.5"), CurrencyCode.USD))
                 .build(),
             Option.builder()
                 .id(OPTION_EX1_CALL_UUID)
@@ -125,6 +126,7 @@ public class AssetGenerator {
                 .openInterest(445)
                 .settlementDate(settlementDate)
                 .stock(stock1)
+                .premium(new MonetaryAmount(new BigDecimal("1.5"), CurrencyCode.USD))
                 .build(),
 
             Option.builder()
@@ -137,6 +139,7 @@ public class AssetGenerator {
                 .openInterest(878)
                 .settlementDate(settlementDate)
                 .stock(stock1)
+                .premium(new MonetaryAmount(new BigDecimal("1.5"), CurrencyCode.USD))
                 .build(),
             Option.builder()
                 .id(OPTION_EX1_CALL2_UUID)
@@ -148,6 +151,7 @@ public class AssetGenerator {
                 .openInterest(914)
                 .settlementDate(settlementDate)
                 .stock(stock1)
+                .premium(new MonetaryAmount(new BigDecimal("1.5"), CurrencyCode.USD))
                 .build()
         );
     }
