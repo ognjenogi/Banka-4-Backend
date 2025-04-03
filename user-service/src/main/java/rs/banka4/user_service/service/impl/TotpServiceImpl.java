@@ -13,6 +13,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.domain.authenticator.db.UserTotpSecret;
 import rs.banka4.user_service.domain.authenticator.dtos.RegenerateAuthenticatorResponseDto;
 import rs.banka4.user_service.domain.user.User;
@@ -23,7 +24,6 @@ import rs.banka4.user_service.exceptions.user.NotFound;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.repositories.UserTotpSecretRepository;
-import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.abstraction.TotpService;
 

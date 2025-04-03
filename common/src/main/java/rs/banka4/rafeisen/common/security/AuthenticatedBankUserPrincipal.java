@@ -1,7 +1,6 @@
-package rs.banka4.user_service.security;
+package rs.banka4.rafeisen.common.security;
 
 import java.util.UUID;
-import rs.banka4.rafeisen.common.security.UserType;
 
 /**
  * Answers the question "which user is this token talking about".

@@ -12,6 +12,8 @@ import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.domain.authenticator.db.UserTotpSecret;
@@ -24,8 +26,6 @@ import rs.banka4.user_service.generator.ClientObjectMother;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.repositories.UserTotpSecretRepository;
-import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
-import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.impl.TotpServiceImpl;
 

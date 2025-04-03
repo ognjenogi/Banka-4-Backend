@@ -1,10 +1,10 @@
 package rs.banka4.user_service.service.abstraction;
 
 import java.util.UUID;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.utils.jwt.UnverifiedToken;
 import rs.banka4.rafeisen.common.utils.jwt.VerifiedToken;
 import rs.banka4.user_service.domain.user.User;
-import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
 
 public interface JwtService {
     String generateAccessToken(User user);
