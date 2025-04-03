@@ -41,7 +41,11 @@ public class ListingSpecification {
      *       will use the computed volume from the subquery.</li>
      * </ul>
      * </p>
-     *
+     *Important: This class relies on JPA metamodel classes (such as {@code Listing_},
+     *  {@code Security_}, {@code Exchange_}, etc.) which are generated during compilation via annotation processing
+     *  (e.g. using the <em>hibernate-jpamodelgen</em> processor). These generated classes will not be available
+     *  unless annotation processing is properly set up in your build (IDE/Gradle/Maven).
+     *  * </p>
      * @param filter   the {@link ListingFilterDto} containing filter, search, and sorting parameters;
      *                 may include search text, price ranges, exchange prefix, settlement date range, volume range,
      *                 and sort options.
