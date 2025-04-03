@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -201,15 +200,20 @@ public class CardServiceImpl implements CardService {
 
         Set<Account> accounts = accountRepository.findAllByClient(client.get());
 
-        boolean found =
-            accounts.stream()
-                .map(Account::getAccountNumber)
-                .collect(Collectors.toSet())
-                .contains(accountNumber);
+        List<Card> clientCards;
 
-        if (!found) throw new NotAccountOwner();
+        if (accountNumber != null) {
+            boolean found =
+                accounts.stream()
+                    .map(Account::getAccountNumber)
+                    .anyMatch(accountNumber::equals);
 
-        List<Card> clientCards = cardRepository.findByAccountAccountNumber(accountNumber);
+            if (!found) throw new NotAccountOwner();
+
+            clientCards = cardRepository.findByAccountAccountNumber(accountNumber);
+        } else {
+            clientCards = cardRepository.findByAccount_Client(client.get());
+        }
 
         List<CardDto> cardDtos =
             clientCards.stream()
