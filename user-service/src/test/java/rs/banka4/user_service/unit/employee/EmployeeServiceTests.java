@@ -69,7 +69,7 @@ public class EmployeeServiceTests {
         );
         when(employeeRepository.findByEmail("user@example.com")).thenReturn(Optional.of(employee));
         when(jwtService.generateAccessToken(employee)).thenReturn("access-token");
-        when(jwtService.generateRefreshToken(any(), any(), any())).thenReturn("refresh-token");
+        when(jwtService.generateRefreshToken(any())).thenReturn("refresh-token");
 
         // Act
         LoginResponseDto response = employeeService.login(loginDto);

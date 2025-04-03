@@ -1,107 +1,81 @@
 package rs.banka4.user_service.service.impl;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import jakarta.annotation.PostConstruct;
-import java.security.Key;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
+import javax.crypto.SecretKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import rs.banka4.rafeisen.common.exception.MalformedJwt;
-import rs.banka4.rafeisen.common.exception.UnsupportedJwt;
-import rs.banka4.rafeisen.common.security.UserType;
-import rs.banka4.rafeisen.common.utils.jwt.JwtTokenGenerator;
+import rs.banka4.rafeisen.common.utils.jwt.JwtParseFailed;
 import rs.banka4.rafeisen.common.utils.jwt.JwtUtil;
 import rs.banka4.rafeisen.common.utils.jwt.UnverifiedToken;
+import rs.banka4.rafeisen.common.utils.jwt.VerifiedAccessToken;
+import rs.banka4.rafeisen.common.utils.jwt.VerifiedRefreshToken;
+import rs.banka4.rafeisen.common.utils.jwt.VerifiedToken;
 import rs.banka4.user_service.domain.user.User;
 import rs.banka4.user_service.exceptions.jwt.ExpiredJwt;
-import rs.banka4.user_service.exceptions.jwt.IllegalArgumentJwt;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
-import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.abstraction.TokenService;
 
 @Service
-@RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
-
-    @Value("${jwt.secret.key}")
-    private String secretKey;
-
-    @Value("${jwt.expiration}")
-    private int jwtExpiration;
-
-    @Value("${jwt.refresh.token.expiration}")
-    private int refreshExpiration;
-
-    @Value("${jwt.version}")
-    private int jwtVersion;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtServiceImpl.class);
     private final TokenService tokenService;
-    private JwtTokenGenerator jwtTokenGenerator;
+    private final JwtUtil jwtParser;
+    private final SecretKey jwtKey;
+    private final int jwtRefreshExpirationMs;
+    private final int jwtExpirationMs;
 
-    @PostConstruct
-    public void init() {
-        Key key =
-            io.jsonwebtoken.security.Keys.hmacShaKeyFor(
-                io.jsonwebtoken.io.Decoders.BASE64.decode(secretKey)
+    public JwtServiceImpl(
+        @Value("${jwt.secret.key}") String secretKey,
+        @Value("${jwt.expiration}") int jwtExpiration,
+        @Value("${jwt.refresh.token.expiration}") int refreshExpiration,
+        TokenService tokenService
+    ) {
+        this.jwtExpirationMs = jwtExpiration;
+        this.jwtRefreshExpirationMs = refreshExpiration;
+        this.tokenService = tokenService;
+        this.jwtKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        this.jwtParser =
+            new JwtUtil(
+                Jwts.parser()
+                    .verifyWith(jwtKey)
+                    .build()
             );
-        this.jwtTokenGenerator =
-            new JwtTokenGenerator(key, jwtExpiration, refreshExpiration, jwtVersion);
-    }
-
-    @Override
-    public UnverifiedToken parseToken(String jwt) {
-        try {
-            return JwtUtil.parseToken(jwt);
-        } catch (ExpiredJwtException e) {
-            throw new ExpiredJwt();
-        } catch (MalformedJwtException e) {
-            throw new MalformedJwt();
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentJwt();
-        } catch (Exception e) {
-            throw new UnsupportedJwt();
-        }
     }
 
     @Override
     public String generateAccessToken(User user) {
-        return jwtTokenGenerator.generateAccessToken(
-            user.getId()
-                .toString(),
-            user.getUserType()
-                .name()
-                .toUpperCase(),
-            user.getPrivileges()
-                .stream()
-                .map(Object::toString)
-                .toList()
-        );
+        final var accessToken =
+            new VerifiedAccessToken(user.getUserType(), user.getId(), user.getPrivileges());
+        return Jwts.builder()
+            .claims(accessToken.getClaims())
+            .expiration(new Date(System.currentTimeMillis() + this.jwtExpirationMs))
+            .signWith(this.jwtKey)
+            .compact();
     }
 
     @Override
-    public String generateRefreshToken(
-        AuthenticatedBankUserPrincipal principal,
-        UnauthenticatedBankUserPrincipal preAuthPrincipal,
-        UserType type
-    ) {
-        return jwtTokenGenerator.generateRefreshToken(
-            principal.userId()
-                .toString(),
-            type.name()
-                .toUpperCase()
-        );
+    public String generateRefreshToken(AuthenticatedBankUserPrincipal principal) {
+        final var refreshToken = new VerifiedRefreshToken(principal.userType(), principal.userId());
+        return Jwts.builder()
+            .claims(refreshToken.getClaims())
+            .expiration(new Date(System.currentTimeMillis() + this.jwtRefreshExpirationMs))
+            .signWith(this.jwtKey)
+            .compact();
+
     }
 
     @Override
     public boolean isTokenExpired(String token) {
-        UnverifiedToken unverifiedToken = parseToken(token);
-        return unverifiedToken.getExp()
-            .before(new Date());
+        /* Throws if expired. */
+        parseToken(new UnverifiedToken(token));
+        return false;
     }
 
     @Override
@@ -122,16 +96,24 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String extractRole(String token) {
-        UnverifiedToken tokenObj = parseToken(token);
-        return Optional.ofNullable(tokenObj.getRole())
-            .map(Object::toString)
-            .orElse(null);
+        final var tokenObj = parseToken(new UnverifiedToken(token));
+        return tokenObj.getRole()
+            .name();
     }
 
     @Override
     public UUID extractUserId(String token) {
-        UnverifiedToken tokenObj = parseToken(token);
-        Object id = tokenObj.getSub();
-        return UUID.fromString(id.toString());
+        final var tokenObj = parseToken(new UnverifiedToken(token));
+        return tokenObj.getSub();
+    }
+
+    @Override
+    public VerifiedToken parseToken(UnverifiedToken token) {
+        try {
+            return jwtParser.parseToken(token);
+        } catch (JwtParseFailed e) {
+            /* TODO(arsen): handle more specific inner error */
+            throw new ExpiredJwt();
+        }
     }
 }

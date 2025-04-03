@@ -117,8 +117,7 @@ public class ClientServiceImpl implements ClientService {
         }
 
         String accessToken = jwtService.generateAccessToken(client);
-        String refreshToken =
-            jwtService.generateRefreshToken(token.getPrincipal(), principal, UserType.CLIENT);
+        String refreshToken = jwtService.generateRefreshToken(token.getPrincipal());
 
         return new LoginResponseDto(accessToken, refreshToken);
     }

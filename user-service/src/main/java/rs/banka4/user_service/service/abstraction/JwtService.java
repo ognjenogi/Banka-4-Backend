@@ -1,22 +1,15 @@
 package rs.banka4.user_service.service.abstraction;
 
 import java.util.UUID;
-import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.rafeisen.common.utils.jwt.UnverifiedToken;
+import rs.banka4.rafeisen.common.utils.jwt.VerifiedToken;
 import rs.banka4.user_service.domain.user.User;
 import rs.banka4.user_service.security.AuthenticatedBankUserPrincipal;
-import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
 
 public interface JwtService {
-    UnverifiedToken parseToken(String jwt);
-
     String generateAccessToken(User user);
 
-    String generateRefreshToken(
-        AuthenticatedBankUserPrincipal principal,
-        UnauthenticatedBankUserPrincipal preAuthPrincipal,
-        UserType type
-    );
+    String generateRefreshToken(AuthenticatedBankUserPrincipal principal);
 
     boolean validateToken(String token);
 
@@ -29,4 +22,6 @@ public interface JwtService {
     String extractRole(String token);
 
     UUID extractUserId(String token);
+
+    VerifiedToken parseToken(UnverifiedToken token);
 }
