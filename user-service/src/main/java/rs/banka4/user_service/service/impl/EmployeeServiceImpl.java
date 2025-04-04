@@ -135,7 +135,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
+        headers.add("Authorization", "Bearer " + jwtService.generateAccessToken(admin));
         assert actuaryPayloadDto != null;
         HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
 
@@ -296,6 +296,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization", "Bearer " + jwtService.generateAccessToken(admin));
         ActuaryPayloadDto actuaryPayloadDto = null;
 
         // Employee -> Actuator
