@@ -48,7 +48,7 @@ public class SecurityConfig {
                     )
                     .requestMatchers(HttpMethod.POST, "/search/actuary-only")
                     .access(
-                        AuthorizationManagers.allOf(
+                        AuthorizationManagers.anyOf(
                             AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
                             AuthorityAuthorizationManager.hasAuthority("ADMIN")
                         )
