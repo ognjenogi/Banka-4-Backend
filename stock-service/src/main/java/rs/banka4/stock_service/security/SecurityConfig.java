@@ -29,7 +29,7 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/listings/**")
                     .authenticated()
-                    .requestMatchers(HttpMethod.POST, "/actuaries/limit/**")
+                    .requestMatchers(HttpMethod.PUT, "/actuaries/limit/**")
                     .access(
                         AuthorizationManagers.anyOf(
                             AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
