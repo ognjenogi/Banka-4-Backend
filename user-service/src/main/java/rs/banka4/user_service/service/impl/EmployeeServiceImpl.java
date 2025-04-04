@@ -133,10 +133,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             actuaryPayloadDto = agentPayload(employee.getId());
         }
 
+        if(actuaryPayloadDto == null)
+            return;
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Authorization", "Bearer " + jwtService.generateAccessToken(admin));
-        assert actuaryPayloadDto != null;
         HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
 
         restTemplate.exchange(
