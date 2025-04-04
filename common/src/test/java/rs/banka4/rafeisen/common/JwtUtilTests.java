@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.util.EnumSet;
 import java.util.UUID;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
@@ -16,6 +17,7 @@ import rs.banka4.rafeisen.common.utils.jwt.JwtUtil;
 import rs.banka4.rafeisen.common.utils.jwt.UnverifiedToken;
 import rs.banka4.rafeisen.common.utils.jwt.VerifiedAccessToken;
 import rs.banka4.rafeisen.common.utils.jwt.VerifiedRefreshToken;
+import rs.banka4.testlib.utils.JwtPlaceholders;
 
 public class JwtUtilTests {
     private static final byte[] TERRIBLE_SECRET = new byte[64];
@@ -77,5 +79,18 @@ public class JwtUtilTests {
         }).isInstanceOf(JwtParseFailed.class)
             .cause()
             .hasMessageContaining("version unsupported");
+    }
+
+    @Test
+    public void test_empty_privilege_parse_passes() throws JwtParseFailed {
+        final var jwtUtil = new JwtUtil(getJwtParser());
+
+        assertThat(jwtUtil.parseToken(new UnverifiedToken(JwtPlaceholders.CLIENT_TOKEN)))
+            .asInstanceOf(InstanceOfAssertFactories.type(VerifiedAccessToken.class))
+            .extracting(
+                VerifiedAccessToken::getPrivileges,
+                as(InstanceOfAssertFactories.COLLECTION)
+            )
+            .isEmpty();
     }
 }

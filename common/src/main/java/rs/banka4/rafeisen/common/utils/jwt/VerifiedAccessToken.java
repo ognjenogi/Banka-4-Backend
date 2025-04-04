@@ -49,12 +49,14 @@ public class VerifiedAccessToken extends VerifiedToken {
             ) {
 
                 this.privileges =
-                    EnumSet.copyOf(
-                        privileges.stream()
-                            .map(x -> (String) x)
-                            .map(Privilege::valueOf)
-                            .collect(Collectors.toSet())
-                    );
+                    privileges.isEmpty()
+                        ? EnumSet.noneOf(Privilege.class)
+                        : EnumSet.copyOf(
+                            privileges.stream()
+                                .map(x -> (String) x)
+                                .map(Privilege::valueOf)
+                                .collect(Collectors.toSet())
+                        );
             } else {
                 throw new IllegalArgumentException("Privilege not a list of strings");
             }
