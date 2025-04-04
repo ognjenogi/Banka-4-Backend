@@ -3,6 +3,8 @@ package rs.banka4.rafeisen.common.security;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.stream.Stream;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -10,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
  * An authentication instance representing a user previously authenticated via a JWT token (if
  * {@link #getCredentials} returns non-{@code null}), or freshly authenticated (otherwise).
  */
+@Value
+@EqualsAndHashCode(callSuper = false)
 public class AuthenticatedBankUserAuthentication extends AbstractAuthenticationToken {
     private final AuthenticatedBankUserPrincipal principal;
     private final String token;
