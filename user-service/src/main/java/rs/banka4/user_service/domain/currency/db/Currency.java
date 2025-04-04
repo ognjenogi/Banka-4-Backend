@@ -2,7 +2,6 @@ package rs.banka4.user_service.domain.currency.db;
 
 import jakarta.persistence.*;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -11,13 +10,14 @@ import org.hibernate.proxy.HibernateProxy;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 @Builder
 @Table(name = "currencies")
 public class Currency {
 
     @Id
-    @Builder.Default
-    private UUID id = UUID.randomUUID();
+    @Enumerated(EnumType.STRING)
+    private Code code;
 
     @Column(nullable = false)
     private String name;
@@ -31,9 +31,6 @@ public class Currency {
     @Column(nullable = false)
     private boolean active;
 
-    @Enumerated(EnumType.STRING)
-    private Code code;
-
     public enum Code {
         RSD,
         EUR,
@@ -43,11 +40,6 @@ public class Currency {
         AUD,
         CAD,
         GBP;
-    }
-
-    @Override
-    public String toString() {
-        return "Currency{" + "id=" + id + ", name='" + name + '\'' + '}';
     }
 
     @Override
@@ -66,7 +58,7 @@ public class Currency {
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Currency currency = (Currency) o;
-        return getId() != null && Objects.equals(getId(), currency.getId());
+        return getCode() != null && Objects.equals(getCode(), currency.getCode());
     }
 
     @Override

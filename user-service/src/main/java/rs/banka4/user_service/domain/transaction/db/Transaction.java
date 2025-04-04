@@ -55,7 +55,7 @@ public class Transaction {
         @AssociationOverride(
             name = "currency",
             joinColumns = @JoinColumn(
-                name = "from_currency_id",
+                name = "from_currency_code",
                 nullable = false
             )
         )
@@ -76,7 +76,7 @@ public class Transaction {
         @AssociationOverride(
             name = "currency",
             joinColumns = @JoinColumn(
-                name = "to_currency_id",
+                name = "to_currency_code",
                 nullable = false
             )
         )
@@ -93,7 +93,7 @@ public class Transaction {
     @AssociationOverrides({
         @AssociationOverride(
             name = "currency",
-            joinColumns = @JoinColumn(name = "fee_currency_id")
+            joinColumns = @JoinColumn(name = "fee_currency_code")
         )
     })
     private MonetaryAmount fee;

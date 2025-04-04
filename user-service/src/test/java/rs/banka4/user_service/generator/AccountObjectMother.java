@@ -127,14 +127,7 @@ public class AccountObjectMother {
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
         account.setCurrency(
-            new Currency(
-                UUID.randomUUID(),
-                "Serbian Dinar",
-                "RSD",
-                "Serbian Dinar currency",
-                true,
-                Currency.Code.RSD
-            )
+            new Currency(Currency.Code.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true)
         );
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
@@ -156,14 +149,7 @@ public class AccountObjectMother {
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
         account.setCurrency(
-            new Currency(
-                UUID.randomUUID(),
-                "European Currency",
-                "EUR",
-                "European currency",
-                true,
-                Currency.Code.EUR
-            )
+            new Currency(Currency.Code.EUR, "European Currency", "EUR", "European currency", true)
         );
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
@@ -185,14 +171,7 @@ public class AccountObjectMother {
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
         account.setCurrency(
-            new Currency(
-                UUID.randomUUID(),
-                "Serbian Dinar",
-                "RSD",
-                "Serbian Dinar currency",
-                true,
-                Currency.Code.RSD
-            )
+            new Currency(Currency.Code.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true)
         );
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(

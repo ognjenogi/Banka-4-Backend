@@ -30,11 +30,7 @@ public record StockDto(
         example = "2024-03-19"
     ) OffsetDateTime createdAt,
 
-    @Schema(
-        description = "Current price of the stock",
-        example = "150.75",
-        nullable = true
-    ) BigDecimal price,
+
     @Schema(
         description = "Market capitalization of the stock",
         example = "150750000.00",

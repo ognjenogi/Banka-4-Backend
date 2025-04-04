@@ -24,7 +24,7 @@ public class LoanRequest {
     private BigDecimal amount;
 
     @ManyToOne
-    @JoinColumn(name = "currency_id")
+    @JoinColumn(name = "currency_code")
     private Currency currency;
 
     private String employmentStatus;

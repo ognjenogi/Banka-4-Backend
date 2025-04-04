@@ -6,6 +6,14 @@ spring:
       ddl-auto: validate
   flyway:
     clean-disabled: false
+  datasource:
+    # Hack: disable HikariCP in order to prevent:
+    #   ERROR: cached plan must not change result type
+    type: org.springframework.jdbc.datasource.SimpleDriverDataSource
+
+jwt:
+  keys:
+    verification: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
 
 logging:
   level:

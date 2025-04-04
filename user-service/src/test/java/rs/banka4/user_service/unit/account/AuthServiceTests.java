@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,14 +25,14 @@ import rs.banka4.user_service.generator.AuthObjectMother;
 import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.service.abstraction.ClientService;
 import rs.banka4.user_service.service.abstraction.EmployeeService;
+import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.impl.AuthServiceImpl;
 import rs.banka4.user_service.service.impl.VerificationCodeService;
-import rs.banka4.user_service.utils.JwtUtil;
 
 public class AuthServiceTests {
 
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock
@@ -59,7 +60,7 @@ public class AuthServiceTests {
         authService.logout(logoutDto);
 
         // Assert
-        verify(jwtUtil, times(1)).invalidateToken("some-refresh-token");
+        verify(jwtService, times(1)).invalidateToken("some-refresh-token");
     }
 
     @Test
@@ -68,7 +69,7 @@ public class AuthServiceTests {
         LogoutDto logoutDto = new LogoutDto("invalid-refresh-token");
 
         // Act
-        doThrow(new RuntimeException("Invalid token")).when(jwtUtil)
+        doThrow(new RuntimeException("Invalid token")).when(jwtService)
             .invalidateToken("invalid-refresh-token");
 
         // Assert
@@ -80,7 +81,7 @@ public class AuthServiceTests {
         // Arrange
         LogoutDto logoutDto = new LogoutDto("already-invalidated-token");
 
-        doThrow(new RefreshTokenRevoked()).when(jwtUtil)
+        doThrow(new RefreshTokenRevoked()).when(jwtService)
             .invalidateToken("already-invalidated-token");
 
         // Act & Assert
@@ -96,11 +97,11 @@ public class AuthServiceTests {
             AuthObjectMother.generateEmployee("John", "Doe", "john.doe@example.com", "Developer");
         String newAccessToken = "new-access-token";
 
-        when(jwtUtil.extractUsername(token)).thenReturn(username);
-        when(jwtUtil.isTokenInvalidated(token)).thenReturn(false);
-        when(jwtUtil.extractRole(token)).thenReturn("employee");
-        when(employeeService.findEmployeeByEmail(username)).thenReturn(Optional.of(employee));
-        when(jwtUtil.generateToken(employee)).thenReturn(newAccessToken);
+        when(jwtService.extractUserId(token)).thenReturn(employee.getId());
+        when(jwtService.isTokenInvalidated(token)).thenReturn(false);
+        when(jwtService.extractRole(token)).thenReturn("employee");
+        when(employeeService.findEmployeeById(employee.getId())).thenReturn(Optional.of(employee));
+        when(jwtService.generateAccessToken(employee)).thenReturn(newAccessToken);
 
         // Act
         RefreshTokenResponseDto response = authService.refreshToken(token);
@@ -116,9 +117,9 @@ public class AuthServiceTests {
         String token = "valid-token";
         String username = "nonexistent@example.com";
 
-        when(jwtUtil.extractUsername(token)).thenReturn(username);
-        when(jwtUtil.extractRole(token)).thenReturn("employee");
-        when(jwtUtil.isTokenInvalidated(token)).thenReturn(false);
+        when(jwtService.extractUserId(token)).thenReturn(UUID.randomUUID());
+        when(jwtService.extractRole(token)).thenReturn("employee");
+        when(jwtService.isTokenInvalidated(token)).thenReturn(false);
         when(employeeRepository.findByEmail(username)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -130,7 +131,7 @@ public class AuthServiceTests {
         // Arrange
         String token = "some-token";
 
-        when(jwtUtil.isTokenInvalidated(token)).thenReturn(true);
+        when(jwtService.isTokenInvalidated(token)).thenReturn(true);
 
         // Act & Assert
         assertThrows(RefreshTokenRevoked.class, () -> authService.refreshToken(token));

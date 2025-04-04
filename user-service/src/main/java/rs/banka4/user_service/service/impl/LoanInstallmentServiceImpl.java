@@ -14,15 +14,15 @@ import rs.banka4.user_service.exceptions.user.client.ClientNotFound;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.LoanInstallmentRepository;
 import rs.banka4.user_service.repositories.LoanRepository;
+import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.abstraction.LoanInstallmentService;
-import rs.banka4.user_service.utils.JwtUtil;
 
 @RequiredArgsConstructor
 @Service
 public class LoanInstallmentServiceImpl implements LoanInstallmentService {
     private final LoanRepository loanRepository;
     private final LoanInstallmentRepository loanInstallmentRepository;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final ClientRepository clientRepository;
 
     @Override
@@ -33,10 +33,10 @@ public class LoanInstallmentServiceImpl implements LoanInstallmentService {
         String auth
     ) {
         ensureClientRole(auth);
-        var email = jwtUtil.extractUsername(auth);
+        var clientId = jwtService.extractUserId(auth);
         var client =
-            clientRepository.findByEmail(email)
-                .orElseThrow(() -> new ClientNotFound(email));
+            clientRepository.findById(clientId)
+                .orElseThrow(() -> new ClientNotFound(clientId.toString()));
         var loan =
             loanRepository.findByLoanNumber(loanNumber)
                 .orElseThrow(LoanNotFound::new);
@@ -58,7 +58,7 @@ public class LoanInstallmentServiceImpl implements LoanInstallmentService {
     }
 
     private void ensureClientRole(String auth) {
-        var role = jwtUtil.extractRole(auth);
-        if (!role.equals("client")) throw new Unauthorized(auth);
+        var role = jwtService.extractRole(auth);
+        if (!role.equalsIgnoreCase("client")) throw new Unauthorized(auth);
     }
 }

@@ -17,7 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.domain.auth.dtos.LoginDto;
 import rs.banka4.user_service.domain.auth.dtos.LoginResponseDto;
 import rs.banka4.user_service.domain.currency.db.Currency;
@@ -28,12 +30,10 @@ import rs.banka4.user_service.domain.user.employee.mapper.EmployeeMapper;
 import rs.banka4.user_service.exceptions.user.*;
 import rs.banka4.user_service.exceptions.user.client.NotActivated;
 import rs.banka4.user_service.repositories.EmployeeRepository;
-import rs.banka4.user_service.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.user_service.security.PreAuthBankUserAuthentication;
 import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
-import rs.banka4.user_service.security.UserType;
 import rs.banka4.user_service.service.abstraction.EmployeeService;
-import rs.banka4.user_service.utils.JwtUtil;
+import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.utils.specification.EmployeeSpecification;
 import rs.banka4.user_service.utils.specification.SpecificationCombinator;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,7 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final AuthenticationManager authenticationManager;
     private final EmployeeRepository employeeRepository;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final RestTemplate restTemplate;
@@ -74,9 +74,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new NotActivated();
         }
 
-        String accessToken = jwtUtil.generateToken(employee);
-        String refreshToken =
-            jwtUtil.generateRefreshToken(token.getPrincipal(), principal, UserType.EMPLOYEE);
+        String accessToken = jwtService.generateAccessToken(employee);
+        String refreshToken = jwtService.generateRefreshToken(token.getPrincipal());
 
         return new LoginResponseDto(accessToken, refreshToken);
     }
@@ -84,12 +83,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDto getMe(String authorization) {
         String token = authorization.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
+        UUID employeeId = jwtService.extractUserId(token);
 
-        if (jwtUtil.isTokenExpired(token)) throw new NotAuthenticated();
+        if (jwtService.isTokenExpired(token)) throw new NotAuthenticated();
 
         return EmployeeMapper.INSTANCE.toResponseDto(
-            employeeRepository.findByEmail(username)
+            employeeRepository.findById(employeeId)
                 .orElseThrow(NotAuthenticated::new)
         );
     }
@@ -250,6 +249,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     public Optional<Employee> findEmployeeByEmail(String email) {
         return employeeRepository.findByEmail(email);
+    }
+
+    @Override
+    public Optional<Employee> findEmployeeById(UUID id) {
+        return employeeRepository.findById(id);
     }
 
     @Override

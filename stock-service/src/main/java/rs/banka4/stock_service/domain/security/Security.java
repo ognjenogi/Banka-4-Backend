@@ -1,7 +1,6 @@
 package rs.banka4.stock_service.domain.security;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.util.Objects;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,17 +11,11 @@ import rs.banka4.stock_service.domain.options.db.Asset;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Entity(name = "securities")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Security extends Asset {
 
-    @Column
-    private String name;
-    // ?????????
-    @Transient
-    private BigDecimal price;
 
     @Override
     public boolean equals(Object o) {

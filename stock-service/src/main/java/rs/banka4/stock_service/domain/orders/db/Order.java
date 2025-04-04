@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.options.db.Asset;
@@ -23,7 +24,7 @@ public class Order {
     @Column(nullable = false)
     private UUID userId;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Asset asset;
 
     @Enumerated(EnumType.STRING)
@@ -56,6 +57,10 @@ public class Order {
     @Column(nullable = false)
     private OffsetDateTime lastModified;
 
+    @CreatedDate
+    @Column(nullable = false)
+    private OffsetDateTime createdAt;
+
     @Column(nullable = false)
     private int remainingPortions;
 
@@ -75,4 +80,8 @@ public class Order {
     /** trust me bro reference key */
     @Column(nullable = false)
     private UUID accountId;
+
+    /** did user who bought it, used it */
+    @Column(nullable = false)
+    private boolean used;
 }
