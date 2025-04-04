@@ -90,6 +90,32 @@ public class UserGenerator {
         employeeRepo.flush();
     }
 
+    public void createEmployeeLogin(UserCustomizer<Employee.EmployeeBuilder<?, ?>> customizer) {
+        employeeRepo.save(
+            customizer.apply(
+                /* Keep in sync with the Javadoc above. */
+                Employee.builder()
+                    .id(UUID.fromString("6ea50113-da6f-4693-b9d3-ac27f807d7f5"))
+                    .firstName("John")
+                    .lastName("Doe")
+                    .dateOfBirth(LocalDate.of(1990, 1, 1))
+                    .gender(Gender.MALE)
+                    .email("john.doe@example.com")
+                    .phone("+381670123654")
+                    .address("123 Main St")
+                    .password(TEST_PASSWORD_HASH)
+                    .username("johndoe")
+                    .position("Developer")
+                    .department("IT")
+                    .active(true)
+                    .enabled(true)
+                    .permissionBits(1L)
+            )
+                .build()
+        );
+        employeeRepo.flush();
+    }
+
     private final EmployeeService employeeService;
 
     /**

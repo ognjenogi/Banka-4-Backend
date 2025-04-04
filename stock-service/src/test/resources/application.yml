@@ -11,6 +11,10 @@ spring:
     #   ERROR: cached plan must not change result type
     type: org.springframework.jdbc.datasource.SimpleDriverDataSource
 
+jwt:
+  keys:
+    verification: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
+
 logging:
   level:
     # Enable logs useful for tests.

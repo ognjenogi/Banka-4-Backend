@@ -8,7 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.stock_service.controller.docs.ListingApiDocumentation;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
@@ -30,11 +33,17 @@ public class ListingController implements ListingApiDocumentation {
     public Page<ListingInfoDto> getListings(
         @ModelAttribute ListingFilterDto filter,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        Authentication auth
     ) {
-        // TODO(ognjen): When security is finished add check for client from jwt and set isClient
-        // flag
-        return listingService.getListings(filter, PageRequest.of(page, size), false);
+        final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
+        return listingService.getListings(
+            filter,
+            PageRequest.of(page, size),
+            ourAuth.getPrincipal()
+                .userType()
+                .equals(UserType.CLIENT)
+        );
     }
 
     @GetMapping("/priceChange")

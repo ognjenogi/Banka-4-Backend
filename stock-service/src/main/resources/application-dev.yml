@@ -38,8 +38,18 @@ server:
   servlet:
     context-path: /stock
 
+logging:
+  level:
+    org.springframework: INFO
+    rs.banka4: TRACE
+
+
 springdoc:
   api-docs:
     path: /docs/api
   swagger-ui:
     path: /docs/ui
+
+jwt:
+  keys:
+    verification: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='

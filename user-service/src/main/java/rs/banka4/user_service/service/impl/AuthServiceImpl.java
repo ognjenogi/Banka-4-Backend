@@ -1,6 +1,7 @@
 package rs.banka4.user_service.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -19,14 +20,14 @@ import rs.banka4.user_service.exceptions.user.VerificationCodeExpiredOrInvalid;
 import rs.banka4.user_service.service.abstraction.AuthService;
 import rs.banka4.user_service.service.abstraction.ClientService;
 import rs.banka4.user_service.service.abstraction.EmployeeService;
-import rs.banka4.user_service.utils.JwtUtil;
+import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.utils.MessageHelper;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final VerificationCodeService verificationCodeService;
     private final RabbitTemplate rabbitTemplate;
     private final EmployeeService employeeService;
@@ -35,14 +36,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(LogoutDto logoutDto) {
         String refreshToken = logoutDto.refreshToken();
-        jwtUtil.invalidateToken(refreshToken);
+        jwtService.invalidateToken(refreshToken);
     }
 
     @Override
     public RefreshTokenResponseDto refreshToken(String token) {
-        String username = jwtUtil.extractUsername(token);
-        String role = jwtUtil.extractRole(token);
-        if (jwtUtil.isTokenInvalidated(token)) {
+        UUID userId = jwtService.extractUserId(token);
+        String role = jwtService.extractRole(token);
+        if (jwtService.isTokenInvalidated(token)) {
             throw new RefreshTokenRevoked();
         }
 
@@ -52,12 +53,12 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException();
         }
 
-        if (role.equals("employee")) {
-            Employee employee = (Employee) findUserByEmail(username);
-            newAccessToken = jwtUtil.generateToken(employee);
+        if (role.equalsIgnoreCase("employee")) {
+            Employee employee = (Employee) findUserById(userId);
+            newAccessToken = jwtService.generateAccessToken(employee);
         } else {
-            Client client = (Client) findUserByEmail(username);
-            newAccessToken = jwtUtil.generateToken(client);
+            Client client = (Client) findUserById(userId);
+            newAccessToken = jwtService.generateAccessToken(client);
         }
 
         return new RefreshTokenResponseDto(newAccessToken);
@@ -77,6 +78,20 @@ public class AuthServiceImpl implements AuthService {
             clientService.activateClientAccount((Client) user, request.password());
         }
         verificationCodeService.markCodeAsUsed(verificationCode);
+    }
+
+    public User findUserById(UUID id) {
+        Optional<Employee> employee = employeeService.findEmployeeById(id);
+        if (employee.isPresent()) {
+            return employee.get();
+        }
+
+        Optional<Client> client = clientService.findClientById(id);
+        if (client.isPresent()) {
+            return client.get();
+        }
+
+        throw new UserNotFound(id.toString());
     }
 
     public User findUserByEmail(String email) {

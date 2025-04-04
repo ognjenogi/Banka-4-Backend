@@ -28,8 +28,8 @@ import rs.banka4.user_service.domain.user.client.dtos.ClientContactDto;
 import rs.banka4.user_service.domain.user.client.dtos.ClientContactRequest;
 import rs.banka4.user_service.generator.ClientObjectMother;
 import rs.banka4.user_service.service.abstraction.ClientContactService;
+import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.util.MockMvcUtil;
-import rs.banka4.user_service.utils.JwtUtil;
 
 @WebMvcTest(ClientContactController.class)
 @Import(ClientContactControllerTests.MockBeansConfig.class)
@@ -120,8 +120,8 @@ public class ClientContactControllerTests {
         }
 
         @Bean
-        public JwtUtil jwtUtil() {
-            return Mockito.mock(JwtUtil.class);
+        public JwtService jwtUtil() {
+            return Mockito.mock(JwtService.class);
         }
 
         @Bean

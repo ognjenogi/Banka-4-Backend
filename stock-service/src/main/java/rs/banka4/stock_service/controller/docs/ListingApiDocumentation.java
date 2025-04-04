@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
@@ -46,7 +47,8 @@ public interface ListingApiDocumentation {
     Page<ListingInfoDto> getListings(
         @Parameter(description = "Filters for listing") ListingFilterDto filter,
         @Parameter(description = "Page number") int page,
-        @Parameter(description = "Number of listings per page") int size
+        @Parameter(description = "Number of listings per page") int size,
+        Authentication auth
     );
 
     @Operation(

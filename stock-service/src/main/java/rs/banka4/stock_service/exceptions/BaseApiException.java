@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 @RequiredArgsConstructor
+/* TODO(arsen): remove */
 public class BaseApiException extends RuntimeException {
     private final HttpStatus status;
     private final Map<String, Object> extra;
