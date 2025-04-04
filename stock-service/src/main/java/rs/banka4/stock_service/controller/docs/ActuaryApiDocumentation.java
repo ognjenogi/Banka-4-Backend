@@ -131,7 +131,7 @@ public interface ActuaryApiDocumentation {
             )
         }
     )
-    @PutMapping("/reset-limit/{actuaryId}")
+    @PutMapping("/limit/reset/{actuaryId}")
     ResponseEntity<Void> resetUsedLimit(
         @PathVariable UUID actuaryId
     );

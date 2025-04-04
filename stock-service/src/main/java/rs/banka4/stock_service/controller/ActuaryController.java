@@ -55,7 +55,7 @@ public class ActuaryController implements ActuaryApiDocumentation{
     }
 
     @Override
-    @PutMapping("/reset-limit/{actuaryId}")
+    @PutMapping("/limit/reset/{actuaryId}")
     public ResponseEntity<Void> resetUsedLimit(@PathVariable UUID actuaryId) {
         actuaryService.resetUsedLimit(actuaryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
