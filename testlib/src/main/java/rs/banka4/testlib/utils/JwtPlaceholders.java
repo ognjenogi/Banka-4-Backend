@@ -19,6 +19,16 @@ public class JwtPlaceholders {
      */
     public static final String ADMIN_EMPLOYEE_TOKEN = V3_VALID_ADMIN_EMPLOYEE_TOKEN;
 
+    /**
+     * Version 3 valid access token for a client.
+     */
+    public static final String V3_VALID_CLIENT_TOKEN =
+        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhNGJmMzcwZS0yMTI5LTQxMTYtOTI0My0wYzRlYWQwZmU0M2UiLCJwcml2aWxlZ2VzIjpbXSwidHlwIjoiQUNDRVNTIiwidmVyIjozLCJyb2xlIjoiQ0xJRU5UIn0.Kf8IGsn0PdR64UORHCPtOvH-aSiHZeOwvrVCYwnT7uLPuV0Gwbm9kcwGmAxFyxHB8SAUTWS2j8SqXMhgTMuslw";
+    /**
+     * Latest-version valid access token for a client.
+     */
+    public static final String CLIENT_TOKEN = V3_VALID_CLIENT_TOKEN;
+
     public static final byte[] TERRIBLE_SECRET = new byte[64];
     public static final String TERRIBLE_SECRET_B64 =
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";

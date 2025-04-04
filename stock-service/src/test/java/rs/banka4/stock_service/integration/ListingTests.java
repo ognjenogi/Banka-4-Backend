@@ -950,4 +950,145 @@ public class ListingTests {
         assertThat(results).hasSize(2);
 
     }
+
+    /**
+     * Test that in client mode (isClient=true) getListings endpoint returns the listing even when
+     * securityType is null—client mode defaults to allowing STOCK and FUTURE.
+     */
+    @Test
+    public void test_getListings_clientMode_defaultTypes() {
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        var fut = securityRepository.findById(AssetGenerator.FUTURE_CRUDE_OIL_UUID);
+        var for1 = securityRepository.findById(AssetGenerator.FOREX_EUR_USD_UUID);
+        ListingGenerator.makeExampleListings(
+            ex1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        ListingGenerator.makeExampleListings(
+            fut.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        ListingGenerator.makeExampleListings(
+            for1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+
+        mvc.get()
+            .uri("/listings?searchName=&searchTicker=&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
+            .assertThat()
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo("""
+                {
+                  "page": {"totalElements": 2}
+                }
+                """);
+
+    }
+
+    /**
+     * Test that in client mode (isClient=true) getListings endpoint returns the listing with
+     * securityType search.
+     */
+    @Test
+    public void test_getListings_clientMode_TypeSearch_defaultTypes() {
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        var fut = securityRepository.findById(AssetGenerator.FUTURE_CRUDE_OIL_UUID);
+        ListingGenerator.makeExampleListings(
+            ex1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        ListingGenerator.makeExampleListings(
+            fut.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+
+        mvc.get()
+            .uri(
+                "/listings?searchName=Example&askMin=60.00&askMax=70.00&exchangePrefix=Nasdaq&page=0&size=2"
+            )
+            .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
+            .assertThat()
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo("""
+                {
+                  "content": [
+                    {
+                      "name": "Example One™",
+                      "ticker": "EX1",
+                      "volume": 0,
+                      "change": 21.96,
+                      "price": 66.40
+                    }
+                  ],
+                  "page": {"totalElements": 1}
+                }
+                """);
+    }
+
+    /**
+     * Test that in client mode (isClient=true) getListings endpoint returns the listing even when
+     * securityType is not searchable by client it ignores the search.
+     */
+    @Test
+    public void test_getListings_clientMode_search_ignores() {
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        var fut = securityRepository.findById(AssetGenerator.FUTURE_CRUDE_OIL_UUID);
+        var for1 = securityRepository.findById(AssetGenerator.FOREX_EUR_USD_UUID);
+        ListingGenerator.makeExampleListings(
+            ex1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        ListingGenerator.makeExampleListings(
+            fut.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        ListingGenerator.makeExampleListings(
+            for1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+
+        mvc.get()
+            .uri("/listings?searchName=&searchTicker=&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
+            .assertThat()
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo("""
+                {
+                  "page": {"totalElements": 2}
+                }
+                """);
+
+    }
 }
