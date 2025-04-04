@@ -6,5 +6,6 @@ import java.math.BigDecimal;
 
 public record LimitPayload(
     BigDecimal limitAmount,
-                           CurrencyCode limitCurrencyCode) {
+    CurrencyCode limitCurrencyCode
+) {
 }

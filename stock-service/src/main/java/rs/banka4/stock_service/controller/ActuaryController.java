@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.stock_service.controller.docs.ActuaryApiDocumentation;
 import rs.banka4.stock_service.domain.actuaries.db.dto.ActuaryPayloadDto;
@@ -42,10 +43,11 @@ public class ActuaryController implements ActuaryApiDocumentation{
         @RequestParam(required = false) String email,
         @RequestParam(required = false) String position,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        Authentication auth
     ) {
 
-        return actuaryService.search(firstName, lastName, email, position, page, size);
+        return actuaryService.search(auth, firstName, lastName, email, position, page, size);
     }
 
     @PutMapping("/limit/{actuaryId}")

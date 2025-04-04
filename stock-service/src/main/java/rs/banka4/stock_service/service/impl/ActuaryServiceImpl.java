@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
@@ -76,14 +75,16 @@ public class ActuaryServiceImpl implements ActuaryService {
 
 
     @Override
-    public ResponseEntity<Page<CombinedResponse>> search(String firstName, String lastName, String email, String position,int page, int size){
+    public ResponseEntity<Page<CombinedResponse>> search(Authentication auth, String firstName, String lastName, String email, String position, int page, int size) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + auth.getCredentials());
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        String url = "http://user_service:8080/search/actuary-only";
         ResponseEntity<PageImpl<EmployeeResponseDto>> response =
             restTemplate.exchange(
-                url,
+                "http://user_service:8080/search/actuary-only",
                 HttpMethod.GET,
-                null,
+                entity,
                 new ParameterizedTypeReference<>() {}
             );
 
@@ -109,22 +110,20 @@ public class ActuaryServiceImpl implements ActuaryService {
 
 
     @Override
-    public void updateLimit(UUID actuaryId, LimitPayload dto){
-        actuaryRepository.findById(actuaryId).orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
+    public void updateLimit(UUID actuaryId, LimitPayload dto) {
+        ActuaryInfo actuaryInfo = actuaryRepository.findById(actuaryId)
+            .orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
 
-        ActuaryInfo actuaryInfo = actuaryRepository.findById(actuaryId).get();
-        //supervisors limit cannot be changed
-        if(!actuaryInfo.isNeedApproval()) {
-            throw  new CannotUpdateActuaryException(actuaryId.toString());
+        // Supervisors limit cannot be changed
+        if (!actuaryInfo.isNeedApproval()) {
+            throw new CannotUpdateActuaryException(actuaryId.toString());
         }
-        if(dto.limitAmount().compareTo(BigDecimal.ZERO) == -1){
+        if (dto.limitAmount().compareTo(BigDecimal.ZERO) < 0) {
             throw new NegativeLimitException(actuaryId.toString());
         }
 
-
-
-
-        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(),dto.limitCurrencyCode()));
+        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), dto.limitCurrencyCode()));
+        actuaryRepository.save(actuaryInfo);
     }
 
     @Override
