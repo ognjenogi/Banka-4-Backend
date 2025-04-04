@@ -67,6 +67,7 @@ public class ListingTests {
             .uri("/listings/{stockId}", AssetGenerator.STOCK_EX1_UUID)
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -106,6 +107,7 @@ public class ListingTests {
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .param("settlementDate", settlementDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             /* IDs are: OPTION_EX1_{PUT,CALL}{,2}_UUID in AssetGenerator */
             .isLenientlyEqualTo("""
@@ -187,6 +189,7 @@ public class ListingTests {
             .uri("/listings/priceChange")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 [
@@ -243,6 +246,7 @@ public class ListingTests {
             .uri("/listings?page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -285,6 +289,7 @@ public class ListingTests {
             .uri("/listings?searchName={name}&page=0&size=2", "Example O")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -321,6 +326,7 @@ public class ListingTests {
             .uri("/listings?searchName={name}&page=0&size=2", "BlaBla")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .extractingPath("$.content")
             .asArray()
@@ -349,6 +355,7 @@ public class ListingTests {
             .uri("/listings?searchTicker=EX1&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -385,6 +392,7 @@ public class ListingTests {
             .uri("/listings?searchTicker=BLA&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .extractingPath("$.content")
             .asArray()
@@ -413,6 +421,7 @@ public class ListingTests {
             .uri("/listings?askMin=60.00&askMax=70.00&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -448,6 +457,7 @@ public class ListingTests {
             .uri("/listings?bidMin=60.00&bidMax=80.0&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -483,6 +493,7 @@ public class ListingTests {
             .uri("/listings?bidMin=90.00&bidMax=100.0&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .extractingPath("$.content")
             .asArray()
@@ -511,6 +522,7 @@ public class ListingTests {
             .uri("/listings?exchangePrefix=Nasdaq&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -548,6 +560,7 @@ public class ListingTests {
             .uri("/listings?volumeMin=0&volumeMax=10&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -600,6 +613,7 @@ public class ListingTests {
             )
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -638,6 +652,7 @@ public class ListingTests {
             )
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
@@ -677,6 +692,7 @@ public class ListingTests {
             .uri("/listings?askMin=110.00&askMax=90.00&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .extractingPath("$.content")
             .asArray()
@@ -720,6 +736,7 @@ public class ListingTests {
             )
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .extractingPath("$.content")
             .asArray()
@@ -757,6 +774,7 @@ public class ListingTests {
             .uri("/listings?sortBy=PRICE&sortDirection=ASC&page=0&size=10")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .extractingPath("$.content")
             .asArray()
@@ -802,6 +820,7 @@ public class ListingTests {
             .uri("/listings?searchName=&searchTicker=&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
+            .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""
                 {
