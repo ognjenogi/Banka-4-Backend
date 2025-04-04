@@ -46,6 +46,13 @@ public class SecurityConfig {
                             AuthorityAuthorizationManager.hasAuthority("ADMIN")
                         )
                     )
+                    .requestMatchers(HttpMethod.POST, "/search/actuary-only")
+                    .access(
+                        AuthorizationManagers.allOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
                     .requestMatchers(HttpMethod.GET, "/employee/privileges")
                     .hasAuthority("EMPLOYEE")
                     .requestMatchers(HttpMethod.POST, "/employee")
