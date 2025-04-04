@@ -45,7 +45,7 @@ public class SecurityConfig {
                     )
                     .requestMatchers(HttpMethod.POST, "/actuaries/register")
                     .hasAuthority("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/actuaries/update/**")
+                    .requestMatchers(HttpMethod.PUT, "/actuaries/update/**")
                     .hasAuthority("ADMIN")
                     .anyRequest()
                     .authenticated()
