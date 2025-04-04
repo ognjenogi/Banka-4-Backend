@@ -28,6 +28,7 @@ import rs.banka4.stock_service.utils.AssetGenerator;
 import rs.banka4.stock_service.utils.ExchangeGenerator;
 import rs.banka4.stock_service.utils.ListingGenerator;
 import rs.banka4.testlib.integration.DbEnabledTest;
+import rs.banka4.testlib.utils.JwtPlaceholders;
 
 @SpringBootTest
 @DbEnabledTest
@@ -64,6 +65,7 @@ public class ListingTests {
         mvc.get()
             /* TODO(arsen): swap with security id? */
             .uri("/listings/{stockId}", AssetGenerator.STOCK_EX1_UUID)
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -101,6 +103,7 @@ public class ListingTests {
         mvc.get()
             /* TODO(arsen): swap with security id? */
             .uri("/listings/options/{stockId}", AssetGenerator.STOCK_EX1_UUID)
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .param("settlementDate", settlementDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
             .assertThat()
             .bodyJson()
@@ -182,6 +185,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings/priceChange")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -237,6 +241,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -278,6 +283,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?searchName={name}&page=0&size=2", "Example O")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -313,6 +319,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?searchName={name}&page=0&size=2", "BlaBla")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .extractingPath("$.content")
@@ -340,6 +347,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?searchTicker=EX1&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -375,6 +383,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?searchTicker=BLA&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .extractingPath("$.content")
@@ -402,6 +411,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?askMin=60.00&askMax=70.00&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -436,6 +446,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?bidMin=60.00&bidMax=80.0&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -470,6 +481,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?bidMin=90.00&bidMax=100.0&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .extractingPath("$.content")
@@ -497,6 +509,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?exchangePrefix=Nasdaq&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -533,6 +546,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?volumeMin=0&volumeMax=10&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -584,6 +598,7 @@ public class ListingTests {
                     + to
                     + "&securityType=FUTURE&page=0&size=2"
             )
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -621,6 +636,7 @@ public class ListingTests {
             .uri(
                 "/listings?searchName=Example&askMin=60.00&askMax=70.00&exchangePrefix=Nasdaq&page=0&size=2"
             )
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""
@@ -659,6 +675,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?askMin=110.00&askMax=90.00&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .extractingPath("$.content")
@@ -701,6 +718,7 @@ public class ListingTests {
                     + to
                     + "&securityType=FUTURE&page=0&size=2"
             )
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .extractingPath("$.content")
@@ -737,6 +755,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?sortBy=PRICE&sortDirection=ASC&page=0&size=10")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .extractingPath("$.content")
@@ -781,6 +800,7 @@ public class ListingTests {
 
         mvc.get()
             .uri("/listings?searchName=&searchTicker=&page=0&size=2")
+            .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .bodyJson()
             .isLenientlyEqualTo("""

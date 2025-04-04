@@ -3,6 +3,7 @@ package rs.banka4.stock_service.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +25,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(
                 request -> request.requestMatchers("/docs/api")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/listings/**")
+                    .authenticated()
                     .anyRequest()
                     .authenticated()
             )
