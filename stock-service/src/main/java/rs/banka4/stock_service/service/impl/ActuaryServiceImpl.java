@@ -5,6 +5,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,11 +17,15 @@ import rs.banka4.stock_service.domain.response.CombinedResponse;
 import rs.banka4.stock_service.domain.response.EmployeeResponseDto;
 import rs.banka4.stock_service.domain.response.LimitPayload;
 import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
+import rs.banka4.stock_service.exceptions.ActuaryNotFoundException;
+import rs.banka4.stock_service.exceptions.CannotUpdateActuaryException;
+import rs.banka4.stock_service.exceptions.NegativeLimitException;
 import rs.banka4.stock_service.repositories.ActuaryRepository;
 import rs.banka4.stock_service.service.abstraction.ActuaryService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,6 +38,12 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     @Override
     public void createNewActuary(ActuaryPayloadDto dto){
+        if(dto.limitAmount().compareTo(BigDecimal.ZERO) < 0){
+            throw new NegativeLimitException(dto.actuaryId().toString());
+        }
+
+
+
         ActuaryInfo actuaryInfo = new ActuaryInfo();
         actuaryInfo.setUserId(dto.actuaryId());
         actuaryInfo.setLimit(new MonetaryAmount(
@@ -50,6 +61,13 @@ public class ActuaryServiceImpl implements ActuaryService {
             //case when we send the admin id as the path parameter
             //also when all the securities should be transfered to the admin
         }
+
+        if(dto.limitAmount().compareTo(BigDecimal.ZERO) == -1){
+            throw new NegativeLimitException(actuaryId.toString());
+        }
+
+
+
         ActuaryInfo actuaryInfo = actuaryRepository.findById(dto.actuaryId()).get();
         actuaryInfo.setNeedApproval(dto.needsApproval());
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(),CurrencyCode.RSD));
@@ -92,13 +110,19 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     @Override
     public void updateLimit(UUID actuaryId, LimitPayload dto){
-        if(!actuaryRepository.existsById(actuaryId)){
-            //what if it does not exist?
-        }
+        actuaryRepository.findById(actuaryId).orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
 
         ActuaryInfo actuaryInfo = actuaryRepository.findById(actuaryId).get();
         //supervisors limit cannot be changed
-        if(!actuaryInfo.isNeedApproval())return;
+        if(!actuaryInfo.isNeedApproval()) {
+            throw  new CannotUpdateActuaryException(actuaryId.toString());
+        }
+        if(dto.limitAmount().compareTo(BigDecimal.ZERO) == -1){
+            throw new NegativeLimitException(actuaryId.toString());
+        }
+
+
+
 
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(),dto.limitCurrencyCode()));
     }
