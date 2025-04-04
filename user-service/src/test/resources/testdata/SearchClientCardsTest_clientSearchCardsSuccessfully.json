@@ -4,8 +4,6 @@
       "cardNumber": "1234567810345678",
       "cvv": "123",
       "cardName": "VISA",
-      "creationDate": "2025-04-03",
-      "expirationDate": "2030-04-03",
       "cardType": "DEBIT",
       "limit": 10000,
       "cardStatus": "ACTIVATED",
