@@ -1,5 +1,9 @@
 package rs.banka4.stock_service.service.impl;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
@@ -22,12 +26,6 @@ import rs.banka4.stock_service.exceptions.NegativeLimitException;
 import rs.banka4.stock_service.repositories.ActuaryRepository;
 import rs.banka4.stock_service.service.abstraction.ActuaryService;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ActuaryServiceImpl implements ActuaryService {
@@ -36,46 +34,62 @@ public class ActuaryServiceImpl implements ActuaryService {
     private final RestTemplate restTemplate;
 
     @Override
-    public void createNewActuary(ActuaryPayloadDto dto){
-        if(dto.limitAmount().compareTo(BigDecimal.ZERO) < 0){
-            throw new NegativeLimitException(dto.actuaryId().toString());
+    public void createNewActuary(ActuaryPayloadDto dto) {
+        if (
+            dto.limitAmount()
+                .compareTo(BigDecimal.ZERO)
+                < 0
+        ) {
+            throw new NegativeLimitException(
+                dto.actuaryId()
+                    .toString()
+            );
         }
-
 
 
         ActuaryInfo actuaryInfo = new ActuaryInfo();
         actuaryInfo.setUserId(dto.actuaryId());
-        actuaryInfo.setLimit(new MonetaryAmount(
-            dto.limitAmount(),
-            CurrencyCode.RSD
-        ));
+        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
         actuaryInfo.setNeedApproval(dto.needsApproval());
         actuaryRepository.save(actuaryInfo);
     }
 
     @Override
-    public void changeActuaryDetails(UUID actuaryId, ActuaryPayloadDto dto){
+    public void changeActuaryDetails(UUID actuaryId, ActuaryPayloadDto dto) {
 
-        if(actuaryId != dto.actuaryId()){
-            //case when we send the admin id as the path parameter
-            //also when all the securities should be transfered to the admin
+        if (actuaryId != dto.actuaryId()) {
+            // case when we send the admin id as the path parameter also when all the securities
+            // should be transfered to the admin
         }
 
-        if(dto.limitAmount().compareTo(BigDecimal.ZERO) == -1){
+        if (
+            dto.limitAmount()
+                .compareTo(BigDecimal.ZERO)
+                == -1
+        ) {
             throw new NegativeLimitException(actuaryId.toString());
         }
 
 
-
-        ActuaryInfo actuaryInfo = actuaryRepository.findById(dto.actuaryId()).get();
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(dto.actuaryId())
+                .get();
         actuaryInfo.setNeedApproval(dto.needsApproval());
-        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(),CurrencyCode.RSD));
+        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
         actuaryRepository.save(actuaryInfo);
     }
 
 
     @Override
-    public ResponseEntity<Page<CombinedResponse>> search(Authentication auth, String firstName, String lastName, String email, String position, int page, int size) {
+    public ResponseEntity<Page<CombinedResponse>> search(
+        Authentication auth,
+        String firstName,
+        String lastName,
+        String email,
+        String position,
+        int page,
+        int size
+    ) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + auth.getCredentials());
         HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -85,7 +99,8 @@ public class ActuaryServiceImpl implements ActuaryService {
                 "http://user_service:8080/search/actuary-only",
                 HttpMethod.GET,
                 entity,
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
             );
 
         Page<EmployeeResponseDto> employeePage = response.getBody();
@@ -93,32 +108,51 @@ public class ActuaryServiceImpl implements ActuaryService {
             return ResponseEntity.ok(Page.empty());
         }
 
-        List<CombinedResponse> combinedResponses = employeePage.stream()
-            .map(employee -> {
-                ActuaryInfo actuaryInfo = actuaryRepository.findById(employee.id()).get();
-                ActuaryInfoDto dto = new ActuaryInfoDto(
-                    actuaryInfo.isNeedApproval(),
-                    actuaryInfo.getLimit().getAmount(),
-                    actuaryInfo.getUsedLimit().getAmount(),
-                    actuaryInfo.getLimit().getCurrency());
-                return new CombinedResponse(employee, dto);
-            })
-            .collect(Collectors.toList());
+        List<CombinedResponse> combinedResponses =
+            employeePage.stream()
+                .map(employee -> {
+                    ActuaryInfo actuaryInfo =
+                        actuaryRepository.findById(employee.id())
+                            .get();
+                    ActuaryInfoDto dto =
+                        new ActuaryInfoDto(
+                            actuaryInfo.isNeedApproval(),
+                            actuaryInfo.getLimit()
+                                .getAmount(),
+                            actuaryInfo.getUsedLimit()
+                                .getAmount(),
+                            actuaryInfo.getLimit()
+                                .getCurrency()
+                        );
+                    return new CombinedResponse(employee, dto);
+                })
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new PageImpl<>(combinedResponses, employeePage.getPageable(), employeePage.getTotalElements()));
+        return ResponseEntity.ok(
+            new PageImpl<>(
+                combinedResponses,
+                employeePage.getPageable(),
+                employeePage.getTotalElements()
+            )
+        );
     }
 
 
     @Override
     public void updateLimit(UUID actuaryId, LimitPayload dto) {
-        ActuaryInfo actuaryInfo = actuaryRepository.findById(actuaryId)
-            .orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(actuaryId)
+                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
 
         // Supervisors limit cannot be changed
         if (!actuaryInfo.isNeedApproval()) {
             throw new CannotUpdateActuaryException(actuaryId.toString());
         }
-        if (dto.limitAmount().compareTo(BigDecimal.ZERO) < 0) {
+        if (
+            dto.limitAmount()
+                .compareTo(BigDecimal.ZERO)
+                < 0
+        ) {
             throw new NegativeLimitException(actuaryId.toString());
         }
 
@@ -127,8 +161,10 @@ public class ActuaryServiceImpl implements ActuaryService {
     }
 
     @Override
-    public void resetUsedLimit(UUID actuaryId){
-        ActuaryInfo actuaryInfo = actuaryRepository.findById(actuaryId).orElseThrow();
+    public void resetUsedLimit(UUID actuaryId) {
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(actuaryId)
+                .orElseThrow();
         MonetaryAmount monetaryAmount = actuaryInfo.getUsedLimit();
         monetaryAmount.setAmount(BigDecimal.ZERO);
         actuaryInfo.setUsedLimit(monetaryAmount);

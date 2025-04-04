@@ -1,11 +1,9 @@
 package rs.banka4.stock_service.utils.specification;
 
-import org.springframework.data.jpa.domain.Specification;
-import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
-import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
-
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.springframework.data.jpa.domain.Specification;
+import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 
 public class ActuaryInfoSpecification {
 

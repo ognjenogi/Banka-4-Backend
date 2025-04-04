@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,22 +15,19 @@ import rs.banka4.stock_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDto;
 import rs.banka4.stock_service.domain.response.CombinedResponse;
 
-import java.util.UUID;
-
 public interface ActuaryApiDocumentation {
 
     @Operation(
         summary = "Register new actuary",
-        description = "Upon creation of a new employee with actuary status, this creates a new actuary," +
-            "which shares its ID with the ID of the employee",
+        description = "Upon creation of a new employee with actuary status, this creates a new actuary,"
+            + "which shares its ID with the ID of the employee",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(
                 responseCode = "200",
                 description = "Successfully added actuary",
                 content = @Content(
-                    //mediaType = "application/json",
-                    //schema = @Schema(implementation = )
+                    // mediaType = "application/json", schema = @Schema(implementation = )
                 )
             ),
             @ApiResponse(
@@ -42,22 +40,20 @@ public interface ActuaryApiDocumentation {
             )
         }
     )
-    ResponseEntity<?> register(
-        @RequestBody @Valid ActuaryPayloadDto dto);
+    ResponseEntity<?> register(@RequestBody @Valid ActuaryPayloadDto dto);
 
 
     @Operation(
         summary = "Update actuary",
-        description = "Upon update of an employee with actuary status, this updates the actuaries contents " +
-            "i.e. the limits and needed approval",
+        description = "Upon update of an employee with actuary status, this updates the actuaries contents "
+            + "i.e. the limits and needed approval",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(
                 responseCode = "200",
                 description = "Successfully updated actuary",
                 content = @Content(
-                    //mediaType = "application/json",
-                    //schema = @Schema(implementation = )
+                    // mediaType = "application/json", schema = @Schema(implementation = )
                 )
             ),
             @ApiResponse(
@@ -74,19 +70,17 @@ public interface ActuaryApiDocumentation {
             ),
         }
     )
-    ResponseEntity<?> update(
-        @PathVariable UUID id, @RequestBody @Valid ActuaryPayloadDto dto
-        );
+    ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid ActuaryPayloadDto dto);
 
 
     @Operation(
         summary = "Search agents",
         description = """
-        Searches and filters employees with the AGENT role based on provided filters:
-        first name, last name, email, and position.
+            Searches and filters employees with the AGENT role based on provided filters:
+            first name, last name, email, and position.
 
-        This endpoint is accessible only to users with ADMIN or SUPERVISOR privileges.
-        """,
+            This endpoint is accessible only to users with ADMIN or SUPERVISOR privileges.
+            """,
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(
@@ -134,7 +128,5 @@ public interface ActuaryApiDocumentation {
         }
     )
     @PutMapping("/limit/reset/{actuaryId}")
-    ResponseEntity<Void> resetUsedLimit(
-        @PathVariable UUID actuaryId
-    );
+    ResponseEntity<Void> resetUsedLimit(@PathVariable UUID actuaryId);
 }

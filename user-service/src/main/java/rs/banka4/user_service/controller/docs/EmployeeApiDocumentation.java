@@ -208,13 +208,13 @@ public interface EmployeeApiDocumentation {
     @Operation(
         summary = "Search Actuary Employees",
         description = """
-        Returns a paginated list of actuary employees filtered by first name, last name, email, or position.
+            Returns a paginated list of actuary employees filtered by first name, last name, email, or position.
 
-        - If the authenticated user has ADMIN privileges, they will see all SUPERVISORS.
-        - If the authenticated user has SUPERVISOR privileges, they will see all AGENTS.
+            - If the authenticated user has ADMIN privileges, they will see all SUPERVISORS.
+            - If the authenticated user has SUPERVISOR privileges, they will see all AGENTS.
 
-        Any other user role is forbidden from accessing this endpoint.
-        """,
+            Any other user role is forbidden from accessing this endpoint.
+            """,
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(

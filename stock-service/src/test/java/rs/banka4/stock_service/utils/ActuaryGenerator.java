@@ -11,8 +11,10 @@ import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
  * Test-writing utility class for generating various actuary instances.
  */
 public class ActuaryGenerator {
-    public static final UUID ACTUARY_1_UUID = UUID.fromString("6d03b02b-b2d7-4de6-b2d5-9917f44d2f5a");
-    public static final UUID ACTUARY_2_UUID = UUID.fromString("a74c8e17-31f8-4f47-bb99-63c77d3b8d0e");
+    public static final UUID ACTUARY_1_UUID =
+        UUID.fromString("6d03b02b-b2d7-4de6-b2d5-9917f44d2f5a");
+    public static final UUID ACTUARY_2_UUID =
+        UUID.fromString("a74c8e17-31f8-4f47-bb99-63c77d3b8d0e");
     public static final UUID FOR_NEWLY_CREATED_ACTUARY_3_UUID = UUID.randomUUID();
 
     public static List<ActuaryInfo> makeExampleActuaries() {

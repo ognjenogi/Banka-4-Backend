@@ -79,13 +79,13 @@ public class EmployeeController implements EmployeeApiDocumentation {
         @RequestParam(required = false) String position,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
-    ){
+    ) {
         return employeeService.getAllActuaries(
             firstName,
             lastName,
             email,
             position,
-            PageRequest.of(page,size)
+            PageRequest.of(page, size)
         );
     }
 

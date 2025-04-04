@@ -13,6 +13,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,6 @@ import rs.banka4.user_service.service.abstraction.EmployeeService;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.utils.specification.EmployeeSpecification;
 import rs.banka4.user_service.utils.specification.SpecificationCombinator;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
 
 @Service
 @RequiredArgsConstructor
@@ -122,19 +122,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
         Employee admin = getLoggedInEmployee();
-        if(!admin.getPrivileges().contains(Privilege.ADMIN))
-            return;
+        if (
+            !admin.getPrivileges()
+                .contains(Privilege.ADMIN)
+        ) return;
 
         ActuaryPayloadDto actuaryPayloadDto = null;
-        if(dto.privilege().contains(Privilege.SUPERVISOR)){
+        if (
+            dto.privilege()
+                .contains(Privilege.SUPERVISOR)
+        ) {
             actuaryPayloadDto = supervisorPayload(employee.getId());
-        }
-        else if(dto.privilege().contains(Privilege.AGENT)) {
-            actuaryPayloadDto = agentPayload(employee.getId());
-        }
+        } else
+            if (
+                dto.privilege()
+                    .contains(Privilege.AGENT)
+            ) {
+                actuaryPayloadDto = agentPayload(employee.getId());
+            }
 
-        if(actuaryPayloadDto == null)
-            return;
+        if (actuaryPayloadDto == null) return;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -145,7 +152,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             "http://stock_service:8080/actuaries/register",
             HttpMethod.POST,
             request,
-            ActuaryPayloadDto.class);
+            ActuaryPayloadDto.class
+        );
     }
 
     public ResponseEntity<Page<EmployeeDto>> getAll(
@@ -293,8 +301,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
         Employee admin = getLoggedInEmployee();
-        if(updateEmployeeDto.privilege() == null || updateEmployeeDto.privilege().isEmpty() || !admin.getPrivileges().contains(Privilege.ADMIN))
-            return;
+        if (
+            updateEmployeeDto.privilege() == null
+                || updateEmployeeDto.privilege()
+                    .isEmpty()
+                || !admin.getPrivileges()
+                    .contains(Privilege.ADMIN)
+        ) return;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -302,13 +315,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         ActuaryPayloadDto actuaryPayloadDto = null;
 
         // Employee -> Actuator
-        if(!oldPrivileges.contains(Privilege.SUPERVISOR) && !oldPrivileges.contains(Privilege.AGENT)){
-            if(updateEmployeeDto.privilege().contains(Privilege.SUPERVISOR)){
+        if (
+            !oldPrivileges.contains(Privilege.SUPERVISOR)
+                && !oldPrivileges.contains(Privilege.AGENT)
+        ) {
+            if (
+                updateEmployeeDto.privilege()
+                    .contains(Privilege.SUPERVISOR)
+            ) {
                 actuaryPayloadDto = supervisorPayload(employee.getId());
-            }
-            else if(updateEmployeeDto.privilege().contains(Privilege.AGENT)) {
-                actuaryPayloadDto = agentPayload(employee.getId());
-            }
+            } else
+                if (
+                    updateEmployeeDto.privilege()
+                        .contains(Privilege.AGENT)
+                ) {
+                    actuaryPayloadDto = agentPayload(employee.getId());
+                }
 
             assert actuaryPayloadDto != null;
             HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
@@ -316,20 +338,26 @@ public class EmployeeServiceImpl implements EmployeeService {
                 "http://stock_service:8080/actuaries/register",
                 HttpMethod.POST,
                 request,
-                ActuaryPayloadDto.class);
+                ActuaryPayloadDto.class
+            );
         }
         // Agent <-> Supervisor or Actuator -> Employee
         else {
             UUID pathId = employee.getId();
-            if(updateEmployeeDto.privilege().contains(Privilege.SUPERVISOR)){
+            if (
+                updateEmployeeDto.privilege()
+                    .contains(Privilege.SUPERVISOR)
+            ) {
                 actuaryPayloadDto = supervisorPayload(employee.getId());
-            }
-            else if(updateEmployeeDto.privilege().contains(Privilege.AGENT)) {
-                actuaryPayloadDto = agentPayload(employee.getId());
-            }
-            else{
-                pathId = admin.getId();
-            }
+            } else
+                if (
+                    updateEmployeeDto.privilege()
+                        .contains(Privilege.AGENT)
+                ) {
+                    actuaryPayloadDto = agentPayload(employee.getId());
+                } else {
+                    pathId = admin.getId();
+                }
 
             assert actuaryPayloadDto != null;
             HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
@@ -337,7 +365,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 "http://stock_service:8080/actuaries/update?id=" + pathId,
                 HttpMethod.PUT,
                 request,
-                ActuaryPayloadDto.class);
+                ActuaryPayloadDto.class
+            );
         }
     }
 
@@ -350,7 +379,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private Employee getLoggedInEmployee() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth =
+            SecurityContextHolder.getContext()
+                .getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             throw new NotAuthenticated();
         }
@@ -359,21 +390,11 @@ public class EmployeeServiceImpl implements EmployeeService {
             .orElseThrow(NotAuthenticated::new);
     }
 
-    private ActuaryPayloadDto agentPayload(UUID id){
-        return new ActuaryPayloadDto(
-            true,
-            BigDecimal.valueOf(10000),
-            Currency.Code.RSD,
-            id
-        );
+    private ActuaryPayloadDto agentPayload(UUID id) {
+        return new ActuaryPayloadDto(true, BigDecimal.valueOf(10000), Currency.Code.RSD, id);
     }
 
-    private ActuaryPayloadDto supervisorPayload(UUID id){
-        return new ActuaryPayloadDto(
-            false,
-            null,
-            Currency.Code.RSD,
-            id
-        );
+    private ActuaryPayloadDto supervisorPayload(UUID id) {
+        return new ActuaryPayloadDto(false, null, Currency.Code.RSD, id);
     }
 }

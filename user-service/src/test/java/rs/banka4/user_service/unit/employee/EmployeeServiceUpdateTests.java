@@ -68,7 +68,8 @@ public class EmployeeServiceUpdateTests {
         when(userService.existsByEmail(updateEmployeeDto.email())).thenReturn(false);
         when(userService.isPhoneNumberValid(updateEmployeeDto.phoneNumber())).thenReturn(true);
         when(employeeRepository.existsByUsername(updateEmployeeDto.username())).thenReturn(false);
-        doNothing().when(employeeMapper).fromUpdate(employee, updateEmployeeDto);
+        doNothing().when(employeeMapper)
+            .fromUpdate(employee, updateEmployeeDto);
 
         // Act
         employeeService.updateEmployee(employeeId, updateEmployeeDto);

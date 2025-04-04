@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,9 +26,6 @@ import rs.banka4.user_service.repositories.EmployeeRepository;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.service.impl.EmployeeServiceImpl;
 import rs.banka4.user_service.service.impl.UserService;
-
-import java.util.Optional;
-import java.util.Set;
 
 public class EmployeeServiceCreateTests {
 
@@ -83,7 +82,7 @@ public class EmployeeServiceCreateTests {
                 savedEmployee -> savedEmployee.getEmail()
                     .equals(dto.email())
                     && savedEmployee.getUsername()
-                    .equals(dto.username())
+                        .equals(dto.username())
             )
         );
         verify(userService, times(1)).sendVerificationEmail(

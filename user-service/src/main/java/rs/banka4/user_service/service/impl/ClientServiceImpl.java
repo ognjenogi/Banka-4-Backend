@@ -9,8 +9,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.domain.account.dtos.AccountClientIdDto;
 import rs.banka4.user_service.domain.auth.dtos.LoginDto;
@@ -206,7 +206,9 @@ public class ClientServiceImpl implements ClientService {
             clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFound(updateClientDto.email()));
 
-        boolean hasTradePrivilege = client.getPrivileges().contains(Privilege.TRADE);
+        boolean hasTradePrivilege =
+            client.getPrivileges()
+                .contains(Privilege.TRADE);
 
         if (userService.existsByEmail(updateClientDto.email())) {
             throw new DuplicateEmail(updateClientDto.email());
@@ -221,8 +223,13 @@ public class ClientServiceImpl implements ClientService {
             client.setPrivileges(updateClientDto.privilege());
         }
 
-        if(hasTradePrivilege && !client.getPrivileges().contains(Privilege.TRADE)){
-            client.getPrivileges().add(Privilege.TRADE);
+        if (
+            hasTradePrivilege
+                && !client.getPrivileges()
+                    .contains(Privilege.TRADE)
+        ) {
+            client.getPrivileges()
+                .add(Privilege.TRADE);
         }
 
         clientRepository.save(client);
