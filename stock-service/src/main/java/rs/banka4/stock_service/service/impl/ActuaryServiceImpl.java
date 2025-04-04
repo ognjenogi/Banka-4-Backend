@@ -92,8 +92,6 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     @Override
     public void updateLimit(UUID actuaryId, LimitPayload dto){
-        // TODO: samo admin i supervisor mogu da koriste ovu rutu
-
         if(!actuaryRepository.existsById(actuaryId)){
             //what if it does not exist?
         }
@@ -102,17 +100,11 @@ public class ActuaryServiceImpl implements ActuaryService {
         //supervisors limit cannot be changed
         if(!actuaryInfo.isNeedApproval())return;
 
-
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(),dto.limitCurrencyCode()));
-
-
     }
 
     @Override
     public void resetUsedLimit(UUID actuaryId){
-
-        // TODO: samo admin i supervisor mogu da koriste ovu rutu
-
         ActuaryInfo actuaryInfo = actuaryRepository.findById(actuaryId).orElseThrow();
         MonetaryAmount monetaryAmount = actuaryInfo.getUsedLimit();
         monetaryAmount.setAmount(BigDecimal.ZERO);
