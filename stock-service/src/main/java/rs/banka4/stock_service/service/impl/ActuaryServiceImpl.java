@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
@@ -34,6 +32,7 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     private final ActuaryRepository actuaryRepository;
     private final Retrofit userServiceRetrofit;
+
     @Override
     public void createNewActuary(ActuaryPayloadDto dto) {
         if (
@@ -94,37 +93,62 @@ public class ActuaryServiceImpl implements ActuaryService {
         UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         String token = "Bearer " + auth.getCredentials();
         try {
-            Response<PaginatedResponse<EmployeeResponseDto>> response = userServiceClient.searchActuaryOnly(
-                token, firstName, lastName, email, position, page, size
-            ).execute();
+            Response<PaginatedResponse<EmployeeResponseDto>> response =
+                userServiceClient.searchActuaryOnly(
+                    token,
+                    firstName,
+                    lastName,
+                    email,
+                    position,
+                    page,
+                    size
+                )
+                    .execute();
 
             if (response.isSuccessful() && response.body() != null) {
                 PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
-                if (employeePage.getContent().isEmpty()) {
+                if (
+                    employeePage.getContent()
+                        .isEmpty()
+                ) {
                     return ResponseEntity.ok(Page.empty());
                 }
 
-                List<CombinedResponse> combinedResponses = employeePage.getContent().stream()
-                    .map(employee -> {
-                        ActuaryInfo actuaryInfo = actuaryRepository.findById(employee.id()).get();
-                        ActuaryInfoDto dto = new ActuaryInfoDto(
-                            actuaryInfo.isNeedApproval(),
-                            actuaryInfo.getLimit().getAmount(),
-                            actuaryInfo.getUsedLimit().getAmount(),
-                            actuaryInfo.getLimit().getCurrency()
-                        );
-                        return new CombinedResponse(employee, dto);
-                    })
-                    .collect(Collectors.toList());
+                List<CombinedResponse> combinedResponses =
+                    employeePage.getContent()
+                        .stream()
+                        .map(employee -> {
+                            ActuaryInfo actuaryInfo =
+                                actuaryRepository.findById(employee.id())
+                                    .get();
+                            ActuaryInfoDto dto =
+                                new ActuaryInfoDto(
+                                    actuaryInfo.isNeedApproval(),
+                                    actuaryInfo.getLimit()
+                                        .getAmount(),
+                                    actuaryInfo.getUsedLimit()
+                                        .getAmount(),
+                                    actuaryInfo.getLimit()
+                                        .getCurrency()
+                                );
+                            return new CombinedResponse(employee, dto);
+                        })
+                        .collect(Collectors.toList());
 
                 return ResponseEntity.ok(
-                    new PageImpl<>(combinedResponses, PageRequest.of(employeePage.getPage(), employeePage.getSize()), employeePage.getTotalElements())
+                    new PageImpl<>(
+                        combinedResponses,
+                        PageRequest.of(employeePage.getPage(), employeePage.getSize()),
+                        employeePage.getTotalElements()
+                    )
                 );
             } else {
-                return ResponseEntity.status(response.code()).build();
+                return ResponseEntity.status(response.code())
+                    .build();
             }
         } catch (IOException e) {
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500)
+                .build();
         }
     }
 
