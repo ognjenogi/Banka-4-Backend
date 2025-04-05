@@ -1,13 +1,10 @@
 package rs.banka4.stock_service.service.impl;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -96,14 +93,14 @@ public class ActuaryServiceImpl implements ActuaryService {
         try {
             Response<PaginatedResponse<EmployeeResponseDto>> response =
                 userServiceClient.searchActuaryOnly(
-                        token,
-                        firstName,
-                        lastName,
-                        email,
-                        position,
-                        page,
-                        size
-                    )
+                    token,
+                    firstName,
+                    lastName,
+                    email,
+                    position,
+                    page,
+                    size
+                )
                     .execute();
 
             if (response.isSuccessful() && response.body() != null) {
@@ -121,7 +118,12 @@ public class ActuaryServiceImpl implements ActuaryService {
                         .map(employee -> {
                             ActuaryInfo actuaryInfo =
                                 actuaryRepository.findById(employee.id())
-                                    .orElseThrow(() -> new ActuaryNotFoundException(employee.id().toString()));
+                                    .orElseThrow(
+                                        () -> new ActuaryNotFoundException(
+                                            employee.id()
+                                                .toString()
+                                        )
+                                    );
                             ActuaryInfoDto dto =
                                 new ActuaryInfoDto(
                                     actuaryInfo.isNeedApproval(),
@@ -148,8 +150,7 @@ public class ActuaryServiceImpl implements ActuaryService {
                     .build();
             }
         } catch (Exception e) {
-            return ResponseEntity
-                .status(500)
+            return ResponseEntity.status(500)
                 .build();
         }
     }

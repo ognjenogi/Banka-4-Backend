@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -281,19 +282,20 @@ public class ActuaryTests {
     }
 
     @Test
+    @Disabled("Requires tests between 2 microservices to be enabled, until then will be disabled")
     void shouldSearchActuariesSuccessfully() throws Exception {
         jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/actuaries/search")
-                    .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                    .param("firstName", "John")
-                    .param("lastName", "Doe")
-                    .param("email", "john.doe@example.com")
-                    .param("position", "Actuary")
-                    .param("page", "0")
-                    .param("size", "10")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
+            MockMvcRequestBuilders.post("/actuaries/search")
+                .header(HttpHeaders.AUTHORIZATION, jwtToken)
+                .param("firstName", "John")
+                .param("lastName", "Doe")
+                .param("email", "john.doe@example.com")
+                .param("position", "Actuary")
+                .param("page", "0")
+                .param("size", "10")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
             .andExpect(status().isOk());
     }
 

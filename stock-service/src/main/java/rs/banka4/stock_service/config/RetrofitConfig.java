@@ -15,8 +15,7 @@ public class RetrofitConfig {
     }
 
     private Retrofit createRetrofit(String baseUrl) {
-        OkHttpClient client = new OkHttpClient.Builder()
-            .build();
+        OkHttpClient client = new OkHttpClient.Builder().build();
 
         return new Retrofit.Builder().baseUrl(baseUrl)
             .client(client)
