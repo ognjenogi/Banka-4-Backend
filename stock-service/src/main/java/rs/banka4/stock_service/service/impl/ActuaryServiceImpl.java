@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.service.impl;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -8,17 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.actuaries.db.dto.ActuaryPayloadDto;
-import rs.banka4.stock_service.domain.response.ActuaryInfoDto;
-import rs.banka4.stock_service.domain.response.CombinedResponse;
-import rs.banka4.stock_service.domain.response.EmployeeResponseDto;
-import rs.banka4.stock_service.domain.response.LimitPayload;
+import rs.banka4.stock_service.domain.response.*;
 import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
 import rs.banka4.stock_service.exceptions.ActuaryNotFoundException;
 import rs.banka4.stock_service.exceptions.CannotUpdateActuaryException;
@@ -31,8 +33,7 @@ import rs.banka4.stock_service.service.abstraction.ActuaryService;
 public class ActuaryServiceImpl implements ActuaryService {
 
     private final ActuaryRepository actuaryRepository;
-    private final RestTemplate restTemplate;
-
+    private final Retrofit userServiceRetrofit;
     @Override
     public void createNewActuary(ActuaryPayloadDto dto) {
         if (
@@ -90,51 +91,41 @@ public class ActuaryServiceImpl implements ActuaryService {
         int page,
         int size
     ) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + auth.getCredentials());
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
+        String token = "Bearer " + auth.getCredentials();
+        try {
+            Response<PaginatedResponse<EmployeeResponseDto>> response = userServiceClient.searchActuaryOnly(
+                token, firstName, lastName, email, position, page, size
+            ).execute();
 
-        ResponseEntity<PageImpl<EmployeeResponseDto>> response =
-            restTemplate.exchange(
-                "http://user_service:8080/search/actuary-only",
-                HttpMethod.GET,
-                entity,
-                new ParameterizedTypeReference<>() {
+            if (response.isSuccessful() && response.body() != null) {
+                PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
+                if (employeePage.getContent().isEmpty()) {
+                    return ResponseEntity.ok(Page.empty());
                 }
-            );
 
-        Page<EmployeeResponseDto> employeePage = response.getBody();
-        if (employeePage.isEmpty()) {
-            return ResponseEntity.ok(Page.empty());
-        }
-
-        List<CombinedResponse> combinedResponses =
-            employeePage.stream()
-                .map(employee -> {
-                    ActuaryInfo actuaryInfo =
-                        actuaryRepository.findById(employee.id())
-                            .get();
-                    ActuaryInfoDto dto =
-                        new ActuaryInfoDto(
+                List<CombinedResponse> combinedResponses = employeePage.getContent().stream()
+                    .map(employee -> {
+                        ActuaryInfo actuaryInfo = actuaryRepository.findById(employee.id()).get();
+                        ActuaryInfoDto dto = new ActuaryInfoDto(
                             actuaryInfo.isNeedApproval(),
-                            actuaryInfo.getLimit()
-                                .getAmount(),
-                            actuaryInfo.getUsedLimit()
-                                .getAmount(),
-                            actuaryInfo.getLimit()
-                                .getCurrency()
+                            actuaryInfo.getLimit().getAmount(),
+                            actuaryInfo.getUsedLimit().getAmount(),
+                            actuaryInfo.getLimit().getCurrency()
                         );
-                    return new CombinedResponse(employee, dto);
-                })
-                .collect(Collectors.toList());
+                        return new CombinedResponse(employee, dto);
+                    })
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(
-            new PageImpl<>(
-                combinedResponses,
-                employeePage.getPageable(),
-                employeePage.getTotalElements()
-            )
-        );
+                return ResponseEntity.ok(
+                    new PageImpl<>(combinedResponses, PageRequest.of(employeePage.getPage(), employeePage.getSize()), employeePage.getTotalElements())
+                );
+            } else {
+                return ResponseEntity.status(response.code()).build();
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
 

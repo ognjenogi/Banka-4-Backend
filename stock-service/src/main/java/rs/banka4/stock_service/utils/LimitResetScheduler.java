@@ -4,14 +4,12 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.repositories.ActuaryRepository;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LimitResetScheduler {
