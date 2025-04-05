@@ -9,7 +9,7 @@ import rs.banka4.stock_service.domain.response.PaginatedResponse;
 
 public interface UserServiceClient {
 
-    @GET("/search/actuary-only")
+    @GET("/employee/search/actuary-only")
     Call<PaginatedResponse<EmployeeResponseDto>> searchActuaryOnly(
         @Header("Authorization") String token,
         @Query("firstName") String firstName,

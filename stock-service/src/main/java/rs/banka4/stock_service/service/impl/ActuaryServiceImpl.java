@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -79,7 +81,6 @@ public class ActuaryServiceImpl implements ActuaryService {
         actuaryRepository.save(actuaryInfo);
     }
 
-
     @Override
     public ResponseEntity<Page<CombinedResponse>> search(
         Authentication auth,
@@ -95,14 +96,14 @@ public class ActuaryServiceImpl implements ActuaryService {
         try {
             Response<PaginatedResponse<EmployeeResponseDto>> response =
                 userServiceClient.searchActuaryOnly(
-                    token,
-                    firstName,
-                    lastName,
-                    email,
-                    position,
-                    page,
-                    size
-                )
+                        token,
+                        firstName,
+                        lastName,
+                        email,
+                        position,
+                        page,
+                        size
+                    )
                     .execute();
 
             if (response.isSuccessful() && response.body() != null) {
@@ -120,7 +121,7 @@ public class ActuaryServiceImpl implements ActuaryService {
                         .map(employee -> {
                             ActuaryInfo actuaryInfo =
                                 actuaryRepository.findById(employee.id())
-                                    .get();
+                                    .orElseThrow(() -> new ActuaryNotFoundException(employee.id().toString()));
                             ActuaryInfoDto dto =
                                 new ActuaryInfoDto(
                                     actuaryInfo.isNeedApproval(),
@@ -146,8 +147,9 @@ public class ActuaryServiceImpl implements ActuaryService {
                 return ResponseEntity.status(response.code())
                     .build();
             }
-        } catch (IOException e) {
-            return ResponseEntity.status(500)
+        } catch (Exception e) {
+            return ResponseEntity
+                .status(500)
                 .build();
         }
     }
