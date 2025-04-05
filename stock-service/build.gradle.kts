@@ -29,10 +29,6 @@ repositories {
 dependencies {
 	implementation(project(":common"))
 
-	implementation("com.squareup.retrofit2:retrofit:2.11.0")
-	implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
-	implementation("com.squareup.retrofit2:converter-jackson:2.11.0")
-
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -54,6 +50,10 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+	implementation("com.squareup.retrofit2:retrofit:2.11.0")
+	implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
+	implementation("com.squareup.retrofit2:converter-jackson:2.11.0")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
