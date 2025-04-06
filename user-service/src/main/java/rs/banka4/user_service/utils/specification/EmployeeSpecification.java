@@ -35,15 +35,11 @@ public class EmployeeSpecification {
     }
 
     public static Specification<Employee> hasPrivilege(Privilege privilege) {
-        return (root, query, cb) -> cb.notEqual(
-            cb.function(
-                "bitand",
-                Long.class,
-                root.get("permissionBits"),
-                cb.literal(privilege.bit())
-            ),
-            0L
-        );
+        return (root, query, cb) ->
+            cb.notEqual(
+                cb.function("bitand", Long.class, root.get("permissionBits"), cb.literal(privilege.bit())),
+                cb.literal(0L)
+            );
     }
 
 }

@@ -2,9 +2,10 @@ package rs.banka4.stock_service.domain.actuaries.db.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
+
 import java.math.BigDecimal;
 import java.util.UUID;
-import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
 
 @Schema(description = "Payload for actuary-specific information")
 public record ActuaryPayloadDto(

@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.security.Privilege;
@@ -121,6 +123,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new DuplicateUsername(dto.username());
         }
         Employee employee = EmployeeMapper.INSTANCE.toEntity(dto);
+        employee.setPrivileges(dto.privilege());
         employeeRepository.save(employee);
 
         Employee admin = getLoggedInEmployee();
@@ -148,7 +151,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
         String authorization = "Bearer " + jwtService.generateAccessToken(admin);
         try {
-            Response<ResponseEntity<ActuaryPayloadDto>> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+            Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
             if (!response.isSuccessful()) {
                 LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
             }
@@ -335,7 +338,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
             String authorization = "Bearer " + jwtService.generateAccessToken(admin);
             try {
-                Response<ResponseEntity<ActuaryPayloadDto>> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+                Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
                 if (!response.isSuccessful()) {
                     LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
                 }
@@ -365,7 +368,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
             String authorization = "Bearer " + jwtService.generateAccessToken(admin);
             try {
-                Response<ResponseEntity<ActuaryPayloadDto>> response = stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto).execute();
+                Response<Void> response = stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto).execute();
                 if (!response.isSuccessful()) {
                     LOGGER.error("Failed to update actuary: {}", response.errorBody().string());
                 }
@@ -396,10 +399,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private ActuaryPayloadDto agentPayload(UUID id) {
-        return new ActuaryPayloadDto(true, BigDecimal.valueOf(10000), Currency.Code.RSD, id);
+        return new ActuaryPayloadDto(true, BigDecimal.valueOf(10000), CurrencyCode.RSD, id);
     }
 
     private ActuaryPayloadDto supervisorPayload(UUID id) {
-        return new ActuaryPayloadDto(false, null, Currency.Code.RSD, id);
+        return new ActuaryPayloadDto(false, null, CurrencyCode.RSD, id);
     }
 }

@@ -39,7 +39,7 @@ public class SecurityConfig {
                             AuthorityAuthorizationManager.hasAuthority("ADMIN")
                         )
                     )
-                    .requestMatchers(HttpMethod.GET, "/actuaries/search/**")
+                    .requestMatchers(HttpMethod.GET, "/actuaries/search")
                     .access(
                         AuthorizationManagers.anyOf(
                             AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),

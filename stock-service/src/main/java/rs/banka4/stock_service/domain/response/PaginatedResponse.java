@@ -8,8 +8,15 @@ import lombok.Setter;
 @Setter
 public class PaginatedResponse<T> {
     private List<T> content;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
+    private PageMetadata page;
+
+    @Getter
+    @Setter
+    public static class PageMetadata {
+        private int number;
+        private int size;
+        private long totalElements;
+        private int totalPages;
+
+    }
 }

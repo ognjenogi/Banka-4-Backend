@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
@@ -31,11 +34,13 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     private final ActuaryRepository actuaryRepository;
     private final Retrofit userServiceRetrofit;
+    Logger logger = LoggerFactory.getLogger(ActuaryServiceImpl.class);
+
 
     @Override
     public void createNewActuary(ActuaryPayloadDto dto) {
         if (
-            dto.limitAmount()
+            dto.limitAmount() != null && dto.limitAmount()
                 .compareTo(BigDecimal.ZERO)
                 < 0
         ) {
@@ -62,9 +67,8 @@ public class ActuaryServiceImpl implements ActuaryService {
         }
 
         if (
-            dto.limitAmount()
-                .compareTo(BigDecimal.ZERO)
-                == -1
+            dto.limitAmount() != null && dto.limitAmount()
+                .compareTo(BigDecimal.ZERO) < 0
         ) {
             throw new NegativeLimitException(actuaryId.toString());
         }
@@ -88,6 +92,7 @@ public class ActuaryServiceImpl implements ActuaryService {
         int page,
         int size
     ) {
+
         UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         String token = "Bearer " + auth.getCredentials();
         try {
@@ -106,9 +111,12 @@ public class ActuaryServiceImpl implements ActuaryService {
             if (response.isSuccessful() && response.body() != null) {
                 PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
                 if (
-                    employeePage.getContent()
+
+                employeePage.getContent()
                         .isEmpty()
                 ) {
+                    logger.info("No actuaries found for the given search criteria.");
+
                     return ResponseEntity.ok(Page.empty());
                 }
 
@@ -129,8 +137,8 @@ public class ActuaryServiceImpl implements ActuaryService {
                                     actuaryInfo.isNeedApproval(),
                                     actuaryInfo.getLimit()
                                         .getAmount(),
-                                    actuaryInfo.getUsedLimit()
-                                        .getAmount(),
+                                    actuaryInfo.getUsedLimit() != null ?actuaryInfo.getUsedLimit()
+                                        .getAmount() : null,
                                     actuaryInfo.getLimit()
                                         .getCurrency()
                                 );
@@ -138,18 +146,24 @@ public class ActuaryServiceImpl implements ActuaryService {
                         })
                         .collect(Collectors.toList());
 
+                logger.info("Found {} actuaries matching the search criteria.", combinedResponses.size());
+
                 return ResponseEntity.ok(
                     new PageImpl<>(
                         combinedResponses,
-                        PageRequest.of(employeePage.getPage(), employeePage.getSize()),
-                        employeePage.getTotalElements()
+                        PageRequest.of(employeePage.getPage().getNumber(), employeePage.getPage().getSize()),
+                        employeePage.getPage().getTotalElements()
                     )
                 );
             } else {
+                logger.error("Failed to search actuaries. Response code: {}", response.code());
+
                 return ResponseEntity.status(response.code())
                     .build();
             }
         } catch (Exception e) {
+            logger.error("Exception occurred while searching actuaries", e);
+
             return ResponseEntity.status(500)
                 .build();
         }

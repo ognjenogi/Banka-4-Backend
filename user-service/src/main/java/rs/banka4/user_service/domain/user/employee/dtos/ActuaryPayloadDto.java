@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.user_service.domain.currency.db.Currency;
 
 @Schema(description = "Payload for actuary-specific information")
@@ -22,7 +24,7 @@ public record ActuaryPayloadDto(
     @Schema(
         description = "Currency code for the limit",
         example = "RSD"
-    ) @NotNull(message = "Limit currency code is required") Currency.Code limitCurrencyCode,
+    ) @NotNull(message = "Limit currency code is required") CurrencyCode limitCurrencyCode,
 
     @Schema(
         description = "ID of the actuary (user)",
