@@ -19,9 +19,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
+import rs.banka4.user_service.config.clients.StockServiceClient;
 import rs.banka4.user_service.domain.auth.dtos.LoginDto;
 import rs.banka4.user_service.domain.auth.dtos.LoginResponseDto;
 import rs.banka4.user_service.domain.currency.db.Currency;
@@ -50,6 +54,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final RestTemplate restTemplate;
+    private final Retrofit stockServiceRetrofit;
+
 
     @Override
     public LoginResponseDto login(LoginDto loginDto) {
@@ -92,7 +98,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(NotAuthenticated::new)
         );
     }
-
     @Override
     public ResponseEntity<PrivilegesDto> getPrivileges() {
         List<String> privileges =
@@ -118,9 +123,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = EmployeeMapper.INSTANCE.toEntity(dto);
         employeeRepository.save(employee);
 
-        userService.sendVerificationEmail(employee.getFirstName(), employee.getEmail());
-
-
         Employee admin = getLoggedInEmployee();
         if (
             !admin.getPrivileges()
@@ -143,17 +145,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         if (actuaryPayloadDto == null) return;
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", "Bearer " + jwtService.generateAccessToken(admin));
-        HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
+        StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+        String authorization = "Bearer " + jwtService.generateAccessToken(admin);
+        try {
+            Response<ResponseEntity<ActuaryPayloadDto>> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+            if (!response.isSuccessful()) {
+                LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception occurred while registering actuary", e);
+        }
 
-        restTemplate.exchange(
-            "http://stock_service:8080/actuaries/register",
-            HttpMethod.POST,
-            request,
-            ActuaryPayloadDto.class
-        );
+        userService.sendVerificationEmail(employee.getFirstName(), employee.getEmail());
     }
 
     public ResponseEntity<Page<EmployeeDto>> getAll(
@@ -299,19 +302,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         employeeRepository.save(employee);
 
-
         Employee admin = getLoggedInEmployee();
         if (
             updateEmployeeDto.privilege() == null
                 || updateEmployeeDto.privilege()
-                    .isEmpty()
+                .isEmpty()
                 || !admin.getPrivileges()
-                    .contains(Privilege.ADMIN)
+                .contains(Privilege.ADMIN)
         ) return;
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", "Bearer " + jwtService.generateAccessToken(admin));
         ActuaryPayloadDto actuaryPayloadDto = null;
 
         // Employee -> Actuator
@@ -325,21 +324,24 @@ public class EmployeeServiceImpl implements EmployeeService {
             ) {
                 actuaryPayloadDto = supervisorPayload(employee.getId());
             } else
-                if (
-                    updateEmployeeDto.privilege()
-                        .contains(Privilege.AGENT)
-                ) {
-                    actuaryPayloadDto = agentPayload(employee.getId());
-                }
+            if (
+                updateEmployeeDto.privilege()
+                    .contains(Privilege.AGENT)
+            ) {
+                actuaryPayloadDto = agentPayload(employee.getId());
+            }
 
             assert actuaryPayloadDto != null;
-            HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
-            restTemplate.exchange(
-                "http://stock_service:8080/actuaries/register",
-                HttpMethod.POST,
-                request,
-                ActuaryPayloadDto.class
-            );
+            StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+            String authorization = "Bearer " + jwtService.generateAccessToken(admin);
+            try {
+                Response<ResponseEntity<ActuaryPayloadDto>> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+                if (!response.isSuccessful()) {
+                    LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+                }
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred while registering actuary", e);
+            }
         }
         // Agent <-> Supervisor or Actuator -> Employee
         else {
@@ -350,23 +352,26 @@ public class EmployeeServiceImpl implements EmployeeService {
             ) {
                 actuaryPayloadDto = supervisorPayload(employee.getId());
             } else
-                if (
-                    updateEmployeeDto.privilege()
-                        .contains(Privilege.AGENT)
-                ) {
-                    actuaryPayloadDto = agentPayload(employee.getId());
-                } else {
-                    pathId = admin.getId();
-                }
+            if (
+                updateEmployeeDto.privilege()
+                    .contains(Privilege.AGENT)
+            ) {
+                actuaryPayloadDto = agentPayload(employee.getId());
+            } else {
+                pathId = admin.getId();
+            }
 
             assert actuaryPayloadDto != null;
-            HttpEntity<ActuaryPayloadDto> request = new HttpEntity<>(actuaryPayloadDto, headers);
-            restTemplate.exchange(
-                "http://stock_service:8080/actuaries/update?id=" + pathId,
-                HttpMethod.PUT,
-                request,
-                ActuaryPayloadDto.class
-            );
+            StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+            String authorization = "Bearer " + jwtService.generateAccessToken(admin);
+            try {
+                Response<ResponseEntity<ActuaryPayloadDto>> response = stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto).execute();
+                if (!response.isSuccessful()) {
+                    LOGGER.error("Failed to update actuary: {}", response.errorBody().string());
+                }
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred while updating actuary", e);
+            }
         }
     }
 
@@ -385,8 +390,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (auth == null || !auth.isAuthenticated()) {
             throw new NotAuthenticated();
         }
-        String email = auth.getName();
-        return employeeRepository.findByEmail(email)
+        AuthenticatedBankUserPrincipal principal = (AuthenticatedBankUserPrincipal) auth.getPrincipal();
+        return employeeRepository.findById(principal.userId())
             .orElseThrow(NotAuthenticated::new);
     }
 
