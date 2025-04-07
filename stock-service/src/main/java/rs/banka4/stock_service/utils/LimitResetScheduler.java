@@ -32,6 +32,7 @@ public class LimitResetScheduler {
 
         for (ActuaryInfo info : toReset) {
             MonetaryAmount monetaryAmount = info.getUsedLimit();
+            if (monetaryAmount == null) continue;
             monetaryAmount.setAmount(BigDecimal.valueOf(10000));
             info.setUsedLimit(monetaryAmount);
         }

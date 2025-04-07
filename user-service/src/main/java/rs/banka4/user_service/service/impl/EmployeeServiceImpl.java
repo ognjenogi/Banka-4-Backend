@@ -287,17 +287,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Set<Privilege> oldPrivileges = employee.getPrivileges();
 
-        if (userService.existsByEmail(updateEmployeeDto.email())) {
-            throw new DuplicateEmail(updateEmployeeDto.email());
-        }
+//        if (userService.existsByEmail(updateEmployeeDto.email())) {
+//            throw new DuplicateEmail(updateEmployeeDto.email());
+//        }
 
         if (!userService.isPhoneNumberValid(updateEmployeeDto.phoneNumber())) {
             throw new InvalidPhoneNumber();
         }
 
-        if (employeeRepository.existsByUsername(updateEmployeeDto.username())) {
-            throw new DuplicateUsername(updateEmployeeDto.username());
-        }
+//        if (employeeRepository.existsByUsername(updateEmployeeDto.username())) {
+//            throw new DuplicateUsername(updateEmployeeDto.username());
+//        }
 
         EmployeeMapper.INSTANCE.fromUpdate(employee, updateEmployeeDto);
         if (updateEmployeeDto.privilege() != null) {
@@ -346,7 +346,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 LOGGER.error("Exception occurred while registering actuary", e);
             }
         }
-        // Agent <-> Supervisor or Actuator -> Employee
+        // Agent <-> Supervisor or Actuary -> Employee
         else {
             UUID pathId = employee.getId();
             if (
@@ -362,15 +362,16 @@ public class EmployeeServiceImpl implements EmployeeService {
                 actuaryPayloadDto = agentPayload(employee.getId());
             } else {
                 pathId = admin.getId();
+                // only id matters
+                actuaryPayloadDto = agentPayload(employee.getId());
             }
 
-            assert actuaryPayloadDto != null;
             StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
             String authorization = "Bearer " + jwtService.generateAccessToken(admin);
             try {
                 Response<Void> response = stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto).execute();
                 if (!response.isSuccessful()) {
-                    LOGGER.error("Failed to update actuary: {}", response.errorBody().string());
+                    LOGGER.error("Failed to update actuary: {}", response.code());
                 }
             } catch (Exception e) {
                 LOGGER.error("Exception occurred while updating actuary", e);

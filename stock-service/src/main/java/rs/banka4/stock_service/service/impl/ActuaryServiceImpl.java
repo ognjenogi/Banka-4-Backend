@@ -50,10 +50,10 @@ public class ActuaryServiceImpl implements ActuaryService {
             );
         }
 
-
         ActuaryInfo actuaryInfo = new ActuaryInfo();
         actuaryInfo.setUserId(dto.actuaryId());
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
+        actuaryInfo.setUsedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD));
         actuaryInfo.setNeedApproval(dto.needsApproval());
         actuaryRepository.save(actuaryInfo);
     }
@@ -61,10 +61,13 @@ public class ActuaryServiceImpl implements ActuaryService {
     @Override
     public void changeActuaryDetails(UUID actuaryId, ActuaryPayloadDto dto) {
 
-        if (actuaryId != dto.actuaryId()) {
+        if (!actuaryId.equals(dto.actuaryId())) {
             // case when we send the admin id as the path parameter also when all the securities
             // should be transfered to the admin
+            // actuaryId is admins id
         }
+
+
 
         if (
             dto.limitAmount() != null && dto.limitAmount()
@@ -74,9 +77,10 @@ public class ActuaryServiceImpl implements ActuaryService {
         }
 
 
-        ActuaryInfo actuaryInfo =
-            actuaryRepository.findById(dto.actuaryId())
-                .get();
+
+        ActuaryInfo actuaryInfo = actuaryRepository.findById(dto.actuaryId())
+            .orElseThrow(() -> new ActuaryNotFoundException(dto.actuaryId().toString()));
+
         actuaryInfo.setNeedApproval(dto.needsApproval());
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
         actuaryRepository.save(actuaryInfo);

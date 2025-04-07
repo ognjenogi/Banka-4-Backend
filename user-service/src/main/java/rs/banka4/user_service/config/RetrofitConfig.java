@@ -18,15 +18,7 @@ public class RetrofitConfig {
     }
 
     private Retrofit createRetrofit(String baseUrl) {
-        OkHttpClient client = new OkHttpClient.Builder()
-            .hostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    // Ignore hostname verification
-                    return true;
-                }
-            })
-            .build();
+        OkHttpClient client = new OkHttpClient.Builder().build();
 
         return new Retrofit.Builder().baseUrl(baseUrl)
             .client(client)
