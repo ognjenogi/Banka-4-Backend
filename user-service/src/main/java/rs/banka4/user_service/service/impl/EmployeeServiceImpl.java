@@ -146,17 +146,17 @@ public class EmployeeServiceImpl implements EmployeeService {
                 actuaryPayloadDto = agentPayload(employee.getId());
             }
 
-        if (actuaryPayloadDto == null) return;
-
-        StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
-        String authorization = "Bearer " + jwtService.generateAccessToken(admin);
-        try {
-            Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
-            if (!response.isSuccessful()) {
-                LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+        if (actuaryPayloadDto != null){
+            StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+            String authorization = "Bearer " + jwtService.generateAccessToken(admin);
+            try {
+                Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+                if (!response.isSuccessful()) {
+                    LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+                }
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred while registering actuary", e);
             }
-        } catch (Exception e) {
-            LOGGER.error("Exception occurred while registering actuary", e);
         }
 
         userService.sendVerificationEmail(employee.getFirstName(), employee.getEmail());
@@ -287,17 +287,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Set<Privilege> oldPrivileges = employee.getPrivileges();
 
-//        if (userService.existsByEmail(updateEmployeeDto.email())) {
-//            throw new DuplicateEmail(updateEmployeeDto.email());
-//        }
+        if (userService.existsByEmail(updateEmployeeDto.email())) {
+            throw new DuplicateEmail(updateEmployeeDto.email());
+        }
 
         if (!userService.isPhoneNumberValid(updateEmployeeDto.phoneNumber())) {
             throw new InvalidPhoneNumber();
         }
 
-//        if (employeeRepository.existsByUsername(updateEmployeeDto.username())) {
-//            throw new DuplicateUsername(updateEmployeeDto.username());
-//        }
+        if (employeeRepository.existsByUsername(updateEmployeeDto.username())) {
+            throw new DuplicateUsername(updateEmployeeDto.username());
+        }
 
         EmployeeMapper.INSTANCE.fromUpdate(employee, updateEmployeeDto);
         if (updateEmployeeDto.privilege() != null) {
@@ -334,16 +334,17 @@ public class EmployeeServiceImpl implements EmployeeService {
                 actuaryPayloadDto = agentPayload(employee.getId());
             }
 
-            assert actuaryPayloadDto != null;
-            StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
-            String authorization = "Bearer " + jwtService.generateAccessToken(admin);
-            try {
-                Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
-                if (!response.isSuccessful()) {
-                    LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+            if(actuaryPayloadDto != null){
+                StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+                String authorization = "Bearer " + jwtService.generateAccessToken(admin);
+                try {
+                    Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+                    if (!response.isSuccessful()) {
+                        LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Exception occurred while registering actuary", e);
                 }
-            } catch (Exception e) {
-                LOGGER.error("Exception occurred while registering actuary", e);
             }
         }
         // Agent <-> Supervisor or Actuary -> Employee

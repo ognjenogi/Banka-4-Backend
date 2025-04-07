@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.domain.user.employee.dtos.CreateEmployeeDto;
@@ -47,16 +50,23 @@ public class EmployeeServiceCreateTests {
         // Mock the security context
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(AuthenticatedBankUserAuthentication.class);
+        AuthenticatedBankUserPrincipal principal = mock(AuthenticatedBankUserPrincipal.class);
+
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("admin@example.com");
+        when(authentication.getPrincipal()).thenReturn(principal);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
+        // Mock the principal's userId
+        UUID userId = UUID.randomUUID();
+        when(principal.userId()).thenReturn(userId);
+
         // Mock the logged-in employee
         Employee admin = new Employee();
+        admin.setId(userId);
         admin.setEmail("admin@example.com");
         admin.setPrivileges(Set.of(Privilege.ADMIN));
-        when(employeeRepository.findByEmail("admin@example.com")).thenReturn(Optional.of(admin));
+        when(employeeRepository.findById(userId)).thenReturn(Optional.of(admin));
     }
 
     @Test
@@ -79,10 +89,8 @@ public class EmployeeServiceCreateTests {
         verify(employeeRepository, times(1)).existsByUsername(dto.username());
         verify(employeeRepository, times(1)).save(
             argThat(
-                savedEmployee -> savedEmployee.getEmail()
-                    .equals(dto.email())
-                    && savedEmployee.getUsername()
-                        .equals(dto.username())
+                savedEmployee -> savedEmployee.getEmail().equals(dto.email())
+                    && savedEmployee.getUsername().equals(dto.username())
             )
         );
         verify(userService, times(1)).sendVerificationEmail(
@@ -90,6 +98,7 @@ public class EmployeeServiceCreateTests {
             employee.getEmail()
         );
     }
+
 
     @Test
     void testCreateEmployeeWithDuplicateEmail() {
