@@ -200,9 +200,8 @@ public class ActuaryServiceImpl implements ActuaryService {
     public void resetUsedLimit(UUID actuaryId) {
         ActuaryInfo actuaryInfo =
             actuaryRepository.findById(actuaryId)
-                .orElseThrow();
-        MonetaryAmount monetaryAmount = actuaryInfo.getUsedLimit();
-        monetaryAmount.setAmount(BigDecimal.ZERO);
+                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
+        MonetaryAmount monetaryAmount = new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD);
         actuaryInfo.setUsedLimit(monetaryAmount);
         actuaryRepository.save(actuaryInfo);
     }
