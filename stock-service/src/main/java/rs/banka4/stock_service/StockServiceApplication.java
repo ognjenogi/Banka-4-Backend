@@ -15,14 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableScheduling
 @EnableSpringDataWebSupport(pageSerializationMode = PageSerializationMode.VIA_DTO)
 public class StockServiceApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(StockServiceApplication.class, args);
-    }
-
-    @GetMapping("/")
-    @Operation(summary = "Get a cute message")
-    public Map<String, ?> hello() {
-        return Map.of("hello", "world");
     }
 }
