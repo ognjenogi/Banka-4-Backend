@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
@@ -40,9 +39,10 @@ public class ActuaryServiceImpl implements ActuaryService {
     @Override
     public void createNewActuary(ActuaryPayloadDto dto) {
         if (
-            dto.limitAmount() != null && dto.limitAmount()
-                .compareTo(BigDecimal.ZERO)
-                < 0
+            dto.limitAmount() != null
+                && dto.limitAmount()
+                    .compareTo(BigDecimal.ZERO)
+                    < 0
         ) {
             throw new NegativeLimitException(
                 dto.actuaryId()
@@ -63,23 +63,28 @@ public class ActuaryServiceImpl implements ActuaryService {
 
         if (!actuaryId.equals(dto.actuaryId())) {
             // case when we send the admin id as the path parameter also when all the securities
-            // should be transfered to the admin
-            // actuaryId is admins id
+            // should be transfered to the admin actuaryId is admins id
         }
 
 
-
         if (
-            dto.limitAmount() != null && dto.limitAmount()
-                .compareTo(BigDecimal.ZERO) < 0
+            dto.limitAmount() != null
+                && dto.limitAmount()
+                    .compareTo(BigDecimal.ZERO)
+                    < 0
         ) {
             throw new NegativeLimitException(actuaryId.toString());
         }
 
 
-
-        ActuaryInfo actuaryInfo = actuaryRepository.findById(dto.actuaryId())
-            .orElseThrow(() -> new ActuaryNotFoundException(dto.actuaryId().toString()));
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(dto.actuaryId())
+                .orElseThrow(
+                    () -> new ActuaryNotFoundException(
+                        dto.actuaryId()
+                            .toString()
+                    )
+                );
 
         actuaryInfo.setNeedApproval(dto.needsApproval());
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
@@ -116,7 +121,7 @@ public class ActuaryServiceImpl implements ActuaryService {
                 PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
                 if (
 
-                employeePage.getContent()
+                    employeePage.getContent()
                         .isEmpty()
                 ) {
                     logger.info("No actuaries found for the given search criteria.");
@@ -141,8 +146,10 @@ public class ActuaryServiceImpl implements ActuaryService {
                                     actuaryInfo.isNeedApproval(),
                                     actuaryInfo.getLimit()
                                         .getAmount(),
-                                    actuaryInfo.getUsedLimit() != null ?actuaryInfo.getUsedLimit()
-                                        .getAmount() : null,
+                                    actuaryInfo.getUsedLimit() != null
+                                        ? actuaryInfo.getUsedLimit()
+                                            .getAmount()
+                                        : null,
                                     actuaryInfo.getLimit()
                                         .getCurrency()
                                 );
@@ -150,13 +157,22 @@ public class ActuaryServiceImpl implements ActuaryService {
                         })
                         .collect(Collectors.toList());
 
-                logger.info("Found {} actuaries matching the search criteria.", combinedResponses.size());
+                logger.info(
+                    "Found {} actuaries matching the search criteria.",
+                    combinedResponses.size()
+                );
 
                 return ResponseEntity.ok(
                     new PageImpl<>(
                         combinedResponses,
-                        PageRequest.of(employeePage.getPage().getNumber(), employeePage.getPage().getSize()),
-                        employeePage.getPage().getTotalElements()
+                        PageRequest.of(
+                            employeePage.getPage()
+                                .getNumber(),
+                            employeePage.getPage()
+                                .getSize()
+                        ),
+                        employeePage.getPage()
+                            .getTotalElements()
                     )
                 );
             } else {

@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,6 @@ import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.config.clients.StockServiceClient;
 import rs.banka4.user_service.domain.auth.dtos.LoginDto;
 import rs.banka4.user_service.domain.auth.dtos.LoginResponseDto;
-import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.user.PrivilegesDto;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.domain.user.employee.dtos.*;
@@ -100,6 +98,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(NotAuthenticated::new)
         );
     }
+
     @Override
     public ResponseEntity<PrivilegesDto> getPrivileges() {
         List<String> privileges =
@@ -146,13 +145,20 @@ public class EmployeeServiceImpl implements EmployeeService {
                 actuaryPayloadDto = agentPayload(employee.getId());
             }
 
-        if (actuaryPayloadDto != null){
-            StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+        if (actuaryPayloadDto != null) {
+            StockServiceClient stockServiceClient =
+                stockServiceRetrofit.create(StockServiceClient.class);
             String authorization = "Bearer " + jwtService.generateAccessToken(admin);
             try {
-                Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+                Response<Void> response =
+                    stockServiceClient.registerActuary(authorization, actuaryPayloadDto)
+                        .execute();
                 if (!response.isSuccessful()) {
-                    LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+                    LOGGER.error(
+                        "Failed to register actuary: {}",
+                        response.errorBody()
+                            .string()
+                    );
                 }
             } catch (Exception e) {
                 LOGGER.error("Exception occurred while registering actuary", e);
@@ -309,9 +315,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (
             updateEmployeeDto.privilege() == null
                 || updateEmployeeDto.privilege()
-                .isEmpty()
+                    .isEmpty()
                 || !admin.getPrivileges()
-                .contains(Privilege.ADMIN)
+                    .contains(Privilege.ADMIN)
         ) return;
 
         ActuaryPayloadDto actuaryPayloadDto = null;
@@ -327,20 +333,27 @@ public class EmployeeServiceImpl implements EmployeeService {
             ) {
                 actuaryPayloadDto = supervisorPayload(employee.getId());
             } else
-            if (
-                updateEmployeeDto.privilege()
-                    .contains(Privilege.AGENT)
-            ) {
-                actuaryPayloadDto = agentPayload(employee.getId());
-            }
+                if (
+                    updateEmployeeDto.privilege()
+                        .contains(Privilege.AGENT)
+                ) {
+                    actuaryPayloadDto = agentPayload(employee.getId());
+                }
 
-            if(actuaryPayloadDto != null){
-                StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+            if (actuaryPayloadDto != null) {
+                StockServiceClient stockServiceClient =
+                    stockServiceRetrofit.create(StockServiceClient.class);
                 String authorization = "Bearer " + jwtService.generateAccessToken(admin);
                 try {
-                    Response<Void> response = stockServiceClient.registerActuary(authorization, actuaryPayloadDto).execute();
+                    Response<Void> response =
+                        stockServiceClient.registerActuary(authorization, actuaryPayloadDto)
+                            .execute();
                     if (!response.isSuccessful()) {
-                        LOGGER.error("Failed to register actuary: {}", response.errorBody().string());
+                        LOGGER.error(
+                            "Failed to register actuary: {}",
+                            response.errorBody()
+                                .string()
+                        );
                     }
                 } catch (Exception e) {
                     LOGGER.error("Exception occurred while registering actuary", e);
@@ -356,21 +369,24 @@ public class EmployeeServiceImpl implements EmployeeService {
             ) {
                 actuaryPayloadDto = supervisorPayload(employee.getId());
             } else
-            if (
-                updateEmployeeDto.privilege()
-                    .contains(Privilege.AGENT)
-            ) {
-                actuaryPayloadDto = agentPayload(employee.getId());
-            } else {
-                pathId = admin.getId();
-                // only id matters
-                actuaryPayloadDto = agentPayload(employee.getId());
-            }
+                if (
+                    updateEmployeeDto.privilege()
+                        .contains(Privilege.AGENT)
+                ) {
+                    actuaryPayloadDto = agentPayload(employee.getId());
+                } else {
+                    pathId = admin.getId();
+                    // only id matters
+                    actuaryPayloadDto = agentPayload(employee.getId());
+                }
 
-            StockServiceClient stockServiceClient = stockServiceRetrofit.create(StockServiceClient.class);
+            StockServiceClient stockServiceClient =
+                stockServiceRetrofit.create(StockServiceClient.class);
             String authorization = "Bearer " + jwtService.generateAccessToken(admin);
             try {
-                Response<Void> response = stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto).execute();
+                Response<Void> response =
+                    stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto)
+                        .execute();
                 if (!response.isSuccessful()) {
                     LOGGER.error("Failed to update actuary: {}", response.code());
                 }
@@ -395,7 +411,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (auth == null || !auth.isAuthenticated()) {
             throw new NotAuthenticated();
         }
-        AuthenticatedBankUserPrincipal principal = (AuthenticatedBankUserPrincipal) auth.getPrincipal();
+        AuthenticatedBankUserPrincipal principal =
+            (AuthenticatedBankUserPrincipal) auth.getPrincipal();
         return employeeRepository.findById(principal.userId())
             .orElseThrow(NotAuthenticated::new);
     }

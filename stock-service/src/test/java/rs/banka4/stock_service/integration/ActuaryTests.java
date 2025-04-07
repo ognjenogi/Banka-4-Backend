@@ -281,24 +281,6 @@ public class ActuaryTests {
         );
     }
 
-    @Test
-    @Disabled("Requires tests between 2 microservices to be enabled, until then will be disabled")
-    void shouldSearchActuariesSuccessfully() throws Exception {
-        jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/actuaries/search")
-                .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                .param("firstName", "John")
-                .param("lastName", "Doe")
-                .param("email", "john.doe@example.com")
-                .param("position", "Actuary")
-                .param("page", "0")
-                .param("size", "10")
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk());
-    }
-
     private UUID createTestActuary() {
         UUID id = UUID.randomUUID();
         ActuaryInfo actuary = new ActuaryInfo();

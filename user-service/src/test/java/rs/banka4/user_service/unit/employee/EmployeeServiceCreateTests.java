@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -89,8 +88,10 @@ public class EmployeeServiceCreateTests {
         verify(employeeRepository, times(1)).existsByUsername(dto.username());
         verify(employeeRepository, times(1)).save(
             argThat(
-                savedEmployee -> savedEmployee.getEmail().equals(dto.email())
-                    && savedEmployee.getUsername().equals(dto.username())
+                savedEmployee -> savedEmployee.getEmail()
+                    .equals(dto.email())
+                    && savedEmployee.getUsername()
+                        .equals(dto.username())
             )
         );
         verify(userService, times(1)).sendVerificationEmail(

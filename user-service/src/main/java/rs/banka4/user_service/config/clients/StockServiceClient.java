@@ -1,11 +1,10 @@
 package rs.banka4.user_service.config.clients;
 
 
+import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.http.*;
 import rs.banka4.user_service.domain.user.employee.dtos.ActuaryPayloadDto;
-
-import java.util.UUID;
 
 public interface StockServiceClient {
     @POST("actuaries/register")
