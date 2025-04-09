@@ -1,6 +1,9 @@
 package rs.banka4.stock_service.domain.trading.db;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,10 +11,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
-
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "otc_requests")
@@ -36,15 +35,15 @@ public class OtcRequest {
     @Column(nullable = false)
     private int amount;
 
-    /**trust me bro key to users*/
+    /** trust me bro key to users */
     @Column(nullable = false)
     private UUID madeBy;
 
-    /**trust me bro key to users*/
+    /** trust me bro key to users */
     @Column(nullable = false)
     private UUID madeFor;
 
-    /**trust me bro key to users*/
+    /** trust me bro key to users */
     @Column(nullable = false)
     private UUID modifiedBy;
 

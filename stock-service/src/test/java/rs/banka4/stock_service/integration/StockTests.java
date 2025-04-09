@@ -8,11 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.stock_service.domain.assets.db.AssetOwnership;
 import rs.banka4.stock_service.domain.assets.db.AssetOwnershipId;
-import rs.banka4.stock_service.repositories.AssetOwnershipRepository;
-import rs.banka4.stock_service.repositories.AssetRepository;
-import rs.banka4.stock_service.repositories.ExchangeRepository;
+import rs.banka4.stock_service.repositories.*;
 import rs.banka4.stock_service.utils.AssetGenerator;
 import rs.banka4.stock_service.utils.ExchangeGenerator;
+import rs.banka4.stock_service.utils.ListingGenerator;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
 
@@ -28,6 +27,12 @@ public class StockTests {
     private ExchangeRepository exchangeRepo;
     @Autowired
     private AssetOwnershipRepository assetOwnershipRepo;
+    @Autowired
+    private ListingRepository listingRepo;
+    @Autowired
+    private ListingDailyPriceInfoRepository listingHistoryRepo;
+    @Autowired
+    private SecurityRepository securityRepo;
 
     @Test
     public void transfer_test_public() {
@@ -138,5 +143,33 @@ public class StockTests {
                 }
                 """);
 
+    }
+
+    @Test
+    public void test_latest_stock_price() {
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+
+        var ex1 = securityRepo.findById(AssetGenerator.STOCK_EX1_UUID);
+        ListingGenerator.makeExampleListings(
+            ex1.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+
+        mvc.get()
+            .uri("/stocks/" + AssetGenerator.STOCK_EX1_UUID + "/latestPrice")
+            .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
+            .assertThat()
+            .bodyJson()
+            .isLenientlyEqualTo("""
+                {
+                    "amount": 66.40,
+                    "currency": "USD"
+                }
+                """);
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingInfoDto;
@@ -27,4 +28,6 @@ public interface ListingService {
         UUID stockId,
         OffsetDateTime settlementDate
     );
+
+    MonetaryAmount getLatestPriceForStock(UUID stockId);
 }

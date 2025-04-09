@@ -9,6 +9,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.listing.db.Listing;
 import rs.banka4.stock_service.domain.listing.db.ListingDailyPriceInfo;
 import rs.banka4.stock_service.domain.listing.dtos.*;
@@ -196,6 +197,16 @@ public class ListingServiceImpl implements ListingService {
             );
         }
         return optionDtos;
+    }
+
+    @Override
+    public MonetaryAmount getLatestPriceForStock(UUID stockId) {
+        Optional<MonetaryAmount> ma = listingRepository.getLatestStockPrice(stockId, Limit.of(1));
+        if (ma.isEmpty()) {
+            throw new ListingNotFoundException(stockId);
+        } else {
+            return ma.get();
+        }
     }
 
     private void setupDto(ListingDetailsDto dto, Listing listing) {

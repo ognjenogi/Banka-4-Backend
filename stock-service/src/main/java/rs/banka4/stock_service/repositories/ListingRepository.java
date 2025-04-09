@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.listing.db.Listing;
 
 @Repository
@@ -18,4 +19,9 @@ public interface ListingRepository extends
         value = "select l from Listing l where l.security.id = :securityId order by l.lastRefresh desc"
     )
     Optional<Listing> getLatestListing(UUID securityId, Limit limit);
+
+    @Query(
+        value = "select new rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount(l.ask, l.exchange.currency) from Listing l where l.security.id = :stockId order by l.lastRefresh desc"
+    )
+    Optional<MonetaryAmount> getLatestStockPrice(UUID stockId, Limit limit);
 }
