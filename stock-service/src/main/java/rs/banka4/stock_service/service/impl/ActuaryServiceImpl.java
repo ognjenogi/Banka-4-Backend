@@ -15,12 +15,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
+import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.stock_service.domain.response.*;
-import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
 import rs.banka4.stock_service.exceptions.ActuaryNotFoundException;
 import rs.banka4.stock_service.exceptions.CannotUpdateActuaryException;
 import rs.banka4.stock_service.exceptions.NegativeLimitException;
@@ -33,7 +34,7 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     private final ActuaryRepository actuaryRepository;
     private final Retrofit userServiceRetrofit;
-    Logger logger = LoggerFactory.getLogger(ActuaryServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActuaryServiceImpl.class);
 
 
     @Override
@@ -79,12 +80,7 @@ public class ActuaryServiceImpl implements ActuaryService {
 
         ActuaryInfo actuaryInfo =
             actuaryRepository.findById(dto.actuaryId())
-                .orElseThrow(
-                    () -> new ActuaryNotFoundException(
-                        dto.actuaryId()
-                            .toString()
-                    )
-                );
+                .orElseThrow(() -> new ActuaryNotFoundException(dto.actuaryId()));
 
         actuaryInfo.setNeedApproval(dto.needsApproval());
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
@@ -101,9 +97,9 @@ public class ActuaryServiceImpl implements ActuaryService {
         int page,
         int size
     ) {
-
         UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         String token = "Bearer " + auth.getCredentials();
+
         try {
             Response<PaginatedResponse<EmployeeResponseDto>> response =
                 userServiceClient.searchActuaryOnly(
@@ -117,76 +113,87 @@ public class ActuaryServiceImpl implements ActuaryService {
                 )
                     .execute();
 
-            if (response.isSuccessful() && response.body() != null) {
-                PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
-                if (
-
-                    employeePage.getContent()
-                        .isEmpty()
-                ) {
-                    logger.info("No actuaries found for the given search criteria.");
-
-                    return ResponseEntity.ok(Page.empty());
-                }
-
-                List<CombinedResponse> combinedResponses =
-                    employeePage.getContent()
-                        .stream()
-                        .map(employee -> {
-                            ActuaryInfo actuaryInfo =
-                                actuaryRepository.findById(employee.id())
-                                    .orElseThrow(
-                                        () -> new ActuaryNotFoundException(
-                                            employee.id()
-                                                .toString()
-                                        )
-                                    );
-                            ActuaryInfoDto dto =
-                                new ActuaryInfoDto(
-                                    actuaryInfo.isNeedApproval(),
-                                    actuaryInfo.getLimit()
-                                        .getAmount(),
-                                    actuaryInfo.getUsedLimit() != null
-                                        ? actuaryInfo.getUsedLimit()
-                                            .getAmount()
-                                        : null,
-                                    actuaryInfo.getLimit()
-                                        .getCurrency()
-                                );
-                            return new CombinedResponse(employee, dto);
-                        })
-                        .collect(Collectors.toList());
-
-                logger.info(
-                    "Found {} actuaries matching the search criteria.",
-                    combinedResponses.size()
-                );
-
-                return ResponseEntity.ok(
-                    new PageImpl<>(
-                        combinedResponses,
-                        PageRequest.of(
-                            employeePage.getPage()
-                                .getNumber(),
-                            employeePage.getPage()
-                                .getSize()
-                        ),
-                        employeePage.getPage()
-                            .getTotalElements()
-                    )
-                );
-            } else {
+            if (!response.isSuccessful() || response.body() == null) {
                 logger.error("Failed to search actuaries. Response code: {}", response.code());
-
                 return ResponseEntity.status(response.code())
                     .build();
             }
+
+            PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
+
+            if (
+                employeePage.getContent()
+                    .isEmpty()
+            ) {
+                logger.debug(
+                    "No actuaries found. Criteria - firstName: {}, lastName: {}, email: {}, position: {}, page: {}, size: {}",
+                    firstName,
+                    lastName,
+                    email,
+                    position,
+                    page,
+                    size
+                );
+                return ResponseEntity.ok(Page.empty());
+            }
+
+            List<CombinedResponse> combinedResponses =
+                employeePage.getContent()
+                    .stream()
+                    .map(this::toCombinedResponse)
+                    .collect(Collectors.toList());
+
+            logger.debug(
+                "Found {} actuaries matching the search criteria.",
+                combinedResponses.size()
+            );
+
+            return ResponseEntity.ok(
+                new PageImpl<>(
+                    combinedResponses,
+                    PageRequest.of(
+                        employeePage.getPage()
+                            .getNumber(),
+                        employeePage.getPage()
+                            .getSize()
+                    ),
+                    employeePage.getPage()
+                        .getTotalElements()
+                )
+            );
         } catch (Exception e) {
             logger.error("Exception occurred while searching actuaries", e);
-
             return ResponseEntity.status(500)
                 .build();
         }
+    }
+
+    private CombinedResponse toCombinedResponse(EmployeeResponseDto employee) {
+        return actuaryRepository.findById(employee.id())
+            .map(actuaryInfo -> {
+                ActuaryInfoDto dto =
+                    new ActuaryInfoDto(
+                        actuaryInfo.isNeedApproval(),
+                        actuaryInfo.getLimit()
+                            .getAmount(),
+                        actuaryInfo.getUsedLimit() != null
+                            ? actuaryInfo.getUsedLimit()
+                                .getAmount()
+                            : null,
+                        actuaryInfo.getLimit()
+                            .getCurrency()
+                    );
+                return new CombinedResponse(employee, dto);
+            })
+            .orElseThrow(() -> {
+                logger.error(
+                    "ActuaryInfo not found for employee ID {} — this indicates inconsistent data.",
+                    employee.id()
+                );
+                return new IllegalStateException(
+                    "Missing ActuaryInfo for employee ID: " + employee.id()
+                );
+            });
     }
 
 
@@ -194,7 +201,7 @@ public class ActuaryServiceImpl implements ActuaryService {
     public void updateLimit(UUID actuaryId, LimitPayload dto) {
         ActuaryInfo actuaryInfo =
             actuaryRepository.findById(actuaryId)
-                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
+                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId));
 
         // Supervisors limit cannot be changed
         if (!actuaryInfo.isNeedApproval()) {
@@ -216,9 +223,22 @@ public class ActuaryServiceImpl implements ActuaryService {
     public void resetUsedLimit(UUID actuaryId) {
         ActuaryInfo actuaryInfo =
             actuaryRepository.findById(actuaryId)
-                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId.toString()));
-        MonetaryAmount monetaryAmount = new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD);
-        actuaryInfo.setUsedLimit(monetaryAmount);
+                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId));
+        actuaryInfo.setUsedLimit(
+            resetLimit(
+                actuaryInfo.getUsedLimit()
+                    .getCurrency()
+            )
+        );
         actuaryRepository.save(actuaryInfo);
+    }
+
+    public static MonetaryAmount resetLimit(
+        rs.banka4.rafeisen.common.currency.CurrencyCode currencyCode
+    ) {
+        MonetaryAmount monetaryAmount = new MonetaryAmount();
+        monetaryAmount.setAmount(BigDecimal.valueOf(0));
+        monetaryAmount.setCurrency(currencyCode);
+        return monetaryAmount;
     }
 }

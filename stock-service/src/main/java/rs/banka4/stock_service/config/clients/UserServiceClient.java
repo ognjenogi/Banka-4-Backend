@@ -4,7 +4,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Query;
-import rs.banka4.stock_service.domain.response.EmployeeResponseDto;
+import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 import rs.banka4.stock_service.domain.response.PaginatedResponse;
 
 public interface UserServiceClient {

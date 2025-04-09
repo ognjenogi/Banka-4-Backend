@@ -1,14 +1,13 @@
 package rs.banka4.stock_service.utils;
 
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
-import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.repositories.ActuaryRepository;
+import rs.banka4.stock_service.service.impl.ActuaryServiceImpl;
 
 @Component
 @RequiredArgsConstructor
@@ -31,12 +30,14 @@ public class LimitResetScheduler {
         List<ActuaryInfo> toReset = actuaryInfoRepository.findByNeedApprovalTrue();
 
         for (ActuaryInfo info : toReset) {
-            MonetaryAmount monetaryAmount = info.getUsedLimit();
-            if (monetaryAmount == null) continue;
-            monetaryAmount.setAmount(BigDecimal.valueOf(10000));
-            info.setUsedLimit(monetaryAmount);
+            if (info.getUsedLimit() == null) continue;
+            info.setUsedLimit(
+                ActuaryServiceImpl.resetLimit(
+                    info.getUsedLimit()
+                        .getCurrency()
+                )
+            );
         }
-
         actuaryInfoRepository.saveAll(toReset);
     }
 }

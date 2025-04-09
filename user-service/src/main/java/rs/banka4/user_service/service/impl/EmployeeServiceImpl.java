@@ -22,10 +22,12 @@ import org.springframework.web.client.RestTemplate;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
+import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
+import rs.banka4.rafeisen.common.utils.specification.SpecificationCombinator;
 import rs.banka4.user_service.config.clients.StockServiceClient;
 import rs.banka4.user_service.domain.auth.dtos.LoginDto;
 import rs.banka4.user_service.domain.auth.dtos.LoginResponseDto;
@@ -41,7 +43,6 @@ import rs.banka4.user_service.security.UnauthenticatedBankUserPrincipal;
 import rs.banka4.user_service.service.abstraction.EmployeeService;
 import rs.banka4.user_service.service.abstraction.JwtService;
 import rs.banka4.user_service.utils.specification.EmployeeSpecification;
-import rs.banka4.user_service.utils.specification.SpecificationCombinator;
 
 @Service
 @RequiredArgsConstructor

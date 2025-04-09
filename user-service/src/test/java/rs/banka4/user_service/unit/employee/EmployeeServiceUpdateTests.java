@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
 import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.user_service.domain.user.employee.db.Employee;
 import rs.banka4.user_service.domain.user.employee.dtos.UpdateEmployeeDto;
 import rs.banka4.user_service.domain.user.employee.mapper.EmployeeMapper;
@@ -32,41 +33,45 @@ public class EmployeeServiceUpdateTests {
 
     @Mock
     private EmployeeRepository employeeRepository;
+
     @Mock
     private EmployeeMapper employeeMapper;
+
     @Mock
     private UserService userService;
+
     @InjectMocks
     private EmployeeServiceImpl employeeService;
+
+    private UUID adminId;
+    private String adminEmail = "admin@example.com";
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        SecurityContext securityContext = mock(SecurityContext.class);
-        Authentication authentication = mock(AuthenticatedBankUserAuthentication.class);
-        AuthenticatedBankUserPrincipal principal = mock(AuthenticatedBankUserPrincipal.class);
+        adminId = UUID.randomUUID();
+        AuthenticatedBankUserPrincipal principal =
+            new AuthenticatedBankUserPrincipal(UserType.EMPLOYEE, adminId);
 
+        Authentication authentication = mock(AuthenticatedBankUserAuthentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("admin@example.com");
-        when(authentication.getPrincipal()).thenReturn(principal); // ← OVO TI NEDOSTAJE
+        when(authentication.getPrincipal()).thenReturn(principal);
+        when(authentication.getName()).thenReturn(adminEmail);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        UUID adminId = UUID.randomUUID();
-        when(principal.userId()).thenReturn(adminId);
-
         Employee admin = new Employee();
         admin.setId(adminId);
-        admin.setEmail("admin@example.com");
+        admin.setEmail(adminEmail);
         admin.setPrivileges(Set.of(Privilege.ADMIN));
         when(employeeRepository.findById(adminId)).thenReturn(Optional.of(admin));
     }
 
-
     @Test
     void testUpdateEmployeeSuccess() {
-        // Arrange
         UUID employeeId = UUID.fromString("35bc1ef6-f6d0-4405-bcdb-7dc0686b7b87");
         UpdateEmployeeDto updateEmployeeDto = EmployeeObjectMother.generateBasicUpdateEmployeeDto();
         Employee employee = EmployeeObjectMother.generateBasicEmployee();
@@ -78,10 +83,8 @@ public class EmployeeServiceUpdateTests {
         doNothing().when(employeeMapper)
             .fromUpdate(employee, updateEmployeeDto);
 
-        // Act
         employeeService.updateEmployee(employeeId, updateEmployeeDto);
 
-        // Assert
         verify(employeeRepository, times(1)).save(employee);
         assertEquals(updateEmployeeDto.email(), employee.getEmail());
         assertEquals(updateEmployeeDto.username(), employee.getUsername());
@@ -95,7 +98,6 @@ public class EmployeeServiceUpdateTests {
 
     @Test
     void testUpdateEmployeeWithDuplicateEmail() {
-        // Arrange
         UUID employeeId = UUID.fromString("35bc1ef6-f6d0-4405-bcdb-7dc0686b7b87");
         UpdateEmployeeDto updateEmployeeDto =
             EmployeeObjectMother.generateUpdateEmployeeDtoWithDuplicateEmail();
@@ -105,7 +107,6 @@ public class EmployeeServiceUpdateTests {
         when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
         when(userService.existsByEmail(updateEmployeeDto.email())).thenReturn(true);
 
-        // Act & Assert
         assertThrows(
             DuplicateEmail.class,
             () -> employeeService.updateEmployee(employeeId, updateEmployeeDto)
@@ -114,7 +115,6 @@ public class EmployeeServiceUpdateTests {
 
     @Test
     void testUpdateEmployeeWithDuplicateUsername() {
-        // Arrange
         UUID employeeId = UUID.fromString("35bc1ef6-f6d0-4405-bcdb-7dc0686b7b87");
         UpdateEmployeeDto updateEmployeeDto =
             EmployeeObjectMother.generateUpdateEmployeeDtoWithDuplicateUsername();
@@ -125,7 +125,6 @@ public class EmployeeServiceUpdateTests {
         when(employeeRepository.existsByUsername(updateEmployeeDto.username())).thenReturn(true);
         when(userService.isPhoneNumberValid(updateEmployeeDto.phoneNumber())).thenReturn(true);
 
-        // Act & Assert
         assertThrows(
             DuplicateUsername.class,
             () -> employeeService.updateEmployee(employeeId, updateEmployeeDto)
@@ -134,14 +133,12 @@ public class EmployeeServiceUpdateTests {
 
     @Test
     void testUpdateEmployeeNotFound() {
-        // Arrange
         UUID employeeId = UUID.fromString("35bc1ef6-f6d0-4405-bcdb-7dc0686b7b87");
         UpdateEmployeeDto updateEmployeeDto =
             EmployeeObjectMother.generateUpdateEmployeeDtoWithNonExistentUser();
 
         when(employeeRepository.findById(employeeId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(
             UserNotFound.class,
             () -> employeeService.updateEmployee(employeeId, updateEmployeeDto)

@@ -3,9 +3,9 @@ package rs.banka4.stock_service.utils;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
-import rs.banka4.stock_service.domain.security.forex.db.CurrencyCode;
 
 /**
  * Test-writing utility class for generating various actuary instances.

@@ -48,7 +48,6 @@ dependencies {
 	implementation("dev.samstevens.totp:totp-spring-boot-starter:1.7.1")
 
 	implementation("com.squareup.retrofit2:retrofit:2.11.0")
-	implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
 	implementation("com.squareup.retrofit2:converter-jackson:2.11.0")
 
 	runtimeOnly("javax.cache:cache-api:1.1.1")

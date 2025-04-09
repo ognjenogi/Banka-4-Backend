@@ -15,47 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-spring:
-  datasource:
-    url: 'jdbc:postgresql://stock_service_db/stock-service?user=stock-service&password=lmaolmao123'
-
-  # Generate DDL in create-ddl output
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        format_sql: true
-      javax:
-        persistence:
-          schema-generation:
-            create-source: metadata
-            scripts:
-              action: create
-              create-target: /dev/stderr
-server:
-  servlet:
-    context-path: /stock
-
-logging:
-  level:
-    org.springframework: INFO
-    rs.banka4: TRACE
-
-
-springdoc:
-  api-docs:
-    path: /docs/api
-  swagger-ui:
-    path: /docs/ui
-
-jwt:
-  keys:
-    verification: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
-
-alphavantage:
-  api-key: ${ALPHAVANTAGE_APY_KEY}
-
 banka4:
   services:
     user: 'http://gateway:80/'
