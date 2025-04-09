@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rs.banka4.stock_service.controller.docs.SecuritiesApiDocumentation;
 import rs.banka4.stock_service.domain.security.SecurityDto;
+import rs.banka4.stock_service.domain.security.responses.SecurityOwnershipResponse;
 import rs.banka4.stock_service.service.abstraction.SecuritiesService;
 
 @RestController
@@ -29,4 +31,13 @@ public class SecuritiesController implements SecuritiesApiDocumentation {
     ) {
         return securityService.getSecurities(securityType, name, PageRequest.of(page, size));
     }
+
+    @Override
+    @GetMapping("/me")
+//    @PreAuthorize("hasAnyRole('CLIENT', 'ACTUARY')")
+    public ResponseEntity<List<SecurityOwnershipResponse>> getMySecurities() {
+        List<SecurityOwnershipResponse> response = securityService.getMySecurities();
+        return ResponseEntity.ok(response);
+    }
+
 }
