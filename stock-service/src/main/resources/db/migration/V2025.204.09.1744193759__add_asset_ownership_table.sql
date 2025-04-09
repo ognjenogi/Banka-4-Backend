@@ -1,7 +1,7 @@
 create table asset_ownership
 (
     id_user         uuid    not null,
-    id_asset_id        uuid    not null,
+    id_asset_id     uuid    not null,
     private_amount  integer not null,
     public_amount   integer not null,
     reserved_amount integer not null,
