@@ -40,13 +40,14 @@ public class OtcController implements OtcApiDocumentation {
         UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId = ourAuth.getPrincipal().userId();
+        String token = "Bearer " + auth.getCredentials();
         var requests = unread ? otcRequestService.getMyRequestsUnread(PageRequest.of(page, size), myId) : otcRequestService.getMyRequests(PageRequest.of(page, size), myId);
 
         Page<OtcRequestDto> dtoPage = requests.map(it -> {
             try {
-                var resFor = userServiceClient.getUserInfo(it.getMadeFor()).execute();
-                var resBy = userServiceClient.getUserInfo(it.getMadeBy()).execute();
-                var resMod = userServiceClient.getUserInfo(it.getModifiedBy()).execute();
+                var resFor = userServiceClient.getUserInfo(it.getMadeFor(), token).execute();
+                var resBy = userServiceClient.getUserInfo(it.getMadeBy(), token).execute();
+                var resMod = userServiceClient.getUserInfo(it.getModifiedBy(), token).execute();
 
                 if (!resFor.isSuccessful() || resFor.body() == null ||
                     !resBy.isSuccessful() || resBy.body() == null ||
