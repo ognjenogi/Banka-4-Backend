@@ -1,9 +1,9 @@
 package rs.banka4.stock_service.config;
+
+import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
 
 public class JwtInterceptor implements Interceptor {
 
@@ -17,9 +17,10 @@ public class JwtInterceptor implements Interceptor {
 
         String jwtToken = getJwtToken();
         if (jwtToken != null && !jwtToken.isEmpty()) {
-            Request newRequest = originalRequest.newBuilder()
-                .header("Authorization", "Bearer " + jwtToken)
-                .build();
+            Request newRequest =
+                originalRequest.newBuilder()
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .build();
             return chain.proceed(newRequest);
         }
 
