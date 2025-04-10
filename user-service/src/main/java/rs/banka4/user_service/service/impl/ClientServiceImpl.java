@@ -214,7 +214,10 @@ public class ClientServiceImpl implements ClientService {
             throw new DuplicateEmail(updateClientDto.email());
         }
 
-        if (!userService.isPhoneNumberValid(updateClientDto.phoneNumber())) {
+        if (
+            updateClientDto.phoneNumber() != null
+                && !userService.isPhoneNumberValid(updateClientDto.phoneNumber())
+        ) {
             throw new InvalidPhoneNumber();
         }
 

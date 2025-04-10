@@ -298,7 +298,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new DuplicateEmail(updateEmployeeDto.email());
         }
 
-        if (!userService.isPhoneNumberValid(updateEmployeeDto.phoneNumber())) {
+        if (
+            updateEmployeeDto.phoneNumber() != null
+                && !userService.isPhoneNumberValid(updateEmployeeDto.phoneNumber())
+        ) {
             throw new InvalidPhoneNumber();
         }
 
