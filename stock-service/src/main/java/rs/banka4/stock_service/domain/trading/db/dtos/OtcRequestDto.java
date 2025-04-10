@@ -36,23 +36,23 @@ public record OtcRequestDto(
     int amount,
 
     @Schema(
-        description = "Identifier of the user who initiated (made) the negotiation",
-        example = "25"
+        description = "Username of the user who initiated (made) the negotiation",
+        example = "test"
     )
-    UUID madeBy,
+    String madeBy,
 
     @Schema(
-        description = "Identifier of the user for whom the negotiation is intended",
-        example = "30"
+        description = "Username of the user for whom the negotiation is intended",
+        example = "test"
     )
-    UUID madeFor,
+    String madeFor,
 
     @Schema(
-        description = "Identifier of the user who last modified the negotiation; " +
+        description = "Username of the user who last modified the negotiation; " +
             "if different from the current user, it implies the negotiation is unread",
-        example = "25"
+        example = "test"
     )
-    UUID modifiedBy,
+    String modifiedBy,
 
     @Schema(
         description = "Timestamp of the last modification of the negotiation",
