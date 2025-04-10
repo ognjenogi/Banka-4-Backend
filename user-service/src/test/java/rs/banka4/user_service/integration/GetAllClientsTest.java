@@ -36,7 +36,7 @@ public class GetAllClientsTest {
     void getAllClientsTest() throws Exception {
         userGen.createEmployee(x -> x);
         var toks = userGen.doEmployeeLogin("john.doe@example.com", "test");
-        userGen.createClient(x -> x);
+        userGen.createClient(x -> x.email("salko.dinamitas@gmail.com"));
 
         m.get()
             .uri("/client/search?page=0&size=10")

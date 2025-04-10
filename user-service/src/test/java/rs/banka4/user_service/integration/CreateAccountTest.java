@@ -57,7 +57,7 @@ public class CreateAccountTest {
     @BeforeEach
     void setUp() {
         userGen.createEmployee(x -> x);
-        userGen.createClient(x -> x);
+        userGen.createClient(x -> x.email("salko.dinamitas@gmail.com"));
         var toks = userGen.doEmployeeLogin("john.doe@example.com", "test");
         accessToken = toks.accessToken();
     }
@@ -66,13 +66,13 @@ public class CreateAccountTest {
     void createAccountSuccessfully() throws Exception {
         Currency currency = testDataSeeder.seedCurrency();
         Client client =
-            clientRepository.findByEmail("john.doe@example.com")
+            clientRepository.findByEmail("salko.dinamitas@gmail.com")
                 .get();
         if (
-            clientRepository.findByEmail("john.doe@example.com")
+            clientRepository.findByEmail("salko.dinamitas@gmail.com")
                 .isPresent()
         ) {
-            clientRepository.findByEmail("john.doe@example.com")
+            clientRepository.findByEmail("salko.dinamitas@gmail.com")
                 .get();
         }
         AccountClientIdDto accountClientIdDto =

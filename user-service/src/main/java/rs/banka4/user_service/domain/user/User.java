@@ -13,7 +13,8 @@ import rs.banka4.rafeisen.common.dto.Gender;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.UserType;
 
-@MappedSuperclass
+@Entity(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @RequiredArgsConstructor
