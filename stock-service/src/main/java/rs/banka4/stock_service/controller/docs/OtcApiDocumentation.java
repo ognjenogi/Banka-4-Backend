@@ -2,16 +2,13 @@ package rs.banka4.stock_service.controller.docs;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import rs.banka4.stock_service.domain.listing.dtos.ListingDto;
-import rs.banka4.stock_service.domain.listing.dtos.ListingInfoDto;
-import rs.banka4.stock_service.domain.trading.db.OtcRequest;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 
 public interface OtcApiDocumentation {
@@ -25,7 +22,7 @@ public interface OtcApiDocumentation {
                 description = "Successfully retrieved negotiations",
                 content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = OtcRequestDto.class))
+                    schema = @Schema(implementation = OtcRequestDto.class)
                 )
             ),
             @ApiResponse(
@@ -38,7 +35,7 @@ public interface OtcApiDocumentation {
             )
         }
     )
-    Page<ListingInfoDto> getMyRequests(
+    ResponseEntity<Page<OtcRequestDto>> getMyRequests(
         @Parameter(description = "Page number") int page,
         @Parameter(description = "Number of listings per page") int size,
         Authentication auth
@@ -55,7 +52,7 @@ public interface OtcApiDocumentation {
                 description = "Successfully retrieved unread negotiations",
                 content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = OtcRequestDto.class))
+                    schema = @Schema(implementation = OtcRequestDto.class)
                 )
             ),
             @ApiResponse(
@@ -68,7 +65,7 @@ public interface OtcApiDocumentation {
             )
         }
     )
-    Page<ListingInfoDto> getMyRequestsUnread(
+    ResponseEntity<Page<OtcRequestDto>> getMyRequestsUnread(
         @Parameter(description = "Page number") int page,
         @Parameter(description = "Number of listings per page") int size,
         Authentication auth
