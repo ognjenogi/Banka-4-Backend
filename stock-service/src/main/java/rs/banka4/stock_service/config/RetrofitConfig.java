@@ -23,8 +23,7 @@ public class RetrofitConfig {
 
     private Retrofit createRetrofit(String baseUrl) {
         OkHttpClient client =
-            new OkHttpClient.Builder().addInterceptor(new JwtInterceptor())
-                .build();
+            new OkHttpClient.Builder().build();
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());

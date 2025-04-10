@@ -23,6 +23,7 @@ public interface UserServiceClient {
         @Query("page") int page,
         @Query("size") int size
     );
+
     @GET("user/{id}")
-    Call<UserResponseDto> getUserInfo(@Path("id") UUID id);
+    Call<UserResponseDto> getUserInfo(@Path("id") UUID id, @Header("Authorization") String token);
 }
