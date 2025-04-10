@@ -6,7 +6,7 @@ import rs.banka4.stock_service.domain.security.stock.dtos.StockInfoDto;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.UUID;
+
 
 @Schema(description = "Data Transfer Object representing an OTC request (negotiation) for trading securities")
 public record OtcRequestDto(
