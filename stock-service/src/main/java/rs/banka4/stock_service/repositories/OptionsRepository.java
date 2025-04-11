@@ -11,7 +11,7 @@ import rs.banka4.stock_service.domain.options.db.Option;
 @Repository
 public interface OptionsRepository extends JpaRepository<Option, UUID> {
     @Query(
-        value = "select o from options o where o.stock.id = :stockId and o.settlementDate between :startDate and :endDate"
+        value = "select o from options o where o.active and o.stock.id = :stockId and o.settlementDate between :startDate and :endDate"
     )
     List<Option> findAllOptionsForStockWithSettlementDate(
         UUID stockId,

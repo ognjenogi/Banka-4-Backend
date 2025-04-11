@@ -40,4 +40,8 @@ public class Option extends Asset {
 
     @Column(nullable = false)
     private OffsetDateTime settlementDate;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
 }
