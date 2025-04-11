@@ -243,7 +243,7 @@ public class OtcTests {
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.now());
+        req.setSettlementDate(LocalDate.parse("2025-04-11"));
         req.setPricePerStock(momo);
         req.setAmount(1);
 
@@ -285,7 +285,7 @@ public class OtcTests {
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.now());
+        req.setSettlementDate(LocalDate.parse("2025-04-11"));
         req.setPricePerStock(momo);
         req.setAmount(1);
 
@@ -321,7 +321,7 @@ public class OtcTests {
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.now());
+        req.setSettlementDate(LocalDate.parse("2025-04-11"));
         req.setPricePerStock(momo);
         req.setAmount(1);
 
@@ -351,7 +351,7 @@ public class OtcTests {
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.now());
+        req.setSettlementDate(LocalDate.parse("2025-04-11"));
         req.setPricePerStock(momo);
         req.setAmount(1);
 
