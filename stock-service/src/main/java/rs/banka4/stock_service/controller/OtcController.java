@@ -6,9 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import retrofit2.Retrofit;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
@@ -43,6 +41,14 @@ public class OtcController implements OtcApiDocumentation {
         Authentication auth
     ) {
         return getRequestHelper(page, size, auth, true);
+    }
+
+    @Override
+    @PatchMapping("/reject/{requestId}")
+    public ResponseEntity<Void> rejectOtcRequest(@PathVariable UUID requestId) {
+        otcRequestService.rejectOtc(requestId);
+        return ResponseEntity.ok()
+            .build();
     }
 
     private ResponseEntity<Page<OtcRequestDto>> getRequestHelper(
