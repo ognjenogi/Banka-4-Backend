@@ -52,9 +52,15 @@ public class StocksController implements StocksApiDocumentation {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<Page<PublicStocksDto>> getPublicStocks(Authentication auth, Pageable pageable) {
+    public ResponseEntity<Page<PublicStocksDto>> getPublicStocks(
+        Authentication auth,
+        Pageable pageable
+    ) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var token = ourAuth.getToken();
-        return new ResponseEntity<>(assetOwnershipService.getPublicStocks(pageable, token), HttpStatus.OK);
+        return new ResponseEntity<>(
+            assetOwnershipService.getPublicStocks(pageable, token),
+            HttpStatus.OK
+        );
     }
 }

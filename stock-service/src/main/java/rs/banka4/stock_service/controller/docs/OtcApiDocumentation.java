@@ -43,8 +43,8 @@ public interface OtcApiDocumentation {
 
     @Operation(
         summary = "Get My Unread Requests",
-        description = "Retrieves unread negotiations (those where the last modification was not done by the authenticated user). " +
-            "This enables the user to see the negotiations in which a response or further action is pending.",
+        description = "Retrieves unread negotiations (those where the last modification was not done by the authenticated user). "
+            + "This enables the user to see the negotiations in which a response or further action is pending.",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(

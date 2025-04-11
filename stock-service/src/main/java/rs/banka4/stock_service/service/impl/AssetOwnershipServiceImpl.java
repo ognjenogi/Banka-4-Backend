@@ -88,7 +88,11 @@ public class AssetOwnershipServiceImpl implements AssetOwnershipService {
         return ownerships.map((assetOwnership -> {
             try {
                 Response<UserResponseDto> response =
-                    userServiceClient.getUserInfo(assetOwnership.getId().getUser(), "Bearer: " + token)
+                    userServiceClient.getUserInfo(
+                        assetOwnership.getId()
+                            .getUser(),
+                        "Bearer: " + token
+                    )
                         .execute();
                 if (!response.isSuccessful() || response.body() == null) {
                     throw new RequestFailed();

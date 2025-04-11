@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.controller;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +13,9 @@ import retrofit2.Retrofit;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.controller.docs.OtcApiDocumentation;
-import rs.banka4.stock_service.domain.listing.dtos.ListingInfoDto;
 import rs.banka4.stock_service.domain.trading.db.OtcMapper;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 import rs.banka4.stock_service.service.abstraction.OtcRequestService;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/otc")
@@ -29,38 +27,91 @@ public class OtcController implements OtcApiDocumentation {
 
     @Override
     @GetMapping("/me")
-    public ResponseEntity<Page<OtcRequestDto>> getMyRequests(int page, int size, Authentication auth) {
+    public ResponseEntity<Page<OtcRequestDto>> getMyRequests(
+        int page,
+        int size,
+        Authentication auth
+    ) {
         return getRequestHelper(page, size, auth, false);
     }
 
     @Override
     @GetMapping("/me/unread")
-    public ResponseEntity<Page<OtcRequestDto>> getMyRequestsUnread(int page, int size, Authentication auth) {
+    public ResponseEntity<Page<OtcRequestDto>> getMyRequestsUnread(
+        int page,
+        int size,
+        Authentication auth
+    ) {
         return getRequestHelper(page, size, auth, true);
     }
 
-    private ResponseEntity<Page<OtcRequestDto>> getRequestHelper(int page, int size, Authentication auth, boolean unread) {
+    private ResponseEntity<Page<OtcRequestDto>> getRequestHelper(
+        int page,
+        int size,
+        Authentication auth,
+        boolean unread
+    ) {
         UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
-        var myId = ourAuth.getPrincipal().userId();
+        var myId =
+            ourAuth.getPrincipal()
+                .userId();
         String token = "Bearer " + auth.getCredentials();
-        var requests = unread ? otcRequestService.getMyRequestsUnread(PageRequest.of(page, size), myId) : otcRequestService.getMyRequests(PageRequest.of(page, size), myId);
+        var requests =
+            unread
+                ? otcRequestService.getMyRequestsUnread(PageRequest.of(page, size), myId)
+                : otcRequestService.getMyRequests(PageRequest.of(page, size), myId);
 
         Page<OtcRequestDto> dtoPage = requests.map(it -> {
             try {
-                var resFor = userServiceClient.getUserInfo(UUID.fromString(it.getMadeFor().userId()), token).execute();
-                var resBy = userServiceClient.getUserInfo(UUID.fromString(it.getMadeBy().userId()), token).execute();
-                var resMod = userServiceClient.getUserInfo(UUID.fromString(it.getModifiedBy().userId()), token).execute();
+                var resFor =
+                    userServiceClient.getUserInfo(
+                        UUID.fromString(
+                            it.getMadeFor()
+                                .userId()
+                        ),
+                        token
+                    )
+                        .execute();
+                var resBy =
+                    userServiceClient.getUserInfo(
+                        UUID.fromString(
+                            it.getMadeBy()
+                                .userId()
+                        ),
+                        token
+                    )
+                        .execute();
+                var resMod =
+                    userServiceClient.getUserInfo(
+                        UUID.fromString(
+                            it.getModifiedBy()
+                                .userId()
+                        ),
+                        token
+                    )
+                        .execute();
 
-                if (!resFor.isSuccessful() || resFor.body() == null ||
-                    !resBy.isSuccessful() || resBy.body() == null ||
-                    !resMod.isSuccessful() || resMod.body() == null) {
+                if (
+                    !resFor.isSuccessful()
+                        || resFor.body() == null
+                        || !resBy.isSuccessful()
+                        || resBy.body() == null
+                        || !resMod.isSuccessful()
+                        || resMod.body() == null
+                ) {
                     throw new RuntimeException("User info service error");
                 }
 
-                String madeByStr = resBy.body().email();
-                String madeForStr = resFor.body().email();
-                String modifiedByStr = resMod.body().email();
+                String madeByStr =
+                    resBy.body()
+                        .email();
+                String madeForStr =
+                    resFor.body()
+                        .email();
+                String modifiedByStr =
+                    resMod.body()
+                        .email();
 
                 return otcMapper.toOtcRequestDto(it, madeByStr, madeForStr, modifiedByStr);
             } catch (Exception e) {
