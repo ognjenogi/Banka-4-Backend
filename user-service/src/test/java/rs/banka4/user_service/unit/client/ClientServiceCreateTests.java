@@ -18,6 +18,7 @@ import rs.banka4.user_service.exceptions.user.DuplicateEmail;
 import rs.banka4.user_service.generator.ClientObjectMother;
 import rs.banka4.user_service.repositories.ClientRepository;
 import rs.banka4.user_service.repositories.EmployeeRepository;
+import rs.banka4.user_service.repositories.UserRepository;
 import rs.banka4.user_service.service.impl.ClientServiceImpl;
 import rs.banka4.user_service.service.impl.UserService;
 import rs.banka4.user_service.service.impl.VerificationCodeService;
@@ -26,6 +27,8 @@ public class ClientServiceCreateTests {
 
     @Mock
     private ClientRepository clientRepository;
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private RabbitTemplate rabbitTemplate;
     @Mock
@@ -50,7 +53,8 @@ public class ClientServiceCreateTests {
                 employeeRepository,
                 clientRepository,
                 verificationCodeService,
-                rabbitTemplate
+                rabbitTemplate,
+                userRepository
             );
         clientService =
             new ClientServiceImpl(userService, clientRepository, null, null, null, null);
