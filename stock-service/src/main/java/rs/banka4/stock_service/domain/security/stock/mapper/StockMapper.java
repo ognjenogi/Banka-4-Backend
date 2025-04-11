@@ -1,18 +1,14 @@
 package rs.banka4.stock_service.domain.security.stock.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.ReportingPolicy;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
 import rs.banka4.stock_service.domain.security.stock.dtos.StockDto;
 import rs.banka4.stock_service.domain.security.stock.dtos.StockInfoDto;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,componentModel = "spring")
 public interface StockMapper {
-
-    StockMapper INSTANCE = Mappers.getMapper(StockMapper.class);
-
     Stock toEntity(StockDto dto);
-
     StockDto toDto(Stock stock);
     StockInfoDto toInfoDto(Stock stock);
 }

@@ -23,6 +23,7 @@ import rs.banka4.stock_service.service.abstraction.OtcRequestService;
 public class OtcController implements OtcApiDocumentation {
     private final OtcRequestService otcRequestService;
     private final Retrofit userServiceRetrofit;
+    private final OtcMapper otcMapper;
 
     @Override
     @GetMapping("/me")
@@ -59,7 +60,7 @@ public class OtcController implements OtcApiDocumentation {
                 String madeForStr = resFor.body().email();
                 String modifiedByStr = resMod.body().email();
 
-                return OtcMapper.INSTANCE.toOtcRequestDto(it, madeByStr, madeForStr, modifiedByStr);
+                return otcMapper.toOtcRequestDto(it, madeByStr, madeForStr, modifiedByStr);
             } catch (Exception e) {
                 throw new RuntimeException("Error mapping OTC request", e);
             }

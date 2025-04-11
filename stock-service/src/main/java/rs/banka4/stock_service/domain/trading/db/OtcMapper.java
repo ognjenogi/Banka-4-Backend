@@ -9,8 +9,6 @@ import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,uses = {StockMapper.class},componentModel = "spring")
 public interface OtcMapper {
-    OtcMapper INSTANCE = Mappers.getMapper(OtcMapper.class);
-
     @Mapping(target = "madeBy", source = "madeBy")
     @Mapping(target = "madeFor", source = "madeFor")
     @Mapping(target = "modifiedBy", source = "modifiedBy")
