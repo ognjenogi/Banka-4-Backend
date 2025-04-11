@@ -17,6 +17,8 @@ import rs.banka4.stock_service.domain.trading.db.OtcMapper;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 import rs.banka4.stock_service.service.abstraction.OtcRequestService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/otc")
 @RequiredArgsConstructor
@@ -46,9 +48,9 @@ public class OtcController implements OtcApiDocumentation {
 
         Page<OtcRequestDto> dtoPage = requests.map(it -> {
             try {
-                var resFor = userServiceClient.getUserInfo(it.getMadeFor(), token).execute();
-                var resBy = userServiceClient.getUserInfo(it.getMadeBy(), token).execute();
-                var resMod = userServiceClient.getUserInfo(it.getModifiedBy(), token).execute();
+                var resFor = userServiceClient.getUserInfo(UUID.fromString(it.getMadeFor().userId()), token).execute();
+                var resBy = userServiceClient.getUserInfo(UUID.fromString(it.getMadeBy().userId()), token).execute();
+                var resMod = userServiceClient.getUserInfo(UUID.fromString(it.getModifiedBy().userId()), token).execute();
 
                 if (!resFor.isSuccessful() || resFor.body() == null ||
                     !resBy.isSuccessful() || resBy.body() == null ||
