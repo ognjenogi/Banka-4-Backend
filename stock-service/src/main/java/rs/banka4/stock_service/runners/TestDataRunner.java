@@ -436,21 +436,37 @@ public class TestDataRunner implements CommandLineRunner {
 
                     if (null == forexPairApiDto.realTimeCurrencyExchangeRate()) continue;
 
+                    CurrencyCode baseCurrency =
+                        forexPairApiDto.realTimeCurrencyExchangeRate()
+                            .baseCurrency();
+                    CurrencyCode quoteCurrency =
+                        forexPairApiDto.realTimeCurrencyExchangeRate()
+                            .quoteCurrency();
+
+                    String ticker =
+                        baseCurrency.name()
+                            .toUpperCase()
+                            + "/"
+                            + quoteCurrency.name()
+                                .toUpperCase();
+                    String name =
+                        baseCurrency.name()
+                            .toUpperCase()
+                            + " to "
+                            + quoteCurrency.name()
+                                .toUpperCase();
+
                     ForexPair forexPair =
                         ForexPair.builder()
-                            .baseCurrency(
-                                forexPairApiDto.realTimeCurrencyExchangeRate()
-                                    .baseCurrency()
-                            )
-                            .quoteCurrency(
-                                forexPairApiDto.realTimeCurrencyExchangeRate()
-                                    .quoteCurrency()
-                            )
+                            .baseCurrency(baseCurrency)
+                            .quoteCurrency(quoteCurrency)
                             .liquidity(ForexLiquidity.LOW)
                             .exchangeRate(
                                 forexPairApiDto.realTimeCurrencyExchangeRate()
                                     .exchangeRate()
                             )
+                            .ticker(ticker)
+                            .name(name)
                             .build();
 
                     forexPairRepository.saveAndFlush(forexPair);
