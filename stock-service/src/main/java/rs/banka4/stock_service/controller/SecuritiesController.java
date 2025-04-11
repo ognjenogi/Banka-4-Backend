@@ -35,7 +35,9 @@ public class SecuritiesController implements SecuritiesApiDocumentation {
 
     @Override
     @GetMapping("/me")
-    public ResponseEntity<List<SecurityOwnershipResponse>> getMySecurities(Authentication authentication) {
+    public ResponseEntity<List<SecurityOwnershipResponse>> getMySecurities(
+        Authentication authentication
+    ) {
         List<SecurityOwnershipResponse> response = securityService.getMySecurities(authentication);
         return ResponseEntity.ok(response);
     }

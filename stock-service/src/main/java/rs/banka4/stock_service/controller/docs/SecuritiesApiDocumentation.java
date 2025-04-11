@@ -73,6 +73,8 @@ public interface SecuritiesApiDocumentation {
             )
         }
     )
-    public ResponseEntity<List<SecurityOwnershipResponse>> getMySecurities(Authentication authentication);
+    public ResponseEntity<List<SecurityOwnershipResponse>> getMySecurities(
+        Authentication authentication
+    );
 
 }

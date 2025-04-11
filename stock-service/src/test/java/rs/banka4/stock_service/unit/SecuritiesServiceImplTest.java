@@ -3,7 +3,6 @@ package rs.banka4.stock_service.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.sun.security.auth.UserPrincipal;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -16,9 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
@@ -51,17 +48,24 @@ public class SecuritiesServiceImplTest {
     private final UUID userId = UUID.randomUUID();
 
     // The ticker must be a valid UUID string since getCurrentPrice parses it as such.
-    private final String stockTicker = UUID.randomUUID().toString();
-    private final Security stock = Stock.builder()
-        .id(UUID.randomUUID())
-        .ticker(stockTicker)
-        .build();
+    private final String stockTicker =
+        UUID.randomUUID()
+            .toString();
+    private final Security stock =
+        Stock.builder()
+            .id(UUID.randomUUID())
+            .ticker(stockTicker)
+            .build();
 
-    private final Security forex = ForexPair.builder()
-        .id(UUID.randomUUID())
-        .ticker(UUID.randomUUID().toString()) // Not used in getCurrentPrice.
-        .exchangeRate(new BigDecimal("1.18"))
-        .build();
+    private final Security forex =
+        ForexPair.builder()
+            .id(UUID.randomUUID())
+            .ticker(
+                UUID.randomUUID()
+                    .toString()
+            ) // Not used in getCurrentPrice.
+            .exchangeRate(new BigDecimal("1.18"))
+            .build();
 
     /**
      * Verify that when no orders are present, getMySecurities returns an empty list.
@@ -89,14 +93,17 @@ public class SecuritiesServiceImplTest {
         Authentication auth = createAuthentication(userId);
 
         when(orderRepository.findByUserId(userId)).thenReturn(List.of(order));
-        when(listingService.getListingDetails(UUID.fromString(stock.getTicker())))
-            .thenReturn(new TestListingDetails(new BigDecimal("172.50")));
-        when(orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
-            userId,
-            stock,
-            Direction.BUY,
-            true))
-            .thenReturn(List.of(order));
+        when(listingService.getListingDetails(UUID.fromString(stock.getTicker()))).thenReturn(
+            new TestListingDetails(new BigDecimal("172.50"))
+        );
+        when(
+            orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
+                userId,
+                stock,
+                Direction.BUY,
+                true
+            )
+        ).thenReturn(List.of(order));
 
         // When
         List<SecurityOwnershipResponse> result = service.getMySecurities(auth);
@@ -123,24 +130,28 @@ public class SecuritiesServiceImplTest {
         Authentication auth = createAuthentication(userId);
 
         when(orderRepository.findByUserId(userId)).thenReturn(List.of(order));
-        when(orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
-            userId,
-            forex,
-            Direction.BUY,
-            true))
-            .thenReturn(List.of(order));
+        when(
+            orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
+                userId,
+                forex,
+                Direction.BUY,
+                true
+            )
+        ).thenReturn(List.of(order));
 
         // When
         List<SecurityOwnershipResponse> result = service.getMySecurities(auth);
 
-        // Then
-        // For Forex, getCurrentPrice returns the exchange rate.
-        assertThat(result.get(0).price()).isEqualTo(new BigDecimal("1.18"));
+        // Then For Forex, getCurrentPrice returns the exchange rate.
+        assertThat(
+            result.get(0)
+                .price()
+        ).isEqualTo(new BigDecimal("1.18"));
     }
 
     /**
-     * Verify that when multiple buy orders exist along with a sell order,
-     * the service calculates the net holding amount and profit correctly.
+     * Verify that when multiple buy orders exist along with a sell order, the service calculates
+     * the net holding amount and profit correctly.
      */
     @Test
     public void getMySecurities_shouldCalculateAverageCostFromMultipleBuys() {
@@ -152,15 +163,18 @@ public class SecuritiesServiceImplTest {
 
         // Assume overall holding aggregates to a net quantity of 60 (50 + 30 - 20)
         when(orderRepository.findByUserId(userId)).thenReturn(List.of(buy1, buy2, sell));
-        when(listingService.getListingDetails(UUID.fromString(stock.getTicker())))
-            .thenReturn(new TestListingDetails(new BigDecimal("180.00")));
+        when(listingService.getListingDetails(UUID.fromString(stock.getTicker()))).thenReturn(
+            new TestListingDetails(new BigDecimal("180.00"))
+        );
         // Only BUY orders are used for profit calculation.
-        when(orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
-            userId,
-            stock,
-            Direction.BUY,
-            true))
-            .thenReturn(List.of(buy1, buy2));
+        when(
+            orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
+                userId,
+                stock,
+                Direction.BUY,
+                true
+            )
+        ).thenReturn(List.of(buy1, buy2));
 
         // When
         List<SecurityOwnershipResponse> result = service.getMySecurities(auth);
@@ -169,10 +183,9 @@ public class SecuritiesServiceImplTest {
         SecurityOwnershipResponse response = result.get(0);
         // Expected net amount: 50 + 30 - 20 = 60
         assertThat(response.amount()).isEqualTo(60);
-        // Calculations:
-        // Total buy cost = (50 * 140.00) + (30 * 160.00) = 7000 + 4800 = 11800
-        // Total quantity bought = 80, average cost = 11800 / 80 = 147.50
-        // Profit = (180.00 - 147.50) * 60 = 32.50 * 60 = 1950.00
+        // Calculations: Total buy cost = (50 * 140.00) + (30 * 160.00) = 7000 + 4800 = 11800 Total
+        // quantity bought = 80, average cost = 11800 / 80 = 147.50 Profit = (180.00 - 147.50) * 60
+        // = 32.50 * 60 = 1950.00
         assertThat(response.profit()).isEqualTo(new BigDecimal("1950.00"));
     }
 
@@ -186,28 +199,34 @@ public class SecuritiesServiceImplTest {
         Authentication auth = createAuthentication(userId);
 
         when(orderRepository.findByUserId(userId)).thenReturn(List.of(sellOrder));
-        when(listingService.getListingDetails(UUID.fromString(stock.getTicker())))
-            .thenReturn(new TestListingDetails(new BigDecimal("170.00")));
-        when(orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
-            userId,
-            stock,
-            Direction.BUY,
-            true))
-            .thenReturn(Collections.emptyList());
+        when(listingService.getListingDetails(UUID.fromString(stock.getTicker()))).thenReturn(
+            new TestListingDetails(new BigDecimal("170.00"))
+        );
+        when(
+            orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
+                userId,
+                stock,
+                Direction.BUY,
+                true
+            )
+        ).thenReturn(Collections.emptyList());
 
         // When
         List<SecurityOwnershipResponse> result = service.getMySecurities(auth);
 
         // Then
-        assertThat(result.get(0).profit()).isEqualTo(BigDecimal.ZERO);
+        assertThat(
+            result.get(0)
+                .profit()
+        ).isEqualTo(BigDecimal.ZERO);
     }
 
     /**
      * Creates an Order for testing.
      *
-     * @param security  the asset for the order
-     * @param quantity  the amount of the asset
-     * @param price     the price per unit as a string
+     * @param security the asset for the order
+     * @param quantity the amount of the asset
+     * @param price the price per unit as a string
      * @param direction the order direction (BUY/SELL)
      * @return a new Order instance
      */
@@ -230,16 +249,21 @@ public class SecuritiesServiceImplTest {
      * @return a mocked instance of AuthenticatedBankUserAuthentication
      */
     private Authentication createAuthentication(UUID userId) {
-        AuthenticatedBankUserAuthentication auth = Mockito.mock(AuthenticatedBankUserAuthentication.class);
-        when(auth.getPrincipal().userId()).thenReturn(userId);
+        AuthenticatedBankUserAuthentication auth =
+            Mockito.mock(AuthenticatedBankUserAuthentication.class);
+        when(
+            auth.getPrincipal()
+                .userId()
+        ).thenReturn(userId);
         return auth;
     }
 
 
     /**
-     * Private static inner class to simulate the response from listingService.getListingDetails(UUID).
+     * Private static inner class to simulate the response from
+     * listingService.getListingDetails(UUID).
      */
-    private static class TestListingDetails extends ListingDetailsDto{
+    private static class TestListingDetails extends ListingDetailsDto {
         private final BigDecimal price;
 
         TestListingDetails(BigDecimal price) {

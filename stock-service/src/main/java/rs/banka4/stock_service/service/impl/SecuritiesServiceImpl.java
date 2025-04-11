@@ -57,7 +57,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
     /**
      * Maps an {@link Order} to a {@link SecurityOwnershipResponse} for a given user.
      *
-     * @param order  the order to map from
+     * @param order the order to map from
      * @param userId the current user's unique identifier
      * @return a SecurityOwnershipResponse object containing details of the security holding;
      *         returns {@code null} if the asset is not an instance of {@link Security}
@@ -98,8 +98,8 @@ public class SecuritiesServiceImpl implements SecuritiesService {
      * Retrieves the current price of a given security.
      *
      * <p>
-     * For securities that are instances of {@link ForexPair}, the current price is its exchange rate.
-     * For other securities, it fetches the latest price from the {@link ListingService}.
+     * For securities that are instances of {@link ForexPair}, the current price is its exchange
+     * rate. For other securities, it fetches the latest price from the {@link ListingService}.
      * </p>
      *
      * @param security the security for which the current price is retrieved
@@ -117,17 +117,23 @@ public class SecuritiesServiceImpl implements SecuritiesService {
      * Calculates the profit for a user on a given security holding.
      *
      * <p>
-     * This method computes the total cost of buy orders for the security, calculates the average cost,
-     * and then determines the difference between the current price and the average cost scaled by the order amount.
+     * This method computes the total cost of buy orders for the security, calculates the average
+     * cost, and then determines the difference between the current price and the average cost
+     * scaled by the order amount.
      * </p>
      *
-     * @param userId       the unique identifier of the user
-     * @param security     the security for which the profit is calculated
-     * @param amount       the quantity of the security held
+     * @param userId the unique identifier of the user
+     * @param security the security for which the profit is calculated
+     * @param amount the quantity of the security held
      * @param currentPrice the latest price of the security
      * @return the calculated profit as a {@link BigDecimal}; returns zero if no buy orders exist
      */
-    private BigDecimal calculateProfit(UUID userId, Security security, int amount, BigDecimal currentPrice) {
+    private BigDecimal calculateProfit(
+        UUID userId,
+        Security security,
+        int amount,
+        BigDecimal currentPrice
+    ) {
         List<Order> buyOrders =
             orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
                 userId,
@@ -141,7 +147,9 @@ public class SecuritiesServiceImpl implements SecuritiesService {
 
         for (Order order : buyOrders) {
             BigDecimal quantity = BigDecimal.valueOf(order.getQuantity());
-            BigDecimal price = order.getPricePerUnit().getAmount();
+            BigDecimal price =
+                order.getPricePerUnit()
+                    .getAmount();
             totalBuyCost = totalBuyCost.add(price.multiply(quantity));
             totalBuyQuantity = totalBuyQuantity.add(quantity);
         }
@@ -156,16 +164,16 @@ public class SecuritiesServiceImpl implements SecuritiesService {
     }
 
     /**
-     * Retrieves the last modified date of the most recent completed buy order for the specified security.
+     * Retrieves the last modified date of the most recent completed buy order for the specified
+     * security.
      *
      * @param security the security for which the last modification time is desired
-     * @param userId   the unique identifier of the user
-     * @return the last modified {@link OffsetDateTime} of the newest buy order;
-     *         returns {@code null} if no such order exists
+     * @param userId the unique identifier of the user
+     * @return the last modified {@link OffsetDateTime} of the newest buy order; returns
+     *         {@code null} if no such order exists
      */
     private OffsetDateTime getLastModified(Security security, UUID userId) {
-        Order newestOrder =
-            orderRepository.findNewestOrder(userId, security, Direction.BUY, true);
+        Order newestOrder = orderRepository.findNewestOrder(userId, security, Direction.BUY, true);
         return newestOrder != null ? newestOrder.getLastModified() : null;
     }
 
@@ -177,7 +185,8 @@ public class SecuritiesServiceImpl implements SecuritiesService {
      */
     private UUID getCurrentUserId(Authentication authentication) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) authentication;
-        return ourAuth.getPrincipal().userId();
+        return ourAuth.getPrincipal()
+            .userId();
     }
 
     /**
