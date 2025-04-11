@@ -16,11 +16,11 @@ public class OtcRequestServiceImp implements OtcRequestService{
 
     @Override
     public Page<OtcRequest> getMyRequests(Pageable pageable, UUID myId) {
-        return otcRequestRepository.findActiveRequestsByUser(myId, pageable);
+        return otcRequestRepository.findActiveRequestsByUser(myId.toString(), pageable);
     }
 
     @Override
     public Page<OtcRequest> getMyRequestsUnread(Pageable pageable, UUID myId) {
-        return otcRequestRepository.findActiveUnreadRequestsByUser(myId, pageable);
+        return otcRequestRepository.findActiveUnreadRequestsByUser(myId.toString(), pageable);
     }
 }

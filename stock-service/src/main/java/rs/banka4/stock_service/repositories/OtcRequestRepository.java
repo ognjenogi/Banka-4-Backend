@@ -13,12 +13,12 @@ public interface OtcRequestRepository extends JpaRepository<OtcRequest, UUID> {
 
     @Query("SELECT o FROM OtcRequest o " +
         "WHERE o.status = 'ACTIVE' " +
-        "AND (o.madeFor = :userId OR o.madeBy = :userId)")
-    Page<OtcRequest> findActiveRequestsByUser(@Param("userId") UUID userId, Pageable pageable);
+        "AND (o.madeFor.userId = :userId OR o.madeBy.userId = :userId)")
+    Page<OtcRequest> findActiveRequestsByUser(@Param("userId") String userId, Pageable pageable);
 
     @Query("SELECT o FROM OtcRequest o " +
         "WHERE o.status = 'ACTIVE' " +
-        "AND (o.madeFor = :userId OR o.madeBy = :userId) " +
-        "AND o.modifiedBy <> :userId")
-    Page<OtcRequest> findActiveUnreadRequestsByUser(@Param("userId") UUID userId, Pageable pageable);
+        "AND (o.madeFor.userId = :userId OR o.madeBy.userId = :userId) " +
+        "AND o.modifiedBy.userId <> :userId")
+    Page<OtcRequest> findActiveUnreadRequestsByUser(@Param("userId") String userId, Pageable pageable);
 }
