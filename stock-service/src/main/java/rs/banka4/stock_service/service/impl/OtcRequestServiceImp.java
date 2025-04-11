@@ -6,6 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import rs.banka4.stock_service.domain.trading.db.OtcRequest;
+import rs.banka4.stock_service.domain.trading.db.RequestStatus;
+import rs.banka4.stock_service.exceptions.OtcNotFoundException;
+import rs.banka4.stock_service.exceptions.RequestFailed;
 import rs.banka4.stock_service.repositories.OtcRequestRepository;
 import rs.banka4.stock_service.service.abstraction.OtcRequestService;
 
@@ -22,5 +25,18 @@ public class OtcRequestServiceImp implements OtcRequestService {
     @Override
     public Page<OtcRequest> getMyRequestsUnread(Pageable pageable, UUID myId) {
         return otcRequestRepository.findActiveUnreadRequestsByUser(myId.toString(), pageable);
+    }
+
+    @Override
+    public void rejectOtc(UUID requestId) {
+        var otc =
+            otcRequestRepository.findById(requestId)
+                .orElseThrow(() -> new OtcNotFoundException(requestId));
+        if (
+            !otc.getStatus()
+                .equals(RequestStatus.ACTIVE)
+        ) throw new RequestFailed();
+        otc.setStatus(RequestStatus.REJECTED);
+        otcRequestRepository.save(otc);
     }
 }

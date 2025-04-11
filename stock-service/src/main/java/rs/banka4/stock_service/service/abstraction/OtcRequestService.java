@@ -9,4 +9,6 @@ public interface OtcRequestService {
     Page<OtcRequest> getMyRequests(Pageable pageable, UUID myId);
 
     Page<OtcRequest> getMyRequestsUnread(Pageable pageable, UUID myId);
+
+    void rejectOtc(UUID requestId);
 }
