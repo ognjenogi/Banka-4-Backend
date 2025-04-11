@@ -13,6 +13,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import retrofit2.Response;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.stock_service.config.retrofit.AlphaVantageService;
@@ -20,24 +21,20 @@ import rs.banka4.stock_service.domain.exchanges.db.Exchange;
 import rs.banka4.stock_service.domain.listing.db.Listing;
 import rs.banka4.stock_service.domain.listing.db.ListingDailyPriceInfo;
 import rs.banka4.stock_service.domain.listing.dtos.ListingApiDto;
-import rs.banka4.stock_service.domain.options.db.Option;
-import rs.banka4.stock_service.domain.options.db.OptionsMaker;
-import rs.banka4.stock_service.domain.security.Security;
 import rs.banka4.stock_service.domain.security.forex.db.CurrencyMapper;
-import rs.banka4.stock_service.domain.security.forex.db.ForexLiquidity;
-import rs.banka4.stock_service.domain.security.forex.db.ForexPair;
-import rs.banka4.stock_service.domain.security.forex.dtos.ForexPairApiDto;
 import rs.banka4.stock_service.domain.security.future.db.Future;
 import rs.banka4.stock_service.domain.security.future.db.UnitName;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
 import rs.banka4.stock_service.domain.security.stock.dtos.StockInfoDto;
 import rs.banka4.stock_service.repositories.*;
+import rs.banka4.stock_service.utils.ListingsAndOptionsUpdatesScheduler;
 
 @Profile("!test")
 @Component
 @RequiredArgsConstructor
 public class TestDataRunner implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestDataRunner.class);
+    public static volatile boolean finishedSeeding = false;
 
     private final Environment environment;
     private final ForexRepository forexPairRepository;
@@ -49,8 +46,9 @@ public class TestDataRunner implements CommandLineRunner {
     private final OptionsRepository optionsRepository;
     private final AlphaVantageService alphaRetrofit;
 
-    private Exchange srbForexExchange = null;
-    private Exchange srbFutureExchange = null;
+    private final ListingsAndOptionsUpdatesScheduler listingsAndOptionsUpdatesScheduler;
+    // This will be used to seed for the first time instead of waiting for an update which can take
+    // a long time
 
     @Value("${alphavantage.api-key}")
     private String vantageKey;
@@ -60,7 +58,19 @@ public class TestDataRunner implements CommandLineRunner {
         runProd();
     }
 
+    public void logRepositoryCounts() {
+        LOGGER.info("ForexPairs count: {}", forexPairRepository.count());
+        LOGGER.info("Stocks count: {}", stockRepository.count());
+        LOGGER.info("Futures count: {}", futureRepository.count());
+        LOGGER.info("Listings count: {}", listingRepository.count());
+        LOGGER.info("Exchanges count: {}", exchangeRepository.count());
+        LOGGER.info("ListingDailyPriceInfos count: {}", listingDailyPriceInfoRepository.count());
+        LOGGER.info("Options count: {}", optionsRepository.count());
+    }
+
+    @Transactional
     public void runProd() {
+        // TODO propagate errors so transaction can fail
         LOGGER.info("Seeding prod");
 
         if (stockRepository.count() == 0) {
@@ -73,6 +83,7 @@ public class TestDataRunner implements CommandLineRunner {
             seedProductionForexPairs();
         } else {
             LOGGER.info("Not reseeding forexPairRepository, data already exists");
+
         }
 
         if (futureRepository.count() == 0) {
@@ -105,7 +116,9 @@ public class TestDataRunner implements CommandLineRunner {
             LOGGER.info("Not reseeding listing daily price info, data already exists");
         }
 
+        logRepositoryCounts();
         LOGGER.info("Seeding prod finished, starting stock service...");
+        finishedSeeding = true;
     }
 
     private void seedProductionListingDailyPriceInfo() {
@@ -113,7 +126,7 @@ public class TestDataRunner implements CommandLineRunner {
             List<ListingDailyPriceInfo> listingDailyPriceInfos = new ArrayList<>();
             BigDecimal change = BigDecimal.ZERO;
 
-            for (Listing listing : listingRepository.findAll()) {
+            for (Listing listing : listingRepository.findAllActiveListings()) {
                 change = change.add(BigDecimal.valueOf(0.25));
                 if (change.compareTo(BigDecimal.valueOf(1.0)) > 0) {
                     change = BigDecimal.valueOf(-1.0);
@@ -166,30 +179,7 @@ public class TestDataRunner implements CommandLineRunner {
 
     private void seedProductionOptions() {
         try {
-            OptionsMaker optionsMaker = new OptionsMaker();
-            List<Option> options = new ArrayList<>();
-
-            for (Listing listing : listingRepository.findAll()) {
-                Security se = listing.getSecurity();
-                if (!(se instanceof Stock)) {
-                    continue;
-                }
-                Stock stock = (Stock) se;
-                BigDecimal price =
-                    listing.getAsk()
-                        .add(listing.getBid())
-                        .divide(BigDecimal.valueOf(2), 6, RoundingMode.HALF_UP);
-                List<Option> lOptions =
-                    optionsMaker.generateOptions(
-                        stock,
-                        price,
-                        listing.getExchange()
-                            .getCurrency()
-                    );
-                options.addAll(lOptions);
-            }
-
-            optionsRepository.saveAllAndFlush(options);
+            listingsAndOptionsUpdatesScheduler.updateOptions();
             LOGGER.info("Production options seeded successfully.");
         } catch (Exception e) {
             LOGGER.error("Error occurred while seeding prod options: {}", e.getMessage());
@@ -204,7 +194,7 @@ public class TestDataRunner implements CommandLineRunner {
         Map<String, Exchange> exchangesMap
     ) throws IOException {
         // https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=7P4ANAS869M38S3B
-        // koristi isti api za daily listings history
+        // uses same api for daily listings history
 
         retrofit2.Call<ListingApiDto> call =
             alphaRetrofit.getListingInfo("GLOBAL_QUOTE", ticker, vantageKey);
@@ -267,71 +257,8 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedProductionListings() {
-        Map<String, Exchange> exchangesMap = makeExchangeMap();
-        Map<String, Stock> stocksMap = makeStockMap();
         try {
-            List<Listing> listings = new ArrayList<>();
-            List<String[]> records = new ArrayList<>();
-            InputStream is = getClass().getResourceAsStream("ticker_exchange.csv");
-            if (is == null) {
-                throw new IllegalArgumentException("File not found!");
-            }
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-            boolean isHeader = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (isHeader) {
-                    isHeader = false;
-                    continue;
-                }
-                records.add(line.split(","));
-            }
-
-            long id = 11111111;
-            for (String[] record : records) {
-                String ticker = record[0];
-                String exchange = record[1];
-                // System.out.println(exchange); System.out.println(exchangesMap.keySet());
-                if (stocksMap.get(ticker) == null) continue;
-                Listing l =
-                    fetchListingInfo(ticker, id++, stocksMap.get(ticker), exchange, exchangesMap);
-                listings.add(l);
-                Thread.sleep(200);
-            }
-
-            for (ForexPair fp : forexPairRepository.findAll()) {
-                listings.add(
-                    Listing.builder()
-                        .id(new UUID(0L, id++))
-                        .ask(fp.getExchangeRate())
-                        .bid(fp.getExchangeRate())
-                        .exchange(srbForexExchange)
-                        .lastRefresh(OffsetDateTime.now())
-                        .active(true)
-                        .security(fp)
-                        .contractSize(1)
-                        .build()
-                );
-            }
-
-            for (Future f : futureRepository.findAll()) {
-                listings.add(
-                    Listing.builder()
-                        .id(new UUID(0L, id++))
-                        .ask(new BigDecimal(1000100))
-                        .bid(new BigDecimal(1000000))
-                        .exchange(srbFutureExchange)
-                        .lastRefresh(OffsetDateTime.now())
-                        .active(true)
-                        .security(f)
-                        .contractSize(1)
-                        .build()
-                );
-            }
-
-            listingRepository.saveAllAndFlush(listings);
+            listingsAndOptionsUpdatesScheduler.updateListings();
             LOGGER.info("Production listings seeded successfully.");
         } catch (Exception e) {
             LOGGER.error("Error occurred while seeding prod listings: {}", e.getMessage());
@@ -416,94 +343,12 @@ public class TestDataRunner implements CommandLineRunner {
     }
 
     private void seedProductionForexPairs() {
-        for (int i = 0; i < CurrencyCode.values().length; i++) {
-            for (int j = 0; j < CurrencyCode.values().length; j++) {
-                if (i == j) continue;
-
-                // FETCHING THE FOREX PAIRS
-                retrofit2.Call<ForexPairApiDto> call =
-                    alphaRetrofit.getForexPair(
-                        "CURRENCY_EXCHANGE_RATE",
-                        CurrencyCode.values()[i].name(),
-                        CurrencyCode.values()[j].name(),
-                        vantageKey
-                    );
-
-                try {
-                    retrofit2.Response<ForexPairApiDto> response2 = call.execute();
-
-                    ForexPairApiDto forexPairApiDto = response2.body();
-
-                    if (null == forexPairApiDto.realTimeCurrencyExchangeRate()) continue;
-
-                    CurrencyCode baseCurrency =
-                        forexPairApiDto.realTimeCurrencyExchangeRate()
-                            .baseCurrency();
-                    CurrencyCode quoteCurrency =
-                        forexPairApiDto.realTimeCurrencyExchangeRate()
-                            .quoteCurrency();
-
-                    String ticker =
-                        baseCurrency.name()
-                            .toUpperCase()
-                            + "/"
-                            + quoteCurrency.name()
-                                .toUpperCase();
-                    String name =
-                        baseCurrency.name()
-                            .toUpperCase()
-                            + " to "
-                            + quoteCurrency.name()
-                                .toUpperCase();
-
-                    ForexPair forexPair =
-                        ForexPair.builder()
-                            .baseCurrency(baseCurrency)
-                            .quoteCurrency(quoteCurrency)
-                            .liquidity(ForexLiquidity.LOW)
-                            .exchangeRate(
-                                forexPairApiDto.realTimeCurrencyExchangeRate()
-                                    .exchangeRate()
-                            )
-                            .ticker(ticker)
-                            .name(name)
-                            .build();
-
-                    forexPairRepository.saveAndFlush(forexPair);
-                    Thread.sleep(200);
-                } catch (Exception e) {
-                    LOGGER.error("Forex pair seeder failed: " + e.getMessage());
-                }
-            }
+        try {
+            listingsAndOptionsUpdatesScheduler.refreshForexPairs();
+            LOGGER.info("Production forex pairs seeded successfully.");
+        } catch (Exception e) {
+            LOGGER.error("Error occurred while seeding prod forex pairs: {}", e.getMessage());
         }
-
-        LOGGER.info("forex pairs seeded successfully");
-    }
-
-    private void seedDevForexPairs() {
-        ForexLiquidity[] forexLiquidities = ForexLiquidity.values();
-        int i = 0;
-        List<ForexPair> forexPairs = new ArrayList<>();
-        for (CurrencyCode currencyCode1 : CurrencyCode.values()) {
-            for (CurrencyCode currencyCode2 : CurrencyCode.values()) {
-                if (currencyCode1.equals(currencyCode2)) {
-                    continue;
-                }
-
-                forexPairs.add(
-                    ForexPair.builder()
-                        .baseCurrency(currencyCode1)
-                        .quoteCurrency(currencyCode2)
-                        .liquidity(forexLiquidities[i++])
-                        .name(currencyCode1 + "/" + currencyCode2)
-                        .exchangeRate(new BigDecimal("3.5"))
-                        .build()
-                );
-                i = i % 3;
-            }
-        }
-        forexPairRepository.saveAllAndFlush(forexPairs);
-        LOGGER.info("forex pairs seeded successfully");
     }
 
     private String makeFakeTickerForFuture(String name, OffsetDateTime settlementDate) {
@@ -699,7 +544,7 @@ public class TestDataRunner implements CommandLineRunner {
             OffsetDateTime openDateTime = OffsetDateTime.of(openDateTimeLocal, openOffset);
             OffsetDateTime closeDateTime = OffsetDateTime.of(closeDateTimeLocal, closeOffset);
 
-            Exchange exchange =
+            exchanges.add(
                 Exchange.builder()
                     .id(new UUID(ms_id, id++))
                     .timeZone(timeZone)
@@ -711,12 +556,10 @@ public class TestDataRunner implements CommandLineRunner {
                     .openTime(openDateTime)
                     .closeTime(closeDateTime)
                     .createdAt(LocalDate.now())
-                    .build();
+                    .build()
+            );
 
-            srbForexExchange = exchange;
-            exchanges.add(exchange);
-
-            exchange =
+            exchanges.add(
                 Exchange.builder()
                     .id(new UUID(ms_id, id++))
                     .timeZone(timeZone)
@@ -728,58 +571,13 @@ public class TestDataRunner implements CommandLineRunner {
                     .openTime(openDateTime)
                     .closeTime(closeDateTime)
                     .createdAt(LocalDate.now())
-                    .build();
-
-            srbFutureExchange = exchange;
-            exchanges.add(exchange);
+                    .build()
+            );
 
             exchangeRepository.saveAllAndFlush(exchanges);
             LOGGER.info("Exchange data seeded successfully");
         } catch (Exception e) {
             LOGGER.error("Error occurred while reading Exchange CSV: {}", e.getMessage());
         }
-    }
-
-    // dead code used for dev seeding
-
-    private void seedDevExchanges() {
-    }
-
-    private void seedDevFutures() {
-    }
-
-    private void seedDevStocks() {
-    }
-
-    private void seedForexPairs() {
-        ForexLiquidity[] forexLiquidities = ForexLiquidity.values();
-        int i = 0;
-        long id = 52055;
-        long ms_id = 0;
-        List<ForexPair> forexPairs = new ArrayList<>();
-        for (CurrencyCode currencyCode1 : CurrencyCode.values()) {
-            for (CurrencyCode currencyCode2 : CurrencyCode.values()) {
-                if (currencyCode1.equals(currencyCode2)) {
-                    continue;
-                }
-
-                String ticker = currencyCode1.name() + "/" + currencyCode2.name();
-                double val = 3.0;
-                forexPairs.add(
-                    ForexPair.builder()
-                        .id(new UUID(ms_id, id++))
-                        .baseCurrency(currencyCode1)
-                        .quoteCurrency(currencyCode2)
-                        .liquidity(forexLiquidities[i++])
-                        .exchangeRate(new BigDecimal(val))
-                        .ticker(ticker.toUpperCase())
-                        .name(ticker)
-                        .build()
-                );
-                i = i % 3;
-            }
-        }
-        forexPairRepository.saveAllAndFlush(forexPairs);
-        LOGGER.info("Production forex pairs seeded successfully");
     }
 }
