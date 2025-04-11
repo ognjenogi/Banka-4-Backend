@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.io.IOException;
@@ -195,6 +196,23 @@ public class OtcTests {
             .asArray()
             .isEmpty();
 
+    }
+
+    @Test
+    public void testRejectOtc() {
+        OtcRequest dummyRequest = createDummyOtcRequestNotMe();
+        var id = dummyRequest.getId();
+        createDummyOtcRequestMeRead();
+
+        mvc.patch()
+            .uri("/otc/reject/" + id)
+            .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
+            .assertThat()
+            .hasStatusOk();
+        var otcRejected =
+            otcRequestRepository.findById(id)
+                .get();
+        assertEquals(RequestStatus.REJECTED, otcRejected.getStatus());
     }
 
     private OtcRequest createDummyOtcRequest() {
