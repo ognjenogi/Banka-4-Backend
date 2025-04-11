@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.domain.options.db.Asset;
@@ -23,7 +22,7 @@ import rs.banka4.stock_service.domain.security.SecurityDto;
 import rs.banka4.stock_service.domain.security.forex.db.ForexPair;
 import rs.banka4.stock_service.domain.security.future.db.Future;
 import rs.banka4.stock_service.domain.security.responses.SecurityOwnershipResponse;
-import rs.banka4.stock_service.domain.security.responses.SecurityType;
+import rs.banka4.stock_service.domain.security.responses.SecurityTypeDto;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
 import rs.banka4.stock_service.repositories.OrderRepository;
 import rs.banka4.stock_service.service.abstraction.ListingService;
@@ -85,13 +84,13 @@ public class SecuritiesServiceImpl implements SecuritiesService {
      * Determines the security type of the provided asset.
      *
      * @param asset the asset whose type is to be determined
-     * @return the {@link SecurityType} that represents the asset type
+     * @return the {@link SecurityTypeDto} that represents the asset type
      * @throws IllegalArgumentException if the asset type is not supported
      */
-    private SecurityType determineAssetType(Asset asset) {
-        if (asset instanceof Stock) return SecurityType.STOCK;
-        if (asset instanceof Future) return SecurityType.FUTURE;
-        if (asset instanceof ForexPair) return SecurityType.FOREX;
+    private SecurityTypeDto determineAssetType(Asset asset) {
+        if (asset instanceof Stock) return SecurityTypeDto.STOCK;
+        if (asset instanceof Future) return SecurityTypeDto.FUTURE;
+        if (asset instanceof ForexPair) return SecurityTypeDto.FOREX;
         throw new IllegalArgumentException("Unsupported asset type");
     }
 

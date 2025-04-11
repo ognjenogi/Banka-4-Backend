@@ -26,12 +26,14 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     );
 
     @Query(
-        "SELECT o FROM Order o "
-            + "WHERE o.userId = :userId "
-            + "AND o.asset = :asset "
-            + "AND o.direction = :direction "
-            + "AND o.isDone = :isDone "
-            + "ORDER BY o.lastModified DESC"
+        """
+             SELECT o FROM Order o
+             WHERE o.userId = :userId
+             AND o.asset = :asset
+             AND o.direction = :direction
+             AND o.isDone = :isDone
+             ORDER BY o.lastModified DESC
+        """
     )
     Order findNewestOrder(
         @Param("userId") UUID userId,
