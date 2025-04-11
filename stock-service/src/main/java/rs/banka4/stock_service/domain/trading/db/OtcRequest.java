@@ -37,15 +37,15 @@ public class OtcRequest {
 
     /** trust me bro key to users */
     @Column(nullable = false)
-    private UUID madeBy;
+    private ForeignBankId madeBy;
 
     /** trust me bro key to users */
     @Column(nullable = false)
-    private UUID madeFor;
+    private ForeignBankId madeFor;
 
     /** trust me bro key to users */
     @Column(nullable = false)
-    private UUID modifiedBy;
+    private ForeignBankId modifiedBy;
 
     @Column(nullable = false)
     private LocalDate settlementDate;
