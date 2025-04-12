@@ -242,6 +242,7 @@ public class OtcTests {
         assertEquals(dummyRequest.getPricePerStock().getCurrency(),otcRejected.getPricePerStock().getCurrency());
         assertEquals(momo.getCurrency(),otcRejected.getPremium().getCurrency());
         assertEquals(10,otcRejected.getAmount());
+        assertEquals(JwtPlaceholders.CLIENT_ID.toString(),otcRejected.getModifiedBy().userId());
     }
 
     private OtcRequest createDummyOtcRequest() {
