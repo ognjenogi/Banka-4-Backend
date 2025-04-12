@@ -1,6 +1,7 @@
 package rs.banka4.stock_service.controller;
 
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,11 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Retrofit;
+import retrofit2.http.Body;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.controller.docs.OtcApiDocumentation;
 import rs.banka4.stock_service.domain.trading.db.OtcMapper;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.service.abstraction.OtcRequestService;
 
 @RestController
@@ -51,6 +54,14 @@ public class OtcController implements OtcApiDocumentation {
             .build();
     }
 
+    @Override
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<Void> updateOtcRequest(@RequestBody OtcRequestUpdateDto otcRequestUpdateDto, @PathVariable UUID id) {
+        otcRequestService.updateOtc(otcRequestUpdateDto,id);
+        return ResponseEntity.ok()
+            .build();
+    }
+
     private ResponseEntity<Page<OtcRequestDto>> getRequestHelper(
         int page,
         int size,
@@ -72,30 +83,30 @@ public class OtcController implements OtcApiDocumentation {
             try {
                 var resFor =
                     userServiceClient.getUserInfo(
-                        UUID.fromString(
-                            it.getMadeFor()
-                                .userId()
-                        ),
-                        token
-                    )
+                            UUID.fromString(
+                                it.getMadeFor()
+                                    .userId()
+                            ),
+                            token
+                        )
                         .execute();
                 var resBy =
                     userServiceClient.getUserInfo(
-                        UUID.fromString(
-                            it.getMadeBy()
-                                .userId()
-                        ),
-                        token
-                    )
+                            UUID.fromString(
+                                it.getMadeBy()
+                                    .userId()
+                            ),
+                            token
+                        )
                         .execute();
                 var resMod =
                     userServiceClient.getUserInfo(
-                        UUID.fromString(
-                            it.getModifiedBy()
-                                .userId()
-                        ),
-                        token
-                    )
+                            UUID.fromString(
+                                it.getModifiedBy()
+                                    .userId()
+                            ),
+                            token
+                        )
                         .execute();
 
                 if (
