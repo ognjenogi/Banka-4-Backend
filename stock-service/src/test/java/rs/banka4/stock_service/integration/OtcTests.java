@@ -2,13 +2,13 @@ package rs.banka4.stock_service.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static rs.banka4.stock_service.generator.OtcRequestGen.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,15 +25,12 @@ import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.rafeisen.common.dto.UserResponseDto;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
-import rs.banka4.stock_service.domain.security.stock.db.Stock;
-import rs.banka4.stock_service.domain.trading.db.ForeignBankId;
 import rs.banka4.stock_service.domain.trading.db.OtcRequest;
 import rs.banka4.stock_service.domain.trading.db.RequestStatus;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.repositories.AssetRepository;
 import rs.banka4.stock_service.repositories.OtcRequestRepository;
 import rs.banka4.stock_service.repositories.SecurityRepository;
-import rs.banka4.stock_service.utils.AssetGenerator;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
 
@@ -73,8 +70,9 @@ public class OtcTests {
 
     @Test
     public void testGetMyRequests() {
-        OtcRequest dummyRequest = createDummyOtcRequest();
-        createDummyOtcRequestMeRead();
+        OtcRequest dummyRequest =
+            createDummyOtcRequest(assetRepository, securityRepository, otcRequestRepository);
+        createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
         String expectedJson = """
             {
               "content": [
@@ -121,7 +119,8 @@ public class OtcTests {
 
     @Test
     public void testGetMyRequestsFails() {
-        OtcRequest dummyRequest = createDummyOtcRequestNotMe();
+        OtcRequest dummyRequest =
+            createDummyOtcRequestNotMe(assetRepository, securityRepository, otcRequestRepository);
 
         mvc.get()
             .uri("/otc/me")
@@ -139,8 +138,9 @@ public class OtcTests {
 
     @Test
     public void testGetMyRequestsUnread() {
-        OtcRequest dummyRequest = createDummyOtcRequestMeRead();
-        createDummyOtcRequestMeUnread();
+        OtcRequest dummyRequest =
+            createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
+        createDummyOtcRequestMeUnread(assetRepository, securityRepository, otcRequestRepository);
         String expectedJson = """
             {
               "content": [
@@ -185,8 +185,9 @@ public class OtcTests {
 
     @Test
     public void testGetMyRequestsUnreadFails() {
-        OtcRequest dummyRequest = createDummyOtcRequestNotMe();
-        createDummyOtcRequestMeRead();
+        OtcRequest dummyRequest =
+            createDummyOtcRequestNotMe(assetRepository, securityRepository, otcRequestRepository);
+        createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
 
         mvc.get()
             .uri("/otc/me/unread")
@@ -204,9 +205,10 @@ public class OtcTests {
 
     @Test
     public void testRejectOtc() {
-        OtcRequest dummyRequest = createDummyOtcRequestNotMe();
+        OtcRequest dummyRequest =
+            createDummyOtcRequestNotMe(assetRepository, securityRepository, otcRequestRepository);
         var id = dummyRequest.getId();
-        createDummyOtcRequestMeRead();
+        createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
 
         mvc.patch()
             .uri("/otc/reject/" + id)
@@ -221,7 +223,8 @@ public class OtcTests {
 
     @Test
     public void testUpdateOtc() throws JsonProcessingException {
-        OtcRequest dummyRequest = createDummyOtcRequestMeRead();
+        OtcRequest dummyRequest =
+            createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
         var id = dummyRequest.getId();
         var momo = new MonetaryAmount();
         momo.setAmount(BigDecimal.TEN);
@@ -257,149 +260,4 @@ public class OtcTests {
                 .userId()
         );
     }
-
-    private OtcRequest createDummyOtcRequest() {
-        AssetGenerator.makeExampleAssets()
-            .forEach(assetRepository::saveAndFlush);
-
-        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
-        var momo = new MonetaryAmount();
-        momo.setAmount(BigDecimal.ONE);
-        momo.setCurrency(CurrencyCode.AUD);
-        OtcRequest req = new OtcRequest();
-        req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setStatus(RequestStatus.ACTIVE);
-        req.setPremium(momo);
-        req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.parse("2025-04-11"));
-        req.setPricePerStock(momo);
-        req.setAmount(1);
-
-        otcRequestRepository.save(req);
-        return req;
-    }
-
-    private OtcRequest createDummyOtcRequestNotMe() {
-        AssetGenerator.makeExampleAssets()
-            .forEach(assetRepository::saveAndFlush);
-
-        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
-        var momo = new MonetaryAmount();
-        momo.setAmount(BigDecimal.ONE);
-        momo.setCurrency(CurrencyCode.AUD);
-        OtcRequest req = new OtcRequest();
-        req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setModifiedBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setStatus(RequestStatus.ACTIVE);
-        req.setPremium(momo);
-        req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.parse("2025-04-11"));
-        req.setPricePerStock(momo);
-        req.setAmount(1);
-
-        otcRequestRepository.save(req);
-        return req;
-    }
-
-    private OtcRequest createDummyOtcRequestMeUnread() {
-        AssetGenerator.makeExampleAssets()
-            .forEach(assetRepository::saveAndFlush);
-
-        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
-        var momo = new MonetaryAmount();
-        momo.setAmount(BigDecimal.ONE);
-        momo.setCurrency(CurrencyCode.AUD);
-        OtcRequest req = new OtcRequest();
-        req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setStatus(RequestStatus.ACTIVE);
-        req.setPremium(momo);
-        req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.parse("2025-04-11"));
-        req.setPricePerStock(momo);
-        req.setAmount(1);
-
-        otcRequestRepository.save(req);
-        return req;
-    }
-
-    private OtcRequest createDummyOtcRequestMeRead() {
-        AssetGenerator.makeExampleAssets()
-            .forEach(assetRepository::saveAndFlush);
-
-        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
-        var momo = new MonetaryAmount();
-        momo.setAmount(BigDecimal.ONE);
-        momo.setCurrency(CurrencyCode.AUD);
-        OtcRequest req = new OtcRequest();
-        req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setStatus(RequestStatus.ACTIVE);
-        req.setPremium(momo);
-        req.setPricePerStock(momo);
-        req.setSettlementDate(LocalDate.parse("2025-04-11"));
-        req.setPricePerStock(momo);
-        req.setAmount(1);
-
-        otcRequestRepository.save(req);
-        return req;
-    }
-
 }
