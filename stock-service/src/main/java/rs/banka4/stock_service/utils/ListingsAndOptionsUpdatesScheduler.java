@@ -288,6 +288,7 @@ public class ListingsAndOptionsUpdatesScheduler {
             options.addAll(lOptions);
         }
 
+        optionsRepository.deleteOptionsWithoutOrders();
         optionsRepository.saveAllAndFlush(options);
     }
 
