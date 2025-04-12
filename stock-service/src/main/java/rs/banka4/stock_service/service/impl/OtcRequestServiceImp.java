@@ -51,12 +51,13 @@ public class OtcRequestServiceImp implements OtcRequestService {
     }
 
     @Override
-    public void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id,UUID modifiedBy) {
+    public void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id, UUID modifiedBy) {
         var otc =
             otcRequestRepository.findById(id)
                 .orElseThrow(() -> new OtcNotFoundException(id));
-        var modBy=new ForeignBankId(BankRoutingNumber.BANK4.getRoutingNumber(), modifiedBy.toString());
-        otcMapper.update(otc, otcRequestUpdateDto,modBy);
+        var modBy =
+            new ForeignBankId(BankRoutingNumber.BANK4.getRoutingNumber(), modifiedBy.toString());
+        otcMapper.update(otc, otcRequestUpdateDto, modBy);
         otcRequestRepository.save(otc);
     }
 
@@ -73,11 +74,21 @@ public class OtcRequestServiceImp implements OtcRequestService {
                         otcRequestCreateDto.assetId()
                     )
                 );
-        if(assetOwner.getPublicAmount()+assetOwner.getReservedAmount() < otcRequestCreateDto.amount())
-            throw new RequestFailed();
+        if (
+            assetOwner.getPublicAmount() + assetOwner.getReservedAmount()
+                < otcRequestCreateDto.amount()
+        ) throw new RequestFailed();
         var me = new ForeignBankId(BankRoutingNumber.BANK4.getRoutingNumber(), idMy.toString());
-        var madeFor = new ForeignBankId(BankRoutingNumber.BANK4.getRoutingNumber(), assetOwner.getId().getUser().toString());
-        var stock = (Stock)assetOwner.getId().getAsset();
-        otcMapper.toOtcRequest(otcRequestCreateDto,me,madeFor,me,RequestStatus.ACTIVE,stock);
+        var madeFor =
+            new ForeignBankId(
+                BankRoutingNumber.BANK4.getRoutingNumber(),
+                assetOwner.getId()
+                    .getUser()
+                    .toString()
+            );
+        var stock =
+            (Stock) assetOwner.getId()
+                .getAsset();
+        otcMapper.toOtcRequest(otcRequestCreateDto, me, madeFor, me, RequestStatus.ACTIVE, stock);
     }
 }

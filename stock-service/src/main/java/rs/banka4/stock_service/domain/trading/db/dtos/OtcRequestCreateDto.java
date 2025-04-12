@@ -2,10 +2,9 @@ package rs.banka4.stock_service.domain.trading.db.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
-
 import java.time.LocalDate;
 import java.util.UUID;
+import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 
 @Schema(
     description = "Data Transfer Object representing an OTC request (negotiation) for trading securities"
@@ -14,11 +13,11 @@ public record OtcRequestCreateDto(
     @Schema(
         description = "id of asset owner",
         example = "1fad2c01-f82f-41a6-822c-8ca1b3232575"
-    )@NotNull UUID userId,
+    ) @NotNull UUID userId,
     @Schema(
         description = "id of asset",
         example = "1fad2c01-f82f-41a6-822c-8ca1b3232575"
-    )@NotNull UUID assetId,
+    ) @NotNull UUID assetId,
     @Schema(
         description = "The price per individual security unit",
         example = "150.00"

@@ -1,8 +1,7 @@
 package rs.banka4.stock_service.controller;
 
-import java.util.UUID;
-
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Retrofit;
-import retrofit2.http.Body;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.controller.docs.OtcApiDocumentation;
@@ -58,23 +56,30 @@ public class OtcController implements OtcApiDocumentation {
 
     @Override
     @PatchMapping("/update/{id}")
-    public ResponseEntity<Void> updateOtcRequest(@RequestBody OtcRequestUpdateDto otcRequestUpdateDto, @PathVariable UUID id,Authentication auth) {
+    public ResponseEntity<Void> updateOtcRequest(
+        @RequestBody OtcRequestUpdateDto otcRequestUpdateDto,
+        @PathVariable UUID id,
+        Authentication auth
+    ) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId =
             ourAuth.getPrincipal()
                 .userId();
-        otcRequestService.updateOtc(otcRequestUpdateDto,id,myId);
+        otcRequestService.updateOtc(otcRequestUpdateDto, id, myId);
         return ResponseEntity.ok()
             .build();
     }
 
     @Override
-    public ResponseEntity<Void> createOtcRequest(@RequestBody @Valid OtcRequestCreateDto otcRequestCreateDto,Authentication auth) {
+    public ResponseEntity<Void> createOtcRequest(
+        @RequestBody @Valid OtcRequestCreateDto otcRequestCreateDto,
+        Authentication auth
+    ) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId =
             ourAuth.getPrincipal()
                 .userId();
-        otcRequestService.createOtc(otcRequestCreateDto,myId);
+        otcRequestService.createOtc(otcRequestCreateDto, myId);
         return ResponseEntity.ok()
             .build();
     }
@@ -100,30 +105,30 @@ public class OtcController implements OtcApiDocumentation {
             try {
                 var resFor =
                     userServiceClient.getUserInfo(
-                            UUID.fromString(
-                                it.getMadeFor()
-                                    .userId()
-                            ),
-                            token
-                        )
+                        UUID.fromString(
+                            it.getMadeFor()
+                                .userId()
+                        ),
+                        token
+                    )
                         .execute();
                 var resBy =
                     userServiceClient.getUserInfo(
-                            UUID.fromString(
-                                it.getMadeBy()
-                                    .userId()
-                            ),
-                            token
-                        )
+                        UUID.fromString(
+                            it.getMadeBy()
+                                .userId()
+                        ),
+                        token
+                    )
                         .execute();
                 var resMod =
                     userServiceClient.getUserInfo(
-                            UUID.fromString(
-                                it.getModifiedBy()
-                                    .userId()
-                            ),
-                            token
-                        )
+                        UUID.fromString(
+                            it.getModifiedBy()
+                                .userId()
+                        ),
+                        token
+                    )
                         .execute();
 
                 if (

@@ -33,7 +33,16 @@ public interface OtcMapper {
         String madeFor,
         String modifiedBy
     );
-    OtcRequest toOtcRequest(OtcRequestCreateDto otcRequestCreateDto, ForeignBankId madeBy, ForeignBankId madeFor, ForeignBankId modifiedBy, RequestStatus status, Stock stock);
+
+    OtcRequest toOtcRequest(
+        OtcRequestCreateDto otcRequestCreateDto,
+        ForeignBankId madeBy,
+        ForeignBankId madeFor,
+        ForeignBankId modifiedBy,
+        RequestStatus status,
+        Stock stock
+    );
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void update(@MappingTarget OtcRequest otc, OtcRequestUpdateDto dto, ForeignBankId modifiedBy);
 }

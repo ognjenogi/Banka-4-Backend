@@ -1,9 +1,8 @@
 package rs.banka4.stock_service.domain.trading.db.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
-
 import java.time.LocalDate;
+import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 
 @Schema(
     description = "Data Transfer Object representing an OTC request (negotiation) for trading securities"
