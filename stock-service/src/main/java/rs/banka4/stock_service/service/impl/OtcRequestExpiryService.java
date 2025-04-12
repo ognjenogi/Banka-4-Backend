@@ -31,7 +31,7 @@ public class OtcRequestExpiryService {
      * current date, updates the request status to EXPIRED, and updates the asset ownership record
      * by transferring the reserved assets into the public pool.
      */
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void expireFinishedOtcRequests() {
         LocalDate today = LocalDate.now();
