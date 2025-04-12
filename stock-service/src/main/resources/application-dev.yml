@@ -57,8 +57,8 @@ alphavantage:
   api-key: ${ALPHAVANTAGE_APY_KEY}
 
 listings:
-  refetch-min: 100000000
-  # 5 for PM-a, 2 for testing, 100000000 for others
+  refetch-min: 15
+  # 2 for testing, 15 for PM, 20000000 for others
 
 banka4:
   services:

@@ -71,7 +71,7 @@ public class ListingsAndOptionsUpdatesScheduler {
             );
     }
 
-    @Scheduled(fixedDelayString = "#{${listings.refetch-min} * 60 * 1000}")
+    @Scheduled(fixedDelayString = "#{${listings.refetch-min} * 60l * 1000l}")
     @Transactional
     public void updateListingsAndOptions() {
         if (!TestDataRunner.finishedSeeding) {
