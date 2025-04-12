@@ -1,10 +1,13 @@
 package rs.banka4.stock_service.service.abstraction;
 
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import rs.banka4.stock_service.domain.trading.db.OtcRequest;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 
 public interface OtcRequestService {
@@ -14,6 +17,7 @@ public interface OtcRequestService {
 
     void rejectOtc(UUID requestId);
 
-    void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id);
     void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id,UUID modifiedBy);
+
+    void createOtc(OtcRequestCreateDto otcRequestCreateDto, UUID idMy);
 }
