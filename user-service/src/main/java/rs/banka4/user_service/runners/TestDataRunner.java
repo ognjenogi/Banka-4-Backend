@@ -227,8 +227,8 @@ public class TestDataRunner implements CommandLineRunner {
             clientRepository.findById(CLIENT_JANE)
                 .orElseThrow(() -> new RuntimeException("Client John not found"));
 
-        Currency currencyRSD = currencyRepository.findByCode(CurrencyCode.Code.RSD);
-        Currency currencyEUR = currencyRepository.findByCode(CurrencyCode.Code.EUR);
+        Currency currencyRSD = currencyRepository.findByCode(CurrencyCode.RSD);
+        Currency currencyEUR = currencyRepository.findByCode(CurrencyCode.EUR);
 
         Company company =
             companyRepository.findById(COMPANY_BIG_COMPANY_DOO)
@@ -942,56 +942,56 @@ public class TestDataRunner implements CommandLineRunner {
                     .symbol("RSD")
                     .description("Serbian national currency")
                     .active(true)
-                    .code(CurrencyCode.Code.RSD)
+                    .code(CurrencyCode.RSD)
                     .build(),
                 Currency.builder()
                     .name("Euro")
                     .symbol("EUR")
                     .description("European Union currency")
                     .active(true)
-                    .code(CurrencyCode.Code.EUR)
+                    .code(CurrencyCode.EUR)
                     .build(),
                 Currency.builder()
                     .name("US Dollar")
                     .symbol("USD")
                     .description("United States currency")
                     .active(true)
-                    .code(CurrencyCode.Code.USD)
+                    .code(CurrencyCode.USD)
                     .build(),
                 Currency.builder()
                     .name("Swiss Franc")
                     .symbol("CHF")
                     .description("Swiss national currency")
                     .active(true)
-                    .code(CurrencyCode.Code.CHF)
+                    .code(CurrencyCode.CHF)
                     .build(),
                 Currency.builder()
                     .name("Japanese Yen")
                     .symbol("JPY")
                     .description("Japanese national currency")
                     .active(true)
-                    .code(CurrencyCode.Code.JPY)
+                    .code(CurrencyCode.JPY)
                     .build(),
                 Currency.builder()
                     .name("Australian Dollar")
                     .symbol("AUD")
                     .description("Australian national currency")
                     .active(true)
-                    .code(CurrencyCode.Code.AUD)
+                    .code(CurrencyCode.AUD)
                     .build(),
                 Currency.builder()
                     .name("Canadian Dollar")
                     .symbol("CAD")
                     .description("Canadian national currency")
                     .active(true)
-                    .code(CurrencyCode.Code.CAD)
+                    .code(CurrencyCode.CAD)
                     .build(),
                 Currency.builder()
                     .name("British Pound")
                     .symbol("GBP")
                     .description("United Kingdom national currency")
                     .active(true)
-                    .code(CurrencyCode.Code.GBP)
+                    .code(CurrencyCode.GBP)
                     .build()
             );
 
@@ -1114,7 +1114,7 @@ public class TestDataRunner implements CommandLineRunner {
 
         companyRepository.saveAndFlush(stateCompany);
 
-        Currency rsdCurrency = currencyRepository.findByCode(CurrencyCode.Code.RSD);
+        Currency rsdCurrency = currencyRepository.findByCode(CurrencyCode.RSD);
 
         Account stateAccount =
             Account.builder()

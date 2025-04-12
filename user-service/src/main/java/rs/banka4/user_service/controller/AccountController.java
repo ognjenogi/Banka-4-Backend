@@ -3,6 +3,7 @@ package rs.banka4.user_service.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.user_service.controller.docs.AccountApiDocumentation;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
 import rs.banka4.user_service.domain.account.dtos.CreateAccountDto;
@@ -66,6 +68,12 @@ public class AccountController implements AccountApiDocumentation {
                     .toString()
             )
         );
+    }
+
+    @Override
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Set<AccountNumberDto>> getAccountsForUser(@PathVariable UUID userId) {
+        return ResponseEntity.ok(accountService.getAccountsForUser(userId));
     }
 
     @Override

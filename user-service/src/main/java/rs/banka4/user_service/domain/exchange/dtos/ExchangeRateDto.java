@@ -9,6 +9,6 @@ public record ExchangeRateDto(
     String nextUpdateISO8061withTimezone,
     long nextUpdateUnix,
     long lastLocalUpdate,
-    Map<CurrencyCode.Code, ExchangeRate> exchanges
+    Map<CurrencyCode, ExchangeRate> exchanges
 ) {
 }

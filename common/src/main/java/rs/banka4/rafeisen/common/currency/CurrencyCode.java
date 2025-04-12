@@ -8,16 +8,5 @@ public enum CurrencyCode {
     JPY,
     AUD,
     CAD,
-    GBP;
-
-    public enum Code {
-        RSD,
-        EUR,
-        USD,
-        CHF,
-        JPY,
-        AUD,
-        CAD,
-        GBP;
-    }
+    GBP
 }

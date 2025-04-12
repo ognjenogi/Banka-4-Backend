@@ -10,6 +10,6 @@ import rs.banka4.rafeisen.common.exceptions.BaseApiException;
  */
 public class StockOwnershipNotFound extends BaseApiException {
     public StockOwnershipNotFound(UUID assetId, UUID userId) {
-        super(HttpStatus.NOT_FOUND, Map.of("assetId", assetId, "userId", userId));
+        super(HttpStatus.NOT_FOUND, Map.of("stockId", assetId, "userId", userId));
     }
 }

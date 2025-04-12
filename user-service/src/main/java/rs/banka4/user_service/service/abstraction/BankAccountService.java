@@ -11,7 +11,7 @@ import rs.banka4.user_service.domain.transaction.dtos.TransactionDto;
 public interface BankAccountService {
     List<Account> getBankAccounts();
 
-    Account getBankAccountForCurrency(CurrencyCode.Code currency);
+    Account getBankAccountForCurrency(CurrencyCode currency);
 
     Page<TransactionDto> getAllTransactionsForBank(
         Authentication authentication,

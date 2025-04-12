@@ -10,11 +10,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
 import rs.banka4.user_service.domain.account.dtos.CreateAccountDto;
 import rs.banka4.user_service.domain.account.dtos.SetAccountLimitsDto;
@@ -125,6 +127,8 @@ public interface AccountApiDocumentation {
         }
     )
     ResponseEntity<Set<AccountDto>> getAccountsForClient(Authentication auth);
+
+    ResponseEntity<Set<AccountNumberDto>> getAccountsForUser(UUID userId);
 
     @Operation(
         summary = "Create a new Account with optional card",

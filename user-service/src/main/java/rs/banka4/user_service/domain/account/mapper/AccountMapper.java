@@ -3,6 +3,7 @@ package rs.banka4.user_service.domain.account.mapper;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
+import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.user_service.domain.account.db.Account;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
 import rs.banka4.user_service.domain.account.dtos.AccountTypeDto;
@@ -38,7 +39,7 @@ public interface AccountMapper {
         if (
             account.getCurrency()
                 .getCode()
-                == CurrencyCode.Code.RSD
+                == CurrencyCode.RSD
         ) {
             if (
                 account.getAccountType()
@@ -59,4 +60,10 @@ public interface AccountMapper {
             }
         }
     }
+
+    @Mapping(
+        target = "currency",
+        expression = "java(account.getCurrency().getCode())"
+    )
+    AccountNumberDto toAccountNumberDto(Account account);
 }

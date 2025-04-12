@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.repositories;
 
+import java.util.Optional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,8 @@ public interface OtcRequestRepository extends JpaRepository<OtcRequest, UUID> {
         @Param("userId") String userId,
         Pageable pageable
     );
+
+    Optional<OtcRequest> findByOptionId(UUID optionId);
 
     List<OtcRequest> findAllByStatusAndSettlementDateBefore(RequestStatus status, LocalDate date);
 }

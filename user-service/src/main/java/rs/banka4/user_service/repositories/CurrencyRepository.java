@@ -9,5 +9,5 @@ import rs.banka4.user_service.domain.currency.db.Currency;
 @Repository
 public interface CurrencyRepository extends JpaRepository<Currency, UUID> {
 
-    Currency findByCode(CurrencyCode.Code code);
+    Currency findByCode(CurrencyCode code);
 }

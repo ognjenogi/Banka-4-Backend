@@ -3,9 +3,11 @@ package rs.banka4.stock_service.service.abstraction;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import rs.banka4.stock_service.domain.listing.db.Listing;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.listing.dtos.ListingDetailsDto;
 import rs.banka4.stock_service.domain.listing.dtos.ListingFilterDto;
@@ -30,4 +32,6 @@ public interface ListingService {
     );
 
     MonetaryAmount getLatestPriceForStock(UUID stockId);
+
+    Optional<Listing> findActiveListingByAsset(UUID assetId);
 }

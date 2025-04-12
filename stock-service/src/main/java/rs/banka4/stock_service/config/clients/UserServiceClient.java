@@ -1,11 +1,13 @@
 package rs.banka4.stock_service.config.clients;
 
+import java.util.Set;
 import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 import rs.banka4.rafeisen.common.dto.UserResponseDto;
 import rs.banka4.stock_service.domain.response.PaginatedResponse;
@@ -25,4 +27,7 @@ public interface UserServiceClient {
 
     @GET("user/{id}")
     Call<UserResponseDto> getUserInfo(@Path("id") UUID id, @Header("Authorization") String token);
+
+    @GET("account/user/{id}")
+    Call<Set<AccountNumberDto>> getUserAccounts(@Path("id") UUID id);
 }
