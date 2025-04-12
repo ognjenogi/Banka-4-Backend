@@ -20,6 +20,8 @@ public interface ListingRepository extends
     )
     Optional<Listing> getLatestListing(UUID securityId, Limit limit);
 
+    Optional<Listing> findBySecurityIdAndActiveTrue(UUID assetId);
+
     @Query(
         value = "select new rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount(l.ask, l.exchange.currency) from Listing l where l.security.id = :stockId order by l.lastRefresh desc"
     )
