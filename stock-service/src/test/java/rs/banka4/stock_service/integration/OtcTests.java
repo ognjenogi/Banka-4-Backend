@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,6 +30,7 @@ import rs.banka4.stock_service.domain.security.stock.db.Stock;
 import rs.banka4.stock_service.domain.trading.db.ForeignBankId;
 import rs.banka4.stock_service.domain.trading.db.OtcRequest;
 import rs.banka4.stock_service.domain.trading.db.RequestStatus;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.repositories.AssetRepository;
 import rs.banka4.stock_service.repositories.OtcRequestRepository;
 import rs.banka4.stock_service.repositories.SecurityRepository;
@@ -41,7 +45,8 @@ public class OtcTests {
 
     @Autowired
     private MockMvcTester mvc;
-
+    @Autowired
+    private ObjectMapper objMapper;
     @MockitoBean
     private Retrofit userServiceRetrofit;
 
@@ -213,6 +218,30 @@ public class OtcTests {
             otcRequestRepository.findById(id)
                 .get();
         assertEquals(RequestStatus.REJECTED, otcRejected.getStatus());
+    }
+    @Test
+    public void testUpdateOtc() throws JsonProcessingException {
+        OtcRequest dummyRequest = createDummyOtcRequestMeRead();
+        var id = dummyRequest.getId();
+        var momo = new MonetaryAmount();
+        momo.setAmount(BigDecimal.TEN);
+        momo.setCurrency(CurrencyCode.CAD);
+        var updateDto = new OtcRequestUpdateDto(null,momo,10,LocalDate.parse("2025-04-11"));
+        var body = objMapper.writeValueAsString(updateDto);
+        mvc.patch()
+                .uri("/otc/update/" + id)
+                .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(body)
+                .assertThat()
+                .hasStatusOk();
+        var otcRejected =
+                otcRequestRepository.findById(id)
+                        .get();
+        assertEquals(dummyRequest.getPricePerStock().getCurrency(),otcRejected.getPricePerStock().getCurrency());
+        assertEquals(momo.getCurrency(),otcRejected.getPremium().getCurrency());
+        assertEquals(10,otcRejected.getAmount());
     }
 
     private OtcRequest createDummyOtcRequest() {
