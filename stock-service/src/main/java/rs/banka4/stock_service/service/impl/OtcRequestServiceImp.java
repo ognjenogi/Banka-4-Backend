@@ -74,10 +74,7 @@ public class OtcRequestServiceImp implements OtcRequestService {
                         otcRequestCreateDto.assetId()
                     )
                 );
-        if (
-            assetOwner.getPublicAmount() + assetOwner.getReservedAmount()
-                < otcRequestCreateDto.amount()
-        ) throw new RequestFailed();
+        if (assetOwner.getPublicAmount() < otcRequestCreateDto.amount()) throw new RequestFailed();
         var me = new ForeignBankId(BankRoutingNumber.BANK4.getRoutingNumber(), idMy.toString());
         var madeFor =
             new ForeignBankId(
