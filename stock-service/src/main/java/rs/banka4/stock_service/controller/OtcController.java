@@ -2,6 +2,7 @@ package rs.banka4.stock_service.controller;
 
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,7 @@ import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.controller.docs.OtcApiDocumentation;
 import rs.banka4.stock_service.domain.trading.db.OtcMapper;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.service.abstraction.OtcRequestService;
@@ -62,6 +64,17 @@ public class OtcController implements OtcApiDocumentation {
             ourAuth.getPrincipal()
                 .userId();
         otcRequestService.updateOtc(otcRequestUpdateDto,id,myId);
+        return ResponseEntity.ok()
+            .build();
+    }
+
+    @Override
+    public ResponseEntity<Void> createOtcRequest(@RequestBody @Valid OtcRequestCreateDto otcRequestCreateDto,Authentication auth) {
+        final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
+        var myId =
+            ourAuth.getPrincipal()
+                .userId();
+        otcRequestService.createOtc(otcRequestCreateDto,myId);
         return ResponseEntity.ok()
             .build();
     }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 
@@ -134,5 +135,9 @@ public interface OtcApiDocumentation {
 
         @Parameter(description = "Unique identifier of the OTC request that is being updated", required = true)
         @PathVariable UUID id
-    );}
         ,Authentication auth
+    );
+    ResponseEntity<Void> createOtcRequest(
+        @Parameter(description = "Data Transfer Object representing the create information for the OTC request negotiation")
+        OtcRequestCreateDto otcRequestCreateDto,Authentication auth);
+}
