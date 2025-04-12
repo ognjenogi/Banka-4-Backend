@@ -89,6 +89,15 @@ public class OtcRequestServiceImp implements OtcRequestService {
         var stock =
             (Stock) assetOwner.getId()
                 .getAsset();
-        otcMapper.toOtcRequest(otcRequestCreateDto, me, madeFor, me, RequestStatus.ACTIVE, stock);
+        var newOtc =
+            otcMapper.toOtcRequest(
+                otcRequestCreateDto,
+                me,
+                madeFor,
+                me,
+                RequestStatus.ACTIVE,
+                stock
+            );
+        otcRequestRepository.save(newOtc);
     }
 }

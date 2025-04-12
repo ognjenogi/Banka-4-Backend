@@ -71,6 +71,7 @@ public class OtcController implements OtcApiDocumentation {
     }
 
     @Override
+    @PostMapping("/create")
     public ResponseEntity<Void> createOtcRequest(
         @RequestBody @Valid OtcRequestCreateDto otcRequestCreateDto,
         Authentication auth

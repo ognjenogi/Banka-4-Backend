@@ -34,6 +34,14 @@ public interface OtcMapper {
         String modifiedBy
     );
 
+    @Mapping(
+        target = "stock",
+        source = "stock"
+    )
+    @Mapping(
+        target = "id",
+        ignore = true
+    )
     OtcRequest toOtcRequest(
         OtcRequestCreateDto otcRequestCreateDto,
         ForeignBankId madeBy,
