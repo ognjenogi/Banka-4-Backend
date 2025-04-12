@@ -6,10 +6,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 
 public interface OtcApiDocumentation {
@@ -99,4 +103,35 @@ public interface OtcApiDocumentation {
     ResponseEntity<Void> rejectOtcRequest(
         @Parameter(description = "id of the otc request") UUID requestId
     );
-}
+
+    @Operation(
+        summary = "Update OTC Request",
+        description = "Updates an existing OTC request negotiation with new values for price per stock, premium, amount, and settlement date. " +
+            "The request status will be updated based on the business rules (for example, rejected if certain conditions are met).",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "OTC request successfully updated"
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "OTC request not found"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
+        }
+    )
+    ResponseEntity<Void> updateOtcRequest(
+        @Parameter(description = "Data Transfer Object representing the update information for the OTC request negotiation")
+        OtcRequestUpdateDto otcRequestUpdateDto,
+
+        @Parameter(description = "Unique identifier of the OTC request that is being updated", required = true)
+        @PathVariable UUID id
+    );}
