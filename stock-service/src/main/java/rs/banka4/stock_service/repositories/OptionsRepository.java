@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import rs.banka4.stock_service.domain.options.db.Option;
 
+
 @Repository
 public interface OptionsRepository extends JpaRepository<Option, UUID> {
     @Query(
@@ -33,4 +34,12 @@ public interface OptionsRepository extends JpaRepository<Option, UUID> {
         nativeQuery = true
     )
     void deleteOptionsWithoutOrders();
+
+    @Modifying
+    @Transactional
+    @Query(
+        value = "UPDATE options SET active = false",
+        nativeQuery = true
+    )
+    void deactivateAll();
 }

@@ -289,6 +289,7 @@ public class ListingsAndOptionsUpdatesScheduler {
         }
 
         optionsRepository.deleteOptionsWithoutOrders();
+        optionsRepository.deactivateAll();
         optionsRepository.saveAllAndFlush(options);
     }
 
