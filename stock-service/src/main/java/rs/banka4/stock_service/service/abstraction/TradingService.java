@@ -10,4 +10,6 @@ import java.util.UUID;
 
 public interface TradingService {
     void sendPremiumAndGetOption(AccountNumberDto buyer, AccountNumberDto seller, OtcRequest otcRequest);
+
+    void buyOption(Option o, UUID userId, String userAccount);
 }
