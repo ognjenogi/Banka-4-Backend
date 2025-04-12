@@ -362,7 +362,7 @@ public class TransactionServiceImpl implements TransactionService {
             if (
                 fromAccount.getCurrency()
                     .getCode()
-                    .equals(CurrencyCode.Code.RSD)
+                    .equals(CurrencyCode.RSD)
             ) {
                 fee = transferFromRsdToForeign(fromAccount, toAccount, amount);
             } else {
@@ -370,7 +370,7 @@ public class TransactionServiceImpl implements TransactionService {
                 if (
                     toAccount.getCurrency()
                         .getCode()
-                        .equals(CurrencyCode.Code.RSD)
+                        .equals(CurrencyCode.RSD)
                 ) {
                     fee = transferFromForeignToRsd(fromAccount, toAccount, amount);
                 }
@@ -433,8 +433,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // Transfer Client RSD to bank's RSD account
-        Account rsdBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.Code.RSD);
+        Account rsdBankAccount = bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.RSD);
         fromAccount.setBalance(
             fromAccount.getBalance()
                 .subtract(amount)
@@ -554,12 +553,11 @@ public class TransactionServiceImpl implements TransactionService {
                 amount,
                 fromAccount.getCurrency()
                     .getCode(),
-                CurrencyCode.Code.RSD
+                CurrencyCode.RSD
             );
 
         // Transfer RSD from RSD bank account to client
-        Account rsdBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.Code.RSD);
+        Account rsdBankAccount = bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.RSD);
         rsdBankAccount.setBalance(
             rsdBankAccount.getBalance()
                 .subtract(convertedAmount)
@@ -643,14 +641,13 @@ public class TransactionServiceImpl implements TransactionService {
         );
 
         // Convert ForeignFrom to RSD using the sell rate EUR Bank -> RSD Bank
-        Account rsdBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.Code.RSD);
+        Account rsdBankAccount = bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.RSD);
         BigDecimal amountInRSD =
             exchangeRateService.convertCurrency(
                 amount,
                 fromAccount.getCurrency()
                     .getCode(),
-                CurrencyCode.Code.RSD
+                CurrencyCode.RSD
             );
         rsdBankAccount.setBalance(
             rsdBankAccount.getBalance()
@@ -682,12 +679,12 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal amountInForeignTo =
             exchangeRateService.convertCurrency(
                 amountInRSD,
-                CurrencyCode.Code.RSD,
+                CurrencyCode.RSD,
                 toAccount.getCurrency()
                     .getCode()
             );
         Account foreignToBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.Code.USD);
+            bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.USD);
         foreignToBankAccount.setBalance(
             foreignToBankAccount.getBalance()
                 .add(amountInForeignTo)

@@ -18,7 +18,7 @@ public class Currency {
 
     @Id
     @Enumerated(EnumType.STRING)
-    private CurrencyCode.Code code;
+    private CurrencyCode code;
 
     @Column(nullable = false)
     private String name;

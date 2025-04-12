@@ -64,22 +64,18 @@ public class ExchangeRateService {
      * @throws NullPointerException if exchange rates are not available for the given currencies.
      * @throws IllegalArgumentException if an invalid currency code is provided.
      */
-    public BigDecimal convertCurrency(
-        BigDecimal amount,
-        CurrencyCode.Code from,
-        CurrencyCode.Code to
-    ) {
+    public BigDecimal convertCurrency(BigDecimal amount, CurrencyCode from, CurrencyCode to) {
         ExchangeRateDto exchangeRateDto = getExchangeRates();
-        Map<CurrencyCode.Code, ExchangeRate> exchangeRates = exchangeRateDto.exchanges();
+        Map<CurrencyCode, ExchangeRate> exchangeRates = exchangeRateDto.exchanges();
 
-        if (from.equals(CurrencyCode.Code.RSD)) {
+        if (from.equals(CurrencyCode.RSD)) {
             return amount.divide(
                 exchangeRates.get(to)
                     .buy(),
                 2,
                 RoundingMode.HALF_UP
             );
-        } else if (to.equals(CurrencyCode.Code.RSD)) {
+        } else if (to.equals(CurrencyCode.RSD)) {
             return amount.multiply(
                 exchangeRates.get(from)
                     .sell()

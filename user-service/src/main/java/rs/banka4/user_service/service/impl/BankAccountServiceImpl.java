@@ -45,7 +45,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         return accountRepository.findAllByCompany(bank);
     }
 
-    public Account getBankAccountForCurrency(CurrencyCode.Code currency) {
+    public Account getBankAccountForCurrency(CurrencyCode currency) {
         return getBankAccounts().stream()
             .filter(
                 account -> account.getCurrency()
@@ -88,7 +88,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     public Client getBankOwner() {
-        return getBankAccountForCurrency(CurrencyCode.Code.RSD).getCompany()
+        return getBankAccountForCurrency(CurrencyCode.RSD).getCompany()
             .getMajorityOwner();
     }
 }

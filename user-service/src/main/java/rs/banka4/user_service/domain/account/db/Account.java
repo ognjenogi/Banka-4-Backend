@@ -79,7 +79,7 @@ public class Account {
     public void setAccountMaintenance() {
         if (
             this.currency != null
-                && CurrencyCode.Code.RSD.equals(
+                && CurrencyCode.RSD.equals(
                     this.getCurrency()
                         .getCode()
                 )

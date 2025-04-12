@@ -39,7 +39,7 @@ public interface AccountMapper {
         if (
             account.getCurrency()
                 .getCode()
-                == CurrencyCode.Code.RSD
+                == CurrencyCode.RSD
         ) {
             if (
                 account.getAccountType()

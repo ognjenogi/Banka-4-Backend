@@ -40,7 +40,7 @@ public class MessageHelper {
         String firstName,
         Long loanNumber,
         BigDecimal installmentAmount,
-        CurrencyCode.Code code,
+        CurrencyCode code,
         LocalDate date
     ) {
         Map<String, Object> params = new HashMap<>();
@@ -57,7 +57,7 @@ public class MessageHelper {
         String firstName,
         Long loanNumber,
         BigDecimal installmentAmount,
-        CurrencyCode.Code code,
+        CurrencyCode code,
         LocalDate date
     ) {
         Map<String, Object> params = new HashMap<>();

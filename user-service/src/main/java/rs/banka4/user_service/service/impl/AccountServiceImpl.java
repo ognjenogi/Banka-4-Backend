@@ -340,7 +340,7 @@ public class AccountServiceImpl implements AccountService {
      * Connects the specified currency to the given account.
      *
      * @param account the account to which the currency is to be connected
-     * @param createAccountDto contains the details of the currency code {@link CurrencyCode.Code}
+     * @param createAccountDto contains the details of the currency code {@link CurrencyCode}
      * @throws IllegalStateException if the currency code does not exist in the repository
      */
     private void connectCurrencyToAccount(Account account, CreateAccountDto createAccountDto) {

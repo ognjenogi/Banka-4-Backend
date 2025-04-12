@@ -35,7 +35,7 @@ public class AccountObjectMother {
             ),
             null,
             BigDecimal.valueOf(1000.00),
-            CurrencyCode.Code.RSD,
+            CurrencyCode.RSD,
             false
         );
     }
@@ -56,7 +56,7 @@ public class AccountObjectMother {
             BigDecimal.valueOf(1000.00),
             CurrencyMapper.INSTANCE.toDto(
                 Currency.builder()
-                    .code(CurrencyCode.Code.RSD)
+                    .code(CurrencyCode.RSD)
                     .build()
             ),
             new EmployeeDto(
@@ -99,13 +99,7 @@ public class AccountObjectMother {
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
         account.setCurrency(
-            new Currency(
-                CurrencyCode.Code.RSD,
-                "Serbian Dinar",
-                "RSD",
-                "Serbian Dinar currency",
-                true
-            )
+            new Currency(CurrencyCode.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true)
         );
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
@@ -127,13 +121,7 @@ public class AccountObjectMother {
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
         account.setCurrency(
-            new Currency(
-                CurrencyCode.Code.RSD,
-                "Serbian Dinar",
-                "RSD",
-                "Serbian Dinar currency",
-                true
-            )
+            new Currency(CurrencyCode.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true)
         );
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
