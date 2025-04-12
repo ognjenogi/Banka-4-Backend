@@ -1,15 +1,13 @@
 package rs.banka4.stock_service.service.impl;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.stock_service.domain.options.db.Option;
 import rs.banka4.stock_service.domain.options.db.OptionType;
-import rs.banka4.stock_service.exceptions.NotEnoughStock;
-import rs.banka4.stock_service.exceptions.OptionNotFound;
-import rs.banka4.stock_service.exceptions.OptionOwnershipNotFound;
-import rs.banka4.stock_service.exceptions.StockOwnershipNotFound;
+import rs.banka4.stock_service.exceptions.*;
 import rs.banka4.stock_service.repositories.AssetOwnershipRepository;
 import rs.banka4.stock_service.repositories.OptionsRepository;
 import rs.banka4.stock_service.repositories.OtcRequestRepository;
@@ -50,6 +48,12 @@ public class OptionServiceImpl implements OptionService {
                     .getAsset() instanceof Option option)
         ) {
             throw new OptionOwnershipNotFound(optionId, userId);
+        }
+        if (
+            !option.getSettlementDate()
+                .isAfter(OffsetDateTime.now())
+        ) {
+            throw new OptionExpired();
         }
         if (option.getOptionType() == OptionType.PUT) {
             var stockOwnership =
