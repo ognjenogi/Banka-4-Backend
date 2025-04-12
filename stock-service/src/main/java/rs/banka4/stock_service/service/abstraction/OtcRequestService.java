@@ -15,4 +15,5 @@ public interface OtcRequestService {
     void rejectOtc(UUID requestId);
 
     void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id);
+    void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id,UUID modifiedBy);
 }

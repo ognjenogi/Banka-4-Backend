@@ -56,8 +56,12 @@ public class OtcController implements OtcApiDocumentation {
 
     @Override
     @PatchMapping("/update/{id}")
-    public ResponseEntity<Void> updateOtcRequest(@RequestBody OtcRequestUpdateDto otcRequestUpdateDto, @PathVariable UUID id) {
-        otcRequestService.updateOtc(otcRequestUpdateDto,id);
+    public ResponseEntity<Void> updateOtcRequest(@RequestBody OtcRequestUpdateDto otcRequestUpdateDto, @PathVariable UUID id,Authentication auth) {
+        final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
+        var myId =
+            ourAuth.getPrincipal()
+                .userId();
+        otcRequestService.updateOtc(otcRequestUpdateDto,id,myId);
         return ResponseEntity.ok()
             .build();
     }

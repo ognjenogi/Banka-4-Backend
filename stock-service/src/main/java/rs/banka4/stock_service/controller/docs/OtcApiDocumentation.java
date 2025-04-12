@@ -135,3 +135,4 @@ public interface OtcApiDocumentation {
         @Parameter(description = "Unique identifier of the OTC request that is being updated", required = true)
         @PathVariable UUID id
     );}
+        ,Authentication auth

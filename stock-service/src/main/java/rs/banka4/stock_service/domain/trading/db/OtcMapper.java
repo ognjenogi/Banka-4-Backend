@@ -32,5 +32,5 @@ public interface OtcMapper {
         String modifiedBy
     );
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void update(@MappingTarget OtcRequest otc, OtcRequestUpdateDto dto);
+    void update(@MappingTarget OtcRequest otc, OtcRequestUpdateDto dto, ForeignBankId modifiedBy);
 }
