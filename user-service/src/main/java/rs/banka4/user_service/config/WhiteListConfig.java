@@ -14,11 +14,16 @@ public class WhiteListConfig {
         "/auth/refresh-token",
         "/auth/forgot-password/*",
         "/auth/verify",
-        "/docs/**"
+        "/docs/**",
+        "/account/user/**"
     };
 
     private static final List<Pattern> WHITE_LIST_URL_PATTERNS =
-        List.of(Pattern.compile("/docs/.*"), Pattern.compile("/auth/forgot-password/.*"));
+        List.of(
+            Pattern.compile("/docs/.*"),
+            Pattern.compile("/auth/forgot-password/.*"),
+            Pattern.compile("/account/user/.*")
+        );
 
     public static boolean isWhitelisted(String requestURI) {
         return Arrays.stream(WHITE_LIST_URL)

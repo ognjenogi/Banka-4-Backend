@@ -1,10 +1,12 @@
 package rs.banka4.user_service.service.abstraction;
 
 import java.util.Set;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.user_service.domain.account.db.Account;
 import rs.banka4.user_service.domain.account.dtos.AccountDto;
 import rs.banka4.user_service.domain.account.dtos.CreateAccountDto;
@@ -12,6 +14,8 @@ import rs.banka4.user_service.domain.account.dtos.SetAccountLimitsDto;
 
 public interface AccountService {
     Set<AccountDto> getAccountsForClient(String token);
+
+    Set<AccountNumberDto> getAccountsForUser(UUID userId);
 
     AccountDto getAccount(String token, String id);
 
