@@ -5,10 +5,13 @@ import java.time.LocalDate;
 import java.util.UUID;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
+import rs.banka4.stock_service.domain.assets.db.AssetOwnership;
+import rs.banka4.stock_service.domain.assets.db.AssetOwnershipId;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
 import rs.banka4.stock_service.domain.trading.db.ForeignBankId;
 import rs.banka4.stock_service.domain.trading.db.OtcRequest;
 import rs.banka4.stock_service.domain.trading.db.RequestStatus;
+import rs.banka4.stock_service.repositories.AssetOwnershipRepository;
 import rs.banka4.stock_service.repositories.AssetRepository;
 import rs.banka4.stock_service.repositories.OtcRequestRepository;
 import rs.banka4.stock_service.repositories.SecurityRepository;
@@ -175,5 +178,24 @@ public class OtcRequestGen {
 
         otcRequestRepository.save(req);
         return req;
+    }
+
+    public static void setupDummyAssetOwnership(
+        UUID ownerUserId,
+        int totalAvailable,
+        AssetRepository assetRepository,
+        AssetOwnershipRepository assetOwnershipRepository,
+        SecurityRepository securityRepository
+    ) {
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        AssetOwnershipId id = new AssetOwnershipId(ownerUserId, ex1.get());
+        AssetOwnership assetOwnership = new AssetOwnership();
+        assetOwnership.setId(id);
+        assetOwnership.setPublicAmount(totalAvailable / 2);
+        assetOwnership.setReservedAmount(totalAvailable / 2);
+        assetOwnershipRepository.save(assetOwnership);
     }
 }
