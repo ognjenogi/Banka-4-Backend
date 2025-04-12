@@ -3,6 +3,8 @@ package rs.banka4.stock_service.domain.trading.db.dtos;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.security.stock.dtos.StockInfoDto;
 
@@ -11,7 +13,10 @@ import rs.banka4.stock_service.domain.security.stock.dtos.StockInfoDto;
     description = "Data Transfer Object representing an OTC request (negotiation) for trading securities"
 )
 public record OtcRequestDto(
-
+    @Schema(
+        description = "Otc ID",
+        example = "1fad2c01-f82f-41a6-822c-8ca1b3232575"
+    )UUID id,
     @Schema(
         description = "Detailed information about the security (stock) involved in the negotiation",
         implementation = StockInfoDto.class
