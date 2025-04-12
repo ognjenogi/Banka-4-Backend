@@ -30,6 +30,9 @@ public interface OptionsRepository extends JpaRepository<Option, UUID> {
             WHERE NOT EXISTS (
                 SELECT 1 FROM orders ord WHERE ord.asset_id = o.id
             )
+            AND NOT EXISTS (
+                SELECT 1 FROM asset_ownership ao WHERE ao.id_asset_id = o.id
+            )
             """,
         nativeQuery = true
     )

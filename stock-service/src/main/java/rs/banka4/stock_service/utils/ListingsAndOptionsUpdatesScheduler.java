@@ -50,7 +50,6 @@ public class ListingsAndOptionsUpdatesScheduler {
     private final FutureRepository futureRepository;
     private final ListingRepository listingRepository;
     private final ExchangeRepository exchangeRepository;
-    private final ListingDailyPriceInfoRepository listingDailyPriceInfoRepository;
     private final OptionsRepository optionsRepository;
     private final AlphaVantageService alphaRetrofit;
 
@@ -111,7 +110,7 @@ public class ListingsAndOptionsUpdatesScheduler {
             updateOptions();
             LOGGER.info("Options updated");
         } catch (Exception e) {
-            LOGGER.error("Error occurred while fetching listings: {}", e.getMessage());
+            LOGGER.error("Error occurred while fetching options: {}", e.getMessage());
             throw new RuntimeException("Error occurred while making options", e);
         }
 
@@ -229,6 +228,8 @@ public class ListingsAndOptionsUpdatesScheduler {
             Thread.sleep(200);
         }
 
+        long stocksCount = listings.size();
+
         for (ForexPair fp : forexPairRepository.findAll()) {
             listings.add(
                 Listing.builder()
@@ -258,6 +259,18 @@ public class ListingsAndOptionsUpdatesScheduler {
                     .build()
             );
         }
+
+        LOGGER.info(
+            "Saving listings made from "
+                + stocksCount
+                + " stocks, "
+                + forexPairRepository.count()
+                + " forex pairs and "
+                + futureRepository.count()
+                + " future contracts.\n"
+                + "Total listings: "
+                + listings.size()
+        );
 
         listingRepository.deactivateAll();
         listingRepository.saveAllAndFlush(listings);
