@@ -53,7 +53,7 @@ public class TestDataSeeder {
                 .name("Euro")
                 .description("Euro currency")
                 .symbol("€")
-                .code(CurrencyCode.Code.EUR)
+                .code(CurrencyCode.EUR)
                 .active(true)
                 .build();
         return currencyRepository.saveAndFlush(currency);

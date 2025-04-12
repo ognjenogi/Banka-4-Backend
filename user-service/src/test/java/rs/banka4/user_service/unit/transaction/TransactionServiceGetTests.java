@@ -219,7 +219,7 @@ public class TransactionServiceGetTests {
         String token = "mocked-token";
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
-        Currency currency = TransactionObjectMother.generateCurrency(CurrencyCode.Code.EUR);
+        Currency currency = TransactionObjectMother.generateCurrency(CurrencyCode.EUR);
 
         Transaction transaction1 =
             TransactionObjectMother.generateTransaction(

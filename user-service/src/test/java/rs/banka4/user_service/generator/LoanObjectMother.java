@@ -16,7 +16,7 @@ public class LoanObjectMother {
         return new LoanApplicationDto(
             LoanType.CASH,
             BigDecimal.valueOf(1000.00),
-            CurrencyCode.Code.RSD,
+            CurrencyCode.RSD,
             "Education",
             BigDecimal.valueOf(2500.00),
             "Unemployed",
@@ -43,13 +43,7 @@ public class LoanObjectMother {
             LocalDate.now()
                 .plusDays(30),
             BigDecimal.valueOf(900.00),
-            new Currency(
-                CurrencyCode.Code.RSD,
-                "Serbian Dinar",
-                "RSD",
-                "Serbian Dinar currency",
-                true
-            ),
+            new Currency(CurrencyCode.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true),
             LoanStatus.APPROVED,
             Loan.InterestType.FIXED
         );

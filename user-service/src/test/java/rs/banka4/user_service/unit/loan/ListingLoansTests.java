@@ -76,7 +76,7 @@ public class ListingLoansTests {
         UUID accountId = UUID.randomUUID();
 
         Currency currency = new Currency();
-        currency.setCode(CurrencyCode.Code.EUR);
+        currency.setCode(CurrencyCode.EUR);
         currency.setName("EUR");
         currency.setActive(true);
         currency.setSymbol("E");

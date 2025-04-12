@@ -67,7 +67,7 @@ public class GetAllLoansTests {
         sampleLoanRequest.setAmount(new BigDecimal("10000"));
         sampleLoanRequest.setCurrency(new Currency());
         sampleLoanRequest.getCurrency()
-            .setCode(CurrencyCode.Code.EUR);
+            .setCode(CurrencyCode.EUR);
         sampleLoanRequest.getCurrency()
             .setName("Euro");
         sampleLoanRequest.setPurposeOfLoan("Education");
@@ -99,7 +99,7 @@ public class GetAllLoansTests {
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
                 new Currency(
-                    CurrencyCode.Code.RSD,
+                    CurrencyCode.RSD,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
@@ -123,7 +123,7 @@ public class GetAllLoansTests {
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
                 new Currency(
-                    CurrencyCode.Code.RSD,
+                    CurrencyCode.RSD,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
@@ -148,7 +148,7 @@ public class GetAllLoansTests {
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
                 new Currency(
-                    CurrencyCode.Code.RSD,
+                    CurrencyCode.RSD,
                     "Serbian Dinar",
                     "RSD",
                     "Serbian Dinar currency",
@@ -172,7 +172,7 @@ public class GetAllLoansTests {
         loan1.setAccount(account1);
 
         Currency currency = new Currency();
-        currency.setCode(CurrencyCode.Code.EUR);
+        currency.setCode(CurrencyCode.EUR);
         currency.setName("EUR");
         currency.setActive(true);
         currency.setSymbol("E");

@@ -74,7 +74,7 @@ class LoanInstallmentSchedulerTest {
         account.setAvailableBalance(new BigDecimal("5000"));
 
         Currency currency = new Currency();
-        currency.setCode(CurrencyCode.Code.RSD); // Use the appropriate currency code
+        currency.setCode(CurrencyCode.RSD); // Use the appropriate currency code
         account.setCurrency(currency); // Ensure account has a currency
 
 

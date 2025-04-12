@@ -112,7 +112,7 @@ public class ManageLoansTests {
 
         Account userAccount = new Account();
         Currency currency = new Currency();
-        currency.setCode(CurrencyCode.Code.RSD);
+        currency.setCode(CurrencyCode.RSD);
         userAccount.setCurrency(currency);
         userAccount.setBalance(new BigDecimal("5000"));
         loan.setAccount(userAccount);
