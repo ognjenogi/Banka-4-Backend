@@ -179,6 +179,7 @@ public class OtcRequestGen {
         otcRequestRepository.save(req);
         return req;
     }
+
     public static OtcRequest createDummyOtcRequestMeFinished(
         AssetRepository assetRepository,
         SecurityRepository securityRepository,
@@ -233,7 +234,14 @@ public class OtcRequestGen {
         assetOwnership.setReservedAmount(totalAvailable / 2);
         assetOwnershipRepository.save(assetOwnership);
     }
-    public static AssetOwnership createDummyAssetOwnership(UUID userId, int reservedAmount, int publicAmount, AssetRepository assetRepository,AssetOwnershipRepository assetOwnershipRepository) {
+
+    public static AssetOwnership createDummyAssetOwnership(
+        UUID userId,
+        int reservedAmount,
+        int publicAmount,
+        AssetRepository assetRepository,
+        AssetOwnershipRepository assetOwnershipRepository
+    ) {
 //        AssetGenerator.makeExampleAssets()
 //            .forEach(assetRepository::saveAndFlush);
 

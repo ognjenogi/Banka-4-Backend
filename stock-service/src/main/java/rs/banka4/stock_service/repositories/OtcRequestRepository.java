@@ -30,5 +30,6 @@ public interface OtcRequestRepository extends JpaRepository<OtcRequest, UUID> {
         @Param("userId") String userId,
         Pageable pageable
     );
+
     List<OtcRequest> findAllByStatusAndSettlementDateBefore(RequestStatus status, LocalDate date);
 }
