@@ -1,7 +1,9 @@
 package rs.banka4.stock_service.domain.trading.db;
 
 import org.mapstruct.*;
+import rs.banka4.stock_service.domain.security.stock.db.Stock;
 import rs.banka4.stock_service.domain.security.stock.mapper.StockMapper;
+import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 
@@ -31,6 +33,7 @@ public interface OtcMapper {
         String madeFor,
         String modifiedBy
     );
+    OtcRequest toOtcRequest(OtcRequestCreateDto otcRequestCreateDto, ForeignBankId madeBy, ForeignBankId madeFor, ForeignBankId modifiedBy, RequestStatus status, Stock stock);
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void update(@MappingTarget OtcRequest otc, OtcRequestUpdateDto dto, ForeignBankId modifiedBy);
 }
