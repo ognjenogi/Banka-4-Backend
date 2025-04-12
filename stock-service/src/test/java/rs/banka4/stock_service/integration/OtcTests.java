@@ -1,7 +1,6 @@
 package rs.banka4.stock_service.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static rs.banka4.stock_service.generator.OtcRequestGen.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,6 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,16 +29,15 @@ import rs.banka4.rafeisen.common.dto.UserResponseDto;
 import rs.banka4.stock_service.config.clients.UserServiceClient;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.assets.db.AssetOwnership;
+import rs.banka4.stock_service.domain.assets.db.AssetOwnershipId;
 import rs.banka4.stock_service.domain.trading.db.ForeignBankId;
 import rs.banka4.stock_service.domain.trading.db.OtcRequest;
 import rs.banka4.stock_service.domain.trading.db.RequestStatus;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.domain.trading.utill.BankRoutingNumber;
-import rs.banka4.stock_service.repositories.AssetOwnershipRepository;
-import rs.banka4.stock_service.repositories.AssetRepository;
-import rs.banka4.stock_service.repositories.OtcRequestRepository;
-import rs.banka4.stock_service.repositories.SecurityRepository;
+import rs.banka4.stock_service.repositories.*;
+import rs.banka4.stock_service.service.impl.OtcRequestExpiryService;
 import rs.banka4.stock_service.utils.AssetGenerator;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
@@ -71,6 +71,8 @@ public class OtcTests {
 
     @Autowired
     private SecurityRepository securityRepository;
+    @Autowired
+    private OptionsRepository optionsRepository;
 
     @Autowired
     private AssetOwnershipRepository assetOwnershipRepository;
@@ -434,5 +436,42 @@ public class OtcTests {
                 .userId(),
             "madeFor userId mismatch"
         );
+    }
+
+    /**
+     * Tests the expiration of finished OTC requests.
+     *
+     * <p>This test creates an OTC request in the FINISHED state with a settlement date that has passed,
+     * as well as an asset ownership record with reserved and public amounts.
+     * It then invokes the cron job method, asserting that the OTC request’s status is updated to EXPIRED
+     * and that the asset ownership record has its reserved amount decreased and its public amount increased accordingly.
+     */
+    @Autowired
+    private OtcRequestExpiryService expiryService;
+    @Test
+    @Transactional
+    public void testExpireFinishedOtcRequests() {
+        int initialReserved = 10;
+        int initialPublic = 5;
+
+        int requestAmount = 5;
+        OtcRequest request = createDummyOtcRequestMeFinished(assetRepository,securityRepository,otcRequestRepository,requestAmount);
+       var assetOwn = createDummyAssetOwnership(JwtPlaceholders.CLIENT_ID, initialReserved, initialPublic, assetRepository, assetOwnershipRepository);
+
+        expiryService.expireFinishedOtcRequests();
+
+        var updatedRequestOpt = otcRequestRepository.findById(request.getId());
+        assertTrue(updatedRequestOpt.isPresent(), "Expected OTC request to be present");
+        OtcRequest updatedRequest = updatedRequestOpt.get();
+        assertEquals(RequestStatus.EXPIRED, updatedRequest.getStatus(), "OTC request status should be EXPIRED");
+        assetOwnershipRepository.findAll().forEach(System.out::println);
+        var assetOwnershipOpt = assetOwnershipRepository.findById(assetOwn.getId());
+        assertTrue(assetOwnershipOpt.isPresent(), "Expected asset ownership record to be present");
+        AssetOwnership assetOwnership = assetOwnershipOpt.get();
+
+        int expectedReserved = initialReserved - requestAmount;
+        int expectedPublic = initialPublic + requestAmount;
+        assertEquals(expectedReserved, assetOwnership.getReservedAmount(), "Reserved amount mismatch");
+        assertEquals(expectedPublic, assetOwnership.getPublicAmount(), "Public amount mismatch");
     }
 }

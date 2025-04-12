@@ -179,6 +179,41 @@ public class OtcRequestGen {
         otcRequestRepository.save(req);
         return req;
     }
+    public static OtcRequest createDummyOtcRequestMeFinished(
+        AssetRepository assetRepository,
+        SecurityRepository securityRepository,
+        OtcRequestRepository otcRequestRepository,
+        int requestAmount
+    ) {
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+
+        var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        var momo = new MonetaryAmount();
+        momo.setAmount(BigDecimal.TEN);
+        momo.setCurrency(CurrencyCode.AUD);
+        OtcRequest req = new OtcRequest();
+        req.setStock((Stock) ex1.get());
+        req.setMadeBy(
+            new ForeignBankId(
+                1L,
+                UUID.randomUUID()
+                    .toString()
+            )
+        );
+        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
+        req.setModifiedBy(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
+        req.setStatus(RequestStatus.FINISHED);
+        req.setPremium(momo);
+        req.setPricePerStock(momo);
+        req.setSettlementDate(LocalDate.parse("2025-04-12"));
+        req.setPricePerStock(momo);
+        req.setAmount(requestAmount);
+        req.setOptionId(AssetGenerator.OPTION_EX1_PUT_UUID);
+
+        otcRequestRepository.saveAndFlush(req);
+        return req;
+    }
 
     public static void setupDummyAssetOwnership(
         UUID ownerUserId,
@@ -197,5 +232,21 @@ public class OtcRequestGen {
         assetOwnership.setPublicAmount(totalAvailable / 2);
         assetOwnership.setReservedAmount(totalAvailable / 2);
         assetOwnershipRepository.save(assetOwnership);
+    }
+    public static AssetOwnership createDummyAssetOwnership(UUID userId, int reservedAmount, int publicAmount, AssetRepository assetRepository,AssetOwnershipRepository assetOwnershipRepository) {
+//        AssetGenerator.makeExampleAssets()
+//            .forEach(assetRepository::saveAndFlush);
+
+        var ex1 = assetRepository.findById(AssetGenerator.OPTION_EX1_PUT_UUID);
+        AssetOwnershipId ownershipId = new AssetOwnershipId();
+        ownershipId.setUser(userId);
+        ownershipId.setAsset(ex1.get());
+
+        AssetOwnership assetOwnership = new AssetOwnership();
+        assetOwnership.setId(ownershipId);
+        assetOwnership.setReservedAmount(reservedAmount);
+        assetOwnership.setPublicAmount(publicAmount);
+
+        return assetOwnershipRepository.saveAndFlush(assetOwnership);
     }
 }
