@@ -17,4 +17,6 @@ public interface OtcRequestService {
     void updateOtc(OtcRequestUpdateDto otcRequestUpdateDto, UUID id, UUID modifiedBy);
 
     void createOtc(OtcRequestCreateDto otcRequestCreateDto, UUID idMy);
+
+    OtcRequest acceptOtc(UUID requestId, UUID userId);
 }
