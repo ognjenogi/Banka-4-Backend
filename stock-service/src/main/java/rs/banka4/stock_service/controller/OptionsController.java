@@ -1,12 +1,11 @@
 package rs.banka4.stock_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
-import rs.banka4.stock_service.domain.options.dtos.BuyRequestDto;
+import rs.banka4.stock_service.domain.options.dtos.BuyOptionRequestDto;
+import rs.banka4.stock_service.domain.options.dtos.UseOptionRequest;
 import rs.banka4.stock_service.service.abstraction.OptionService;
 
 import java.util.UUID;
@@ -18,8 +17,14 @@ public class OptionsController {
     private final OptionService optionService;
 
     @GetMapping("/buy")
-    public void buyOption (@RequestBody BuyRequestDto buyRequestDto, Authentication auth){
+    public void buyOption (@RequestBody BuyOptionRequestDto buyOptionRequestDto, Authentication auth){
         UUID userId = ((AuthenticatedBankUserAuthentication) auth).getPrincipal().userId();
-        optionService.buyOption(buyRequestDto.optionId(), userId, buyRequestDto.accountNumber());
+        optionService.buyOption(buyOptionRequestDto.optionId(), userId, buyOptionRequestDto.accountNumber(), buyOptionRequestDto.amount());
+    }
+
+    @GetMapping("/use")
+    public void useOption (@RequestBody UseOptionRequest useOptionRequest, Authentication auth){
+        UUID userId = ((AuthenticatedBankUserAuthentication) auth).getPrincipal().userId();
+        optionService.useOption(useOptionRequest.optionId(), userId, useOptionRequest.accountNumber());
     }
 }

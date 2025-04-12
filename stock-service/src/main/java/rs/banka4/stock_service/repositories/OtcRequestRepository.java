@@ -1,5 +1,6 @@
 package rs.banka4.stock_service.repositories;
 
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,6 @@ public interface OtcRequestRepository extends JpaRepository<OtcRequest, UUID> {
         @Param("userId") String userId,
         Pageable pageable
     );
+
+    Optional<OtcRequest> findByOptionId(UUID optionId);
 }

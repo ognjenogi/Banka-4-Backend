@@ -19,7 +19,22 @@ public class TradingServiceImpl implements TradingService {
     }
 
     @Override
-    public void buyOption(Option o, UUID userId, String userAccount) {
+    public void buyOption(Option o, UUID userId, String userAccount, int amount) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void usePutOption(Option o, UUID userId, String userAccount) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void useCallOptionFromExchange(Option o, UUID userId, String userAccount) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void useCallOptionFromOtc(Option o, UUID buyerId, UUID sellerId, String buyerAccount, String sellerAccount, int amount) {
         throw new NotImplementedException();
     }
 }

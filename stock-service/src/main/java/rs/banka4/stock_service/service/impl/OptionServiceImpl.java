@@ -2,11 +2,23 @@ package rs.banka4.stock_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import rs.banka4.rafeisen.common.dto.AccountNumberDto;
+import rs.banka4.stock_service.domain.assets.db.AssetOwnership;
+import rs.banka4.stock_service.domain.options.db.Option;
+import rs.banka4.stock_service.domain.options.db.OptionType;
+import rs.banka4.stock_service.exceptions.NotEnoughStock;
 import rs.banka4.stock_service.exceptions.OptionNotFound;
+import rs.banka4.stock_service.exceptions.OptionOwnershipNotFound;
+import rs.banka4.stock_service.exceptions.StockOwnershipNotFound;
+import rs.banka4.stock_service.repositories.AssetOwnershipRepository;
 import rs.banka4.stock_service.repositories.OptionsRepository;
+import rs.banka4.stock_service.repositories.OtcRequestRepository;
+import rs.banka4.stock_service.service.abstraction.AssetOwnershipService;
 import rs.banka4.stock_service.service.abstraction.OptionService;
+import rs.banka4.stock_service.service.abstraction.OtcRequestService;
 import rs.banka4.stock_service.service.abstraction.TradingService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -14,18 +26,57 @@ import java.util.UUID;
 public class OptionServiceImpl implements OptionService {
     private final OptionsRepository optionsRepository;
     private final TradingService tradingService;
+    private final AssetOwnershipRepository assetOwnershipRepository;
+    private final OtcRequestRepository otcRequestRepository;
+    private final OtcRequestService otcRequestService;
     @Override
-    public void buyOption(UUID optionId, UUID userId, String accountNumber) {
+    public void buyOption(UUID optionId, UUID userId, String accountNumber, int amount) {
         //TODO check if account number is user's account and if he has enough money on it
         var option = optionsRepository.findById(optionId);
         if(option.isEmpty() || !option.get().isActive()){
             throw new OptionNotFound();
         }
-        tradingService.buyOption(option.get(), userId, accountNumber);
+        tradingService.buyOption(option.get(), userId, accountNumber, amount);
     }
 
     @Override
-    public void useOption(UUID optionId, UUID userId) {
-
+    public void useOption(UUID optionId, UUID userId, String accountNumber) {
+        var ownership = assetOwnershipRepository.findByMyId(userId, optionId);
+        if(ownership.isEmpty() || !(ownership.get().getId().getAsset() instanceof Option option)){
+            throw new OptionOwnershipNotFound(optionId, userId);
+        }
+        if(option.getOptionType() == OptionType.PUT){
+            var stockOwnership = assetOwnershipRepository.findByMyId(userId, option.getStock().getId());
+            if(stockOwnership.isEmpty()){
+                throw new StockOwnershipNotFound(option.getStock().getId(), userId);
+            }
+            if(ownership.get().getPrivateAmount() <= stockOwnership.get().getPrivateAmount()){
+                tradingService.usePutOption(option, userId, accountNumber);
+            }
+            else {
+                throw new NotEnoughStock();
+            }
+        }
+        else{
+            var otcRequest = otcRequestRepository.findByOptionId(optionId);
+            if(otcRequest.isEmpty()){
+                //exchange option
+                tradingService.useCallOptionFromExchange(option, userId, accountNumber);
+            }
+            else{
+                //otc option
+                AccountNumberDto sellerAccount = otcRequestService.getRequiredAccount(
+                    UUID.fromString(otcRequest.get().getMadeFor().userId()),
+                    otcRequest.get().getPricePerStock().getCurrency(),
+                    null
+                    );
+                tradingService.useCallOptionFromOtc(option,
+                    userId,
+                    UUID.fromString(otcRequest.get().getMadeFor().userId()),
+                    accountNumber,
+                    sellerAccount.accountNumber(),
+                    otcRequest.get().getAmount());
+            }
+        }
     }
 }

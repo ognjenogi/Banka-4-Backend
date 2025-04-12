@@ -148,7 +148,7 @@ public class OtcRequestServiceImp implements OtcRequestService {
         return null;
     }
 
-    AccountNumberDto getRequiredAccount(UUID userId, CurrencyCode currencyCode, BigDecimal premium){
+    public AccountNumberDto getRequiredAccount(UUID userId, CurrencyCode currencyCode, BigDecimal premium){
         UserServiceClient userServiceClient =
             userServiceRetrofit.create(UserServiceClient.class);
         try {
