@@ -3,8 +3,11 @@ package rs.banka4.stock_service.service.impl;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
@@ -125,6 +128,25 @@ public class OrderServiceImpl implements OrderService {
             );
 
         return new OrderPreviewDto(typeLabel, price, request.quantity());
+    }
+
+    @Override
+    public Page<OrderDto> searchOrders(List<Status> statuses, Pageable pageable) {
+        Page<Order> orders;
+        if (statuses == null || statuses.isEmpty()) {
+            orders = orderRepository.findAll(pageable);
+        } else {
+            orders = orderRepository.findAllByStatusIn(statuses, pageable);
+        }
+        return orders.map(OrderMapper.INSTANCE::toDto);
+    }
+
+    @Override
+    public OrderDto getOrderById(UUID orderId) {
+        return OrderMapper.INSTANCE.toDto(
+            orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound(orderId.toString()))
+        );
     }
 
     private String buildOrderTypeLabel(OrderType type, boolean allOrNone, boolean margin) {

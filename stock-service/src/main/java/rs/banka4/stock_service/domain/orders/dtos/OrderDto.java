@@ -18,6 +18,8 @@ public record OrderDto(
     Status status,
     boolean isDone,
     OffsetDateTime createdAt,
-    OffsetDateTime lastModified
+    OffsetDateTime lastModified,
+    int contractSize,
+    int remainingPortions
 ) {
 }
