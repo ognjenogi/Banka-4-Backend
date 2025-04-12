@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.stock_service.config.retrofit.AlphaVantageService;
@@ -186,7 +185,6 @@ public class ListingsAndOptionsUpdatesScheduler {
             .build();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateListings() throws IOException, InterruptedException {
         try {
             srbForexExchange = getExchange("SRBFORX");
@@ -276,7 +274,6 @@ public class ListingsAndOptionsUpdatesScheduler {
         listingRepository.saveAllAndFlush(listings);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateOptions() {
         OptionsMaker optionsMaker = new OptionsMaker();
         List<Option> options = new ArrayList<>();
@@ -306,7 +303,6 @@ public class ListingsAndOptionsUpdatesScheduler {
         optionsRepository.saveAllAndFlush(options);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void refreshForexPairs() throws IOException, InterruptedException {
         List<ForexPair> forexPairs = new ArrayList<>();
 
