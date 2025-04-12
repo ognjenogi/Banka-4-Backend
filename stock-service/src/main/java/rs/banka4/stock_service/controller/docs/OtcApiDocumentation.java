@@ -139,6 +139,30 @@ public interface OtcApiDocumentation {
         Authentication auth
     );
 
+    @Operation(
+        summary = "Create OTC Request",
+        description = "Creates a new OTC request negotiation for trading securities. <br/>"
+            + "This operation verifies that the asset ownership (sum of public and reserved amounts) "
+            + "is sufficient for the requested amount. If the validation passes, "
+            + "an OTC request is created with the authenticated user as the initiator. "
+            + "Additional details are obtained from the asset ownership and the bank routing information "
+            + "to generate the final OTC request in the ACTIVE state.",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "OTC request successfully created"
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters or insufficient asset ownership"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
+        }
+    )
     ResponseEntity<Void> createOtcRequest(
         @Parameter(
             description = "Data Transfer Object representing the create information for the OTC request negotiation"
