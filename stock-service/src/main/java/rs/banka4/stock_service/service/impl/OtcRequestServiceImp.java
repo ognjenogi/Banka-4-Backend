@@ -8,7 +8,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -136,8 +135,27 @@ public class OtcRequestServiceImp implements OtcRequestService {
                 )
                     .equals(userId)
             ) {
-                AccountNumberDto buyerAccount = getRequiredAccount(UUID.fromString(otc.getMadeBy().userId()), otc.getPremium().getCurrency(), otc.getPremium().getAmount());
-                AccountNumberDto sellerAccount = getRequiredAccount(UUID.fromString(otc.getMadeFor().userId()), otc.getPremium().getCurrency(), null);
+                AccountNumberDto buyerAccount =
+                    getRequiredAccount(
+                        UUID.fromString(
+                            otc.getMadeBy()
+                                .userId()
+                        ),
+                        otc.getPremium()
+                            .getCurrency(),
+                        otc.getPremium()
+                            .getAmount()
+                    );
+                AccountNumberDto sellerAccount =
+                    getRequiredAccount(
+                        UUID.fromString(
+                            otc.getMadeFor()
+                                .userId()
+                        ),
+                        otc.getPremium()
+                            .getCurrency(),
+                        null
+                    );
                 tradingService.sendPremiumAndGetOption(buyerAccount, sellerAccount, otc);
             } else {
                 throw new CantAcceptThisOffer("Other side has to accept the offer", userId);
@@ -148,14 +166,15 @@ public class OtcRequestServiceImp implements OtcRequestService {
         return null;
     }
 
-    public AccountNumberDto getRequiredAccount(UUID userId, CurrencyCode currencyCode, BigDecimal premium){
-        UserServiceClient userServiceClient =
-            userServiceRetrofit.create(UserServiceClient.class);
+    public AccountNumberDto getRequiredAccount(
+        UUID userId,
+        CurrencyCode currencyCode,
+        BigDecimal premium
+    ) {
+        UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         try {
             Response<Set<AccountNumberDto>> response =
-                userServiceClient.getUserAccounts(
-                        userId
-                    )
+                userServiceClient.getUserAccounts(userId)
                     .execute();
             if (!response.isSuccessful() || response.body() == null) {
                 throw new RequestFailed();
@@ -164,26 +183,32 @@ public class OtcRequestServiceImp implements OtcRequestService {
             AccountNumberDto currentAccount = null;
             AccountNumberDto rightCurrencyAccount = null;
             AccountNumberDto buyerAccount = null;
-            for (var account : accounts){
-                if(account.currency().equals(CurrencyCode.RSD))
-                    currentAccount = account;
-                if(account.currency().equals(currencyCode))
-                    rightCurrencyAccount = account;
+            for (var account : accounts) {
+                if (
+                    account.currency()
+                        .equals(CurrencyCode.RSD)
+                ) currentAccount = account;
+                if (
+                    account.currency()
+                        .equals(currencyCode)
+                ) rightCurrencyAccount = account;
             }
-            if(rightCurrencyAccount != null){
-                if(premium != null && rightCurrencyAccount.availableBalance().compareTo(premium) >= 0)
-                    return rightCurrencyAccount;
-                else{
-                    //TODO replace with insufficient funds on account exception
+            if (rightCurrencyAccount != null) {
+                if (
+                    premium != null
+                        && rightCurrencyAccount.availableBalance()
+                            .compareTo(premium)
+                            >= 0
+                ) return rightCurrencyAccount;
+                else {
+                    // TODO replace with insufficient funds on account exception
                     throw new RequestFailed();
                 }
-            }
-            else if(currentAccount != null){
-                //TODO use exchange service to determine if there is enough funds
-               return currentAccount;
-            }
-            else{
-                //TODO replace with no right account exception
+            } else if (currentAccount != null) {
+                // TODO use exchange service to determine if there is enough funds
+                return currentAccount;
+            } else {
+                // TODO replace with no right account exception
                 throw new RequestFailed();
             }
         } catch (IOException e) {
