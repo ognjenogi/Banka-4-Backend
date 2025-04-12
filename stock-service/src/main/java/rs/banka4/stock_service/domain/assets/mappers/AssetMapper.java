@@ -27,6 +27,14 @@ public interface AssetMapper {
         target = "amount",
         expression = "java(assetOwnership.getPublicAmount())"
     )
+    @Mapping(
+        target = "sellerId",
+        expression = "java(assetOwnership.getId().getUser())"
+    )
+    @Mapping(
+        target = "stockId",
+        expression = "java(assetOwnership.getId().getAsset().getId())"
+    )
     PublicStocksDto mapPublicStocksDto(
         AssetOwnership assetOwnership,
         SecurityType securityType,
