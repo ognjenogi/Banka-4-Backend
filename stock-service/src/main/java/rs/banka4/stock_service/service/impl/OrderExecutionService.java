@@ -163,7 +163,7 @@ public class OrderExecutionService {
                         "[Partial] Waiting {} seconds before processing next chunk.",
                         waitTimeSeconds
                     );
-                    TimeUnit.SECONDS.sleep(5);
+                    TimeUnit.SECONDS.sleep(waitTimeSeconds);
                 } catch (InterruptedException e) {
                     Thread.currentThread()
                         .interrupt();

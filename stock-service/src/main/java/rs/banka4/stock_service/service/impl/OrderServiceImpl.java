@@ -556,6 +556,7 @@ public class OrderServiceImpl implements OrderService {
         if (!shouldTrigger) return;
 
         order.setOrderType(OrderType.LIMIT);
+        executeLimitOrder(order);
     }
 
     /**
