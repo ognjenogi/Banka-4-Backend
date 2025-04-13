@@ -3,6 +3,8 @@ package rs.banka4.stock_service.service.abstraction;
 
 import java.util.List;
 import java.util.UUID;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.stock_service.domain.orders.db.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import rs.banka4.stock_service.domain.orders.db.Status;
@@ -21,4 +23,11 @@ public interface OrderService {
 
     Page<OrderDto> searchOrders(List<Status> statuses, Pageable pageable);
 
+    void executeOrders();
+
+    void updateOrderStatus(
+        UUID orderId,
+        Status newStatus,
+        AuthenticatedBankUserAuthentication auth
+    );
 }
