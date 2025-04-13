@@ -56,6 +56,10 @@ jwt:
 alphavantage:
   api-key: ${ALPHAVANTAGE_APY_KEY}
 
+listings:
+  refetch-min: 20000000
+  # 2 for testing, 15 for PM, 20000000 for others
+
 banka4:
   services:
     user: 'http://gateway:80/'

@@ -95,6 +95,7 @@ public class OptionsMaker {
                         .name(stock.getTicker() + "-CALL-" + strike + "-" + expiry.toLocalDate())
                         .ticker(tickerC)
                         .premium(new MonetaryAmount(BigDecimal.valueOf(0), CurrencyCode.USD))
+                        .active(true)
                         .build();
 
                 double callPrem =
