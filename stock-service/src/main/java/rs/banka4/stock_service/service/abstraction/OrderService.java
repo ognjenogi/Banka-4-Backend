@@ -3,10 +3,9 @@ package rs.banka4.stock_service.service.abstraction;
 
 import java.util.List;
 import java.util.UUID;
-import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
-import rs.banka4.stock_service.domain.orders.db.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.stock_service.domain.orders.db.Status;
 import rs.banka4.stock_service.domain.orders.dtos.CreateOrderDto;
 import rs.banka4.stock_service.domain.orders.dtos.CreateOrderPreviewDto;
