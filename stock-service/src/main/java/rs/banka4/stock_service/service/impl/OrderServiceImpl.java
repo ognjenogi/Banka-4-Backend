@@ -164,7 +164,7 @@ public class OrderServiceImpl implements OrderService {
     ) {
         Order order =
             orderRepository.findById(orderId)
-                .orElseThrow(OrderNotFound::new);
+                .orElseThrow(() -> new OrderNotFound(orderId.toString()));
         if (
             !auth.getAuthorities()
                 .contains(SecurityUtils.asGrantedAuthority(Privilege.SUPERVISOR))
