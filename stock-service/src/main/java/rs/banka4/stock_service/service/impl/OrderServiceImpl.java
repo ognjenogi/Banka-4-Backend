@@ -8,8 +8,14 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import rs.banka4.rafeisen.common.currency.CurrencyCode;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import rs.banka4.rafeisen.common.exceptions.jwt.Unauthorized;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.SecurityUtils;
 import rs.banka4.stock_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.exchanges.db.Exchange;
@@ -20,10 +26,7 @@ import rs.banka4.stock_service.domain.orders.db.Direction;
 import rs.banka4.stock_service.domain.orders.db.Order;
 import rs.banka4.stock_service.domain.orders.db.OrderType;
 import rs.banka4.stock_service.domain.orders.db.Status;
-import rs.banka4.stock_service.domain.orders.dtos.CreateOrderDto;
-import rs.banka4.stock_service.domain.orders.dtos.CreateOrderPreviewDto;
-import rs.banka4.stock_service.domain.orders.dtos.OrderDto;
-import rs.banka4.stock_service.domain.orders.dtos.OrderPreviewDto;
+import rs.banka4.stock_service.domain.orders.dtos.*;
 import rs.banka4.stock_service.domain.orders.mapper.OrderMapper;
 import rs.banka4.stock_service.domain.security.future.db.Future;
 import rs.banka4.stock_service.exceptions.*;
@@ -42,6 +45,8 @@ public class OrderServiceImpl implements OrderService {
     private final AssetRepository assetRepository;
     private final ActuaryRepository actuaryRepository;
     private final ListingService listingService;
+    private final RestTemplate restTemplate;
+    private final OrderExecutionService orderExecutionService;
 
     @Override
     public OrderDto createOrder(CreateOrderDto dto, UUID userId) {
@@ -90,11 +95,12 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderType(orderType);
         order.setQuantity(dto.quantity());
         order.setContractSize(getContractSize(asset));
-        order.setPricePerUnit(new MonetaryAmount(pricePerUnit, CurrencyCode.RSD));
+        order.setPricePerUnit(new MonetaryAmount(pricePerUnit, exchange.getCurrency()));
         order.setStatus(status);
         order.setApprovedBy(null);
         order.setDone(false);
         order.setRemainingPortions(dto.quantity());
+        order.setAllOrNothing(dto.allOrNothing());
         order.setAfterHours(afterHours);
         order.setUsed(false);
 
@@ -102,6 +108,7 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.INSTANCE.toDto(savedOrder);
     }
 
+    @Override
     public OrderPreviewDto calculateAveragePrice(CreateOrderPreviewDto request) {
         Asset asset =
             assetRepository.findById(request.assetId())
@@ -149,6 +156,40 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
+    @Override
+    public void updateOrderStatus(
+        UUID orderId,
+        Status newStatus,
+        AuthenticatedBankUserAuthentication auth
+    ) {
+        Order order =
+            orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound(orderId.toString()));
+        if (
+            !auth.getAuthorities()
+                .contains(SecurityUtils.asGrantedAuthority(Privilege.SUPERVISOR))
+        ) {
+            throw new Unauthorized(auth.getToken());
+        }
+
+        if (order.isUsed()) {
+            throw new AlreadyUpdatedOrderStatus();
+        }
+
+        if (newStatus != Status.APPROVED && newStatus != Status.DECLINED) {
+            throw new InvalidOrderStatus();
+        }
+
+        order.setStatus(newStatus);
+        order.setApprovedBy(
+            auth.getPrincipal()
+                .userId()
+        );
+        order.setUsed(true);
+
+        orderRepository.save(order);
+    }
+
     private String buildOrderTypeLabel(OrderType type, boolean allOrNone, boolean margin) {
         String label = "";
 
@@ -165,6 +206,11 @@ public class OrderServiceImpl implements OrderService {
         return label.trim();
     }
 
+    /**
+     * Determine the order type based on the provided limit and stop values. If both are present,
+     * it's a STOP_LIMIT order. If only limit is present, it's a LIMIT order. If only stop is
+     * present, it's a STOP order. If neither is present, it's a MARKET order.
+     */
     private OrderType determineOrderType(MonetaryAmount limit, MonetaryAmount stop) {
         if (limit != null && stop != null) return OrderType.STOP_LIMIT;
         if (limit != null) return OrderType.LIMIT;
@@ -191,6 +237,12 @@ public class OrderServiceImpl implements OrderService {
             > 0;
     }
 
+    /**
+     * Check if the settlement date has passed for the given asset (futures/options).
+     *
+     * @param asset The asset to check.
+     * @return true if the settlement date has passed, false otherwise.
+     */
     private boolean hasSettlementDatePassed(Asset asset) {
         if (asset instanceof Future) {
             return ((Future) asset).getSettlementDate()
@@ -282,6 +334,306 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 return limitValue.multiply(contractSizeBD);
             }
+        }
+    }
+
+    /**
+     * This method is called periodically to execute pending orders. It checks the status of each
+     * order and executes it if the conditions are met. If the settlement date has passed, the order
+     * is declined.
+     */
+    public void executeOrders() {
+        List<Order> ordersToProcess =
+            orderRepository.findAllByStatusAndIsDoneFalse(Status.APPROVED);
+
+        for (Order order : ordersToProcess) {
+            // Check if settlement date has passed
+            if (hasSettlementDatePassed(order.getAsset())) {
+                order.setStatus(Status.DECLINED);
+                orderRepository.save(order);
+                continue;
+            }
+
+            switch (order.getOrderType()) {
+            case MARKET -> executeMarketOrder(order);
+            case LIMIT -> executeLimitOrder(order);
+            case STOP -> executeStopOrder(order);
+            case STOP_LIMIT -> executeStopLimitOrder(order);
+            }
+
+            orderRepository.save(order);
+        }
+    }
+
+    /**
+     * Executes a market order by determining the price based on the current market conditions. The
+     * method calculates the total price and commission for the order and processes it as an
+     * "All-Or-Nothing" (AON) order or partial order.
+     *
+     * @param order The order to be executed. Must contain valid asset, direction, and quantity
+     *        details.
+     * @throws ListingNotFoundException If no active listing is found for the asset associated with
+     *         the order.
+     */
+    private void executeMarketOrder(Order order) {
+        Listing listing =
+            listingService.findActiveListingByAsset(
+                order.getAsset()
+                    .getId()
+            )
+                .orElseThrow(
+                    () -> new ListingNotFoundException(
+                        order.getAsset()
+                            .getId()
+                    )
+                );
+
+        BigDecimal price =
+            (order.getDirection() == Direction.BUY ? listing.getAsk() : listing.getBid()).multiply(
+                BigDecimal.valueOf((long) order.getQuantity() * order.getContractSize())
+            );
+
+        /*
+         * Commission calculation: 14% of the price, capped at 7$.
+         */
+        BigDecimal commission = price.multiply(BigDecimal.valueOf(0.14));
+        if (commission.compareTo(BigDecimal.valueOf(7)) > 0) {
+            commission = BigDecimal.valueOf(7);
+        }
+
+        System.out.println("Executing market order: " + order.getId());
+
+        if (order.isAllOrNothing()) executeAllOrNothing(order, commission);
+        else executePartial(order, commission);
+    }
+
+    /**
+     * Executes a limit order by checking if the current market price satisfies the limit condition.
+     * If the conditions are met, the method calculates the final price and commission for the order
+     * and processes it as an "All-Or-Nothing" (AON) order or partial order.
+     *
+     * @param order The order to be executed. Must contain valid asset, direction, limit value, and
+     *        quantity details.
+     * @throws ListingNotFoundException If no active listing is found for the asset associated with
+     *         the order.
+     * @throws RequiredPriceException If the limit value is null or invalid for the order.
+     */
+    private void executeLimitOrder(Order order) {
+        Listing listing =
+            listingService.findActiveListingByAsset(
+                order.getAsset()
+                    .getId()
+            )
+                .orElseThrow(
+                    () -> new ListingNotFoundException(
+                        order.getAsset()
+                            .getId()
+                    )
+                );
+
+        BigDecimal limitValue =
+            order.getLimitValue()
+                .getAmount();
+        BigDecimal currentPrice =
+            order.getDirection() == Direction.BUY ? listing.getAsk() : listing.getBid();
+        /*
+         * Check if the current market price satisfies the limit condition. If the order is a buy
+         * order, check if the current price is less than or equal to the limit value. If the order
+         * is a sell order, check if the current price is greater than or equal to the limit value.
+         */
+        boolean canExecute =
+            (order.getDirection() == Direction.BUY && currentPrice.compareTo(limitValue) <= 0)
+                || (order.getDirection() == Direction.SELL
+                    && currentPrice.compareTo(limitValue) >= 0);
+
+        if (canExecute) {
+            System.out.println("Executing limit order: " + order.getId());
+            BigDecimal finalPrice;
+            if (order.getDirection() == Direction.BUY && currentPrice.compareTo(limitValue) < 0) {
+                finalPrice = currentPrice;
+            } else
+                if (
+                    order.getDirection() == Direction.SELL && currentPrice.compareTo(limitValue) > 0
+                ) {
+                    finalPrice = currentPrice;
+                } else {
+                    finalPrice = limitValue;
+                }
+            finalPrice =
+                finalPrice.multiply(
+                    BigDecimal.valueOf((long) order.getQuantity() * order.getContractSize())
+                );
+
+            /*
+             * Commission calculation: 24% of the price, capped at 12$.
+             */
+            BigDecimal commission = finalPrice.multiply(BigDecimal.valueOf(0.24));
+            if (commission.compareTo(BigDecimal.valueOf(12)) > 0) {
+                commission = BigDecimal.valueOf(12);
+            }
+
+            if (order.isAllOrNothing()) executeAllOrNothing(order, commission);
+            else executePartial(order, commission);
+        }
+    }
+
+    /**
+     * Executes a stop order by checking if the current market price satisfies the stop condition.
+     * If the stop condition is met, the order is converted to a market order and executed.
+     *
+     * @param order The order to be executed. Must contain valid asset, direction, and stop value
+     *        details.
+     * @throws ListingNotFoundException If no active listing is found for the asset associated with
+     *         the order.
+     * @throws RequiredPriceException If the stop value is null or invalid for the order.
+     */
+    private void executeStopOrder(Order order) {
+        Listing listing =
+            listingService.findActiveListingByAsset(
+                order.getAsset()
+                    .getId()
+            )
+                .orElseThrow(
+                    () -> new ListingNotFoundException(
+                        order.getAsset()
+                            .getId()
+                    )
+                );
+
+        BigDecimal stopValue =
+            order.getStopValue()
+                .getAmount();
+        BigDecimal currentPrice =
+            order.getDirection() == Direction.BUY ? listing.getAsk() : listing.getBid();
+
+        boolean shouldTrigger =
+            (order.getDirection() == Direction.BUY && currentPrice.compareTo(stopValue) >= 0)
+                || (order.getDirection() == Direction.SELL
+                    && currentPrice.compareTo(stopValue) <= 0);
+
+        if (shouldTrigger) {
+            order.setOrderType(OrderType.MARKET);
+            executeMarketOrder(order);
+        }
+    }
+
+    /**
+     * Executes a stop-limit order by checking if the current market price satisfies the stop
+     * condition. If the stop condition is met, the order is converted to a limit order for further
+     * execution.
+     *
+     * @param order The order to be executed. Must contain valid asset, direction, stop value, and
+     *        limit value details.
+     * @throws ListingNotFoundException If no active listing is found for the asset associated with
+     *         the order.
+     * @throws RequiredPriceException If the stop value or limit value is null or invalid for the
+     *         order.
+     */
+    private void executeStopLimitOrder(Order order) {
+        Listing listing =
+            listingService.findActiveListingByAsset(
+                order.getAsset()
+                    .getId()
+            )
+                .orElseThrow(
+                    () -> new ListingNotFoundException(
+                        order.getAsset()
+                            .getId()
+                    )
+                );
+
+        BigDecimal stopValue =
+            order.getStopValue()
+                .getAmount();
+        BigDecimal currentPrice =
+            order.getDirection() == Direction.BUY ? listing.getAsk() : listing.getBid();
+
+        boolean shouldTrigger =
+            (order.getDirection() == Direction.BUY && currentPrice.compareTo(stopValue) >= 0)
+                || (order.getDirection() == Direction.SELL
+                    && currentPrice.compareTo(stopValue) <= 0);
+
+        if (!shouldTrigger) return;
+
+        order.setOrderType(OrderType.LIMIT);
+        executeLimitOrder(order);
+    }
+
+    /**
+     * If the order is AON and cannot be filled completely system will wait for future execution if
+     * the market conditions change.
+     */
+    private void executeAllOrNothing(Order order, BigDecimal commission) {
+        orderExecutionService.processAllOrNothingOrderAsync(order)
+            .thenAccept(executed -> {
+                if (executed) {
+                    payFee(
+                        new CreateFeeTransactionDto(
+                            order.getUserId()
+                                .toString(),
+                            order.getAccountId()
+                                .toString(),
+                            commission,
+                            order.getPricePerUnit()
+                                .getCurrency()
+                        )
+                    );
+                }
+            })
+            .exceptionally(ex -> null);
+    }
+
+    /**
+     * Executes an order in partial chunks by finding and matching available orders until the entire
+     * order is fulfilled or no further matches are found. If the execution completes successfully,
+     * a fee is paid based on the provided commission.
+     *
+     * @param order The order to be executed in partial chunks. Must contain valid asset, direction,
+     *        and quantity details.
+     * @param commission The calculated commission for the partial order execution.
+     * @throws RuntimeException If an interruption or execution error occurs during the processing
+     *         of the order.
+     */
+    private void executePartial(Order order, BigDecimal commission) {
+        orderExecutionService.processPartialOrderAsync(order)
+            .thenAccept(executed -> {
+                if (executed) {
+                    payFee(
+                        new CreateFeeTransactionDto(
+                            order.getUserId()
+                                .toString(),
+                            order.getAccountId()
+                                .toString(),
+                            commission,
+                            order.getPricePerUnit()
+                                .getCurrency()
+                        )
+                    );
+                }
+            })
+            .exceptionally(ex -> null);
+    }
+
+    /**
+     * [Communicates with User Service] Sends a request to the transaction service to pay the fee
+     * for the order.
+     *
+     * @param dto The DTO containing the fee transaction details.
+     */
+    private void payFee(CreateFeeTransactionDto dto) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CreateFeeTransactionDto> entity = new HttpEntity<>(dto, headers);
+
+        try {
+            // TODO: Move this URL to configuration
+            String url = "http://userservice:8080/transaction/pay-fee";
+            restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+        } catch (RestClientException ex) {
+            throw new RuntimeException(
+                "Failed to call transaction service: " + ex.getMessage(),
+                ex
+            );
         }
     }
 

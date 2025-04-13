@@ -14,7 +14,9 @@ public class WhiteListConfig {
         "/auth/refresh-token",
         "/auth/forgot-password/*",
         "/auth/verify",
-        "/docs/**"
+        "/docs/**",
+        "/transaction/pay-fee" // TODO: This route needs to be protected (Called from scheduler in
+                               // stock service)
     };
 
     private static final List<Pattern> WHITE_LIST_URL_PATTERNS =

@@ -18,6 +18,7 @@
 services:
   # User service and its state
   user_service:
+    hostname: userservice
     build:
       context: .
       dockerfile: docker/Dockerfile-java

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import rs.banka4.user_service.domain.transaction.db.TransactionStatus;
+import rs.banka4.user_service.domain.transaction.dtos.CreateFeeTransactionDto;
 import rs.banka4.user_service.domain.transaction.dtos.CreatePaymentDto;
 import rs.banka4.user_service.domain.transaction.dtos.CreateTransferDto;
 import rs.banka4.user_service.domain.transaction.dtos.TransactionDto;
@@ -102,6 +103,32 @@ public interface TransactionApiDocumentation {
         Authentication authentication,
         @Valid CreateTransferDto createTransferDto
     );
+
+    @Operation(
+        summary = "Pay a Fee",
+        description = "Creates a fee transaction for the authenticated client. This endpoint is used for paying service fees.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Fee payment successfully created"
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Bad request - Invalid data or insufficient funds",
+                content = @Content(schema = @Schema(implementation = InsufficientFunds.class))
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Client or account not found",
+                content = @Content(schema = @Schema(implementation = ClientNotFound.class))
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden - Not authorized to perform this action"
+            )
+        }
+    )
+    ResponseEntity<Void> payFee(@Valid CreateFeeTransactionDto createFeeTransactionDto);
 
     @Operation(
         summary = "Get Client Payments",
