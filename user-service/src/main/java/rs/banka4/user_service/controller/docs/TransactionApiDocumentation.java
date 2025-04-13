@@ -104,6 +104,32 @@ public interface TransactionApiDocumentation {
     );
 
     @Operation(
+        summary = "Pay a Fee",
+        description = "Creates a fee transaction for the authenticated client. This endpoint is used for paying service fees.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Fee payment successfully created"
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Bad request - Invalid data or insufficient funds",
+                content = @Content(schema = @Schema(implementation = InsufficientFunds.class))
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Client or account not found",
+                content = @Content(schema = @Schema(implementation = ClientNotFound.class))
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden - Not authorized to perform this action"
+            )
+        }
+    )
+    ResponseEntity<Void> payFee(@Valid CreateFeeTransactionDto createFeeTransactionDto);
+
+    @Operation(
         summary = "Get Client Payments",
         description = "Retrieves the list of payments for the authenticated client. Requires authentication.",
         security = @SecurityRequirement(name = "bearerAuth"),

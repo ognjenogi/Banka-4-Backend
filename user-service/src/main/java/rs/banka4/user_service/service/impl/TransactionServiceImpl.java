@@ -21,10 +21,7 @@ import rs.banka4.user_service.domain.currency.db.Currency;
 import rs.banka4.user_service.domain.transaction.db.MonetaryAmount;
 import rs.banka4.user_service.domain.transaction.db.Transaction;
 import rs.banka4.user_service.domain.transaction.db.TransactionStatus;
-import rs.banka4.user_service.domain.transaction.dtos.CreatePaymentDto;
-import rs.banka4.user_service.domain.transaction.dtos.CreateTransactionDto;
-import rs.banka4.user_service.domain.transaction.dtos.CreateTransferDto;
-import rs.banka4.user_service.domain.transaction.dtos.TransactionDto;
+import rs.banka4.user_service.domain.transaction.dtos.*;
 import rs.banka4.user_service.domain.transaction.mapper.TransactionMapper;
 import rs.banka4.user_service.domain.user.client.db.Client;
 import rs.banka4.user_service.domain.user.client.db.ClientContact;
@@ -147,6 +144,52 @@ public class TransactionServiceImpl implements TransactionService {
             );
 
         return TransactionMapper.INSTANCE.toDto(transaction);
+    }
+
+    @Override
+    @Transactional
+    public void createFeeTransaction(CreateFeeTransactionDto createFeeTransactionDto) {
+        Client client =
+            clientRepository.findById(UUID.fromString(createFeeTransactionDto.userId()))
+                .orElseThrow(() -> new UserNotFound(createFeeTransactionDto.userId()));
+
+        Account found =
+            accountRepository.findById(UUID.fromString(createFeeTransactionDto.fromAccount()))
+                .orElseThrow(() -> new AccountNotFound(createFeeTransactionDto.fromAccount()));
+
+        Account bankAccount =
+            bankAccountServiceImpl.getBankAccountForCurrency(
+                CurrencyCode.Code.valueOf(
+                    createFeeTransactionDto.currencyCode()
+                        .name()
+                )
+            );
+
+        Map<String, Account> lockedAccounts =
+            lockAccounts(found.getAccountNumber(), bankAccount.getAccountNumber());
+
+        Account fromAccount = lockedAccounts.get(found.getAccountNumber());
+        Account toAccount = lockedAccounts.get(bankAccount.getAccountNumber());
+
+        validateAccountActive(fromAccount);
+        validateClientAccountOwnership(client, fromAccount);
+        validateSufficientFunds(
+            fromAccount,
+            createFeeTransactionDto.fromAmount()
+                .add(BigDecimal.ONE)
+        );
+        validateDailyAndMonthlyLimit(fromAccount, createFeeTransactionDto.fromAmount());
+
+        fromAccount.setBalance(
+            fromAccount.getBalance()
+                .subtract(createFeeTransactionDto.fromAmount())
+        );
+        toAccount.setBalance(
+            toAccount.getBalance()
+                .add(createFeeTransactionDto.fromAmount())
+        );
+
+        createFeeTransaction(fromAccount, toAccount, createFeeTransactionDto.fromAmount());
     }
 
     @Override
@@ -908,7 +951,8 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
-    private Map<String, Account> lockAccounts(String... accountNumbers) {
+    @Transactional
+    protected Map<String, Account> lockAccounts(String... accountNumbers) {
         return Arrays.stream(accountNumbers)
             .distinct() // Remove duplicates
             .map(
