@@ -121,7 +121,9 @@ public class OrderObjectMother {
             Status.APPROVED,
             false,
             OffsetDateTime.now(),
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            2,
+            100
         );
     }
 

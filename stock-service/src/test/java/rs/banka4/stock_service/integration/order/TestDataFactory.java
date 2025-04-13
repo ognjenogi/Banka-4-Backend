@@ -9,6 +9,10 @@ import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.exchanges.db.Exchange;
 import rs.banka4.stock_service.domain.listing.db.Listing;
 import rs.banka4.stock_service.domain.options.db.Asset;
+import rs.banka4.stock_service.domain.orders.db.Direction;
+import rs.banka4.stock_service.domain.orders.db.Order;
+import rs.banka4.stock_service.domain.orders.db.OrderType;
+import rs.banka4.stock_service.domain.orders.db.Status;
 import rs.banka4.stock_service.domain.security.Security;
 import rs.banka4.stock_service.domain.security.stock.db.Stock;
 
@@ -19,6 +23,7 @@ public class TestDataFactory {
     public static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
     public static final UUID ACCOUNT_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
     public static final UUID LISTING_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
+    public static final UUID ORDER_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
 
     public static Stock buildAsset() {
         return Stock.builder()
@@ -69,6 +74,19 @@ public class TestDataFactory {
             .ask(BigDecimal.valueOf(1000))
             .contractSize(1)
             .active(true)
+            .build();
+    }
+
+    public static Order buildOrder() {
+        return Order.builder()
+            .id(ORDER_ID)
+            .asset(buildAsset())
+            .direction(Direction.BUY)
+            .quantity(100)
+            .accountId(ACCOUNT_ID)
+            .userId(USER_ID)
+            .orderType(OrderType.MARKET)
+            .status(Status.PENDING)
             .build();
     }
 }

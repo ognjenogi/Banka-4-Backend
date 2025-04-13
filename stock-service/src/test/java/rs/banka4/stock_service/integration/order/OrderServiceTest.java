@@ -13,6 +13,8 @@ import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.exchanges.db.Exchange;
 import rs.banka4.stock_service.domain.options.db.Asset;
 import rs.banka4.stock_service.domain.orders.db.Direction;
+import rs.banka4.stock_service.domain.orders.db.OrderType;
+import rs.banka4.stock_service.domain.orders.db.Status;
 import rs.banka4.stock_service.domain.orders.dtos.CreateOrderDto;
 import rs.banka4.stock_service.domain.orders.dtos.CreateOrderPreviewDto;
 import rs.banka4.stock_service.domain.orders.dtos.OrderDto;
@@ -27,6 +29,8 @@ class OrderServiceTest {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private OrderRepository orderRepository;
     @Autowired
     private AssetRepository assetRepository;
     @Autowired
@@ -45,6 +49,7 @@ class OrderServiceTest {
         Asset asset = assetRepository.save(TestDataFactory.buildAsset());
         actuaryRepository.save(TestDataFactory.buildActuaryInfo());
         listingRepository.save(TestDataFactory.buildListing(asset, exchange));
+        orderRepository.save(TestDataFactory.buildOrder());
     }
 
     @Test
@@ -89,6 +94,18 @@ class OrderServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.approximatePrice()).isEqualTo(BigDecimal.valueOf(2700));
         assertThat(response.orderType()).contains("Limit Order");
+    }
+
+    @Test
+    void shouldReturnOrderByIdFromService() {
+        OrderDto foundOrder = orderService.getOrderById(TestDataFactory.ORDER_ID);
+
+        assertThat(foundOrder).isNotNull();
+        assertThat(foundOrder.id()).isEqualTo(TestDataFactory.ORDER_ID);
+        assertThat(foundOrder.orderType()).isEqualTo(OrderType.MARKET);
+        assertThat(foundOrder.status()).isEqualTo(Status.PENDING);
+        assertThat(foundOrder.assetTicker()).isEqualTo("TST");
+        assertThat(foundOrder.quantity()).isEqualTo(100);
     }
 
 }
