@@ -61,6 +61,42 @@ public class SecurityConfig {
                     .hasAuthority("EMPLOYEE")
                     .requestMatchers(HttpMethod.GET, "/employee/{id}")
                     .hasAuthority("EMPLOYEE")
+                    /* Previously stock service. */
+                    .requestMatchers(HttpMethod.GET, "/stock/listings/**")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/stock/actuaries/limit/**")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.GET, "/stock/actuaries/search")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.GET, "/stock/orders")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.GET, "/stock/orders/*")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.POST, "/stock/actuaries/register")
+                    .hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/stock/actuaries/update/**")
+                    .hasAuthority("ADMIN")
+                    /* Global fallback. */
                     .anyRequest()
                     .authenticated()
             )

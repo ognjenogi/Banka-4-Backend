@@ -21,7 +21,7 @@ import rs.banka4.stock_service.domain.listing.dtos.PriceChangeDto;
 import rs.banka4.stock_service.service.abstraction.ListingService;
 
 @RestController
-@RequestMapping("/listings")
+@RequestMapping("/stock/listings")
 @RequiredArgsConstructor
 public class ListingController implements ListingApiDocumentation {
 

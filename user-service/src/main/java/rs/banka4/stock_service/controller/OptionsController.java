@@ -10,7 +10,7 @@ import rs.banka4.stock_service.domain.options.dtos.UseOptionRequest;
 import rs.banka4.stock_service.service.abstraction.OptionService;
 
 @RestController
-@RequestMapping("/options")
+@RequestMapping("/stock/options")
 @RequiredArgsConstructor
 public class OptionsController {
     private final OptionService optionService;

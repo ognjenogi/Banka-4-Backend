@@ -19,7 +19,7 @@ import rs.banka4.stock_service.domain.orders.dtos.OrderPreviewDto;
 import rs.banka4.stock_service.service.abstraction.OrderService;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/stock/orders")
 @RequiredArgsConstructor
 public class OrderController implements OrderApiDocumentation {
 

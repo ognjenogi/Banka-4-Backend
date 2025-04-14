@@ -15,7 +15,7 @@ import rs.banka4.stock_service.domain.response.LimitPayload;
 import rs.banka4.stock_service.service.impl.ActuaryServiceImpl;
 
 @RestController
-@RequestMapping("/actuaries")
+@RequestMapping("/stock/actuaries")
 @RequiredArgsConstructor
 public class ActuaryController implements ActuaryApiDocumentation {
     private final ActuaryServiceImpl actuaryService;

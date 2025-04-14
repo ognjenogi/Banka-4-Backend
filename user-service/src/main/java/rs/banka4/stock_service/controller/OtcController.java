@@ -19,7 +19,7 @@ import rs.banka4.stock_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.stock_service.service.abstraction.OtcRequestService;
 
 @RestController
-@RequestMapping("/otc")
+@RequestMapping("/stock/otc")
 @RequiredArgsConstructor
 public class OtcController implements OtcApiDocumentation {
     private final OtcRequestService otcRequestService;

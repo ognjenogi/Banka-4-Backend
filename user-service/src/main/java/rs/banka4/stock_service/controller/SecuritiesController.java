@@ -13,7 +13,7 @@ import rs.banka4.stock_service.domain.security.SecurityDto;
 import rs.banka4.stock_service.service.abstraction.SecuritiesService;
 
 @RestController
-@RequestMapping("/securities")
+@RequestMapping("/stock/securities")
 @RequiredArgsConstructor
 public class SecuritiesController implements SecuritiesApiDocumentation {
 

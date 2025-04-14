@@ -19,7 +19,7 @@ import rs.banka4.stock_service.service.abstraction.AssetOwnershipService;
 import rs.banka4.stock_service.service.abstraction.ListingService;
 
 @RestController
-@RequestMapping("/stocks")
+@RequestMapping("/stock/stocks")
 @RequiredArgsConstructor
 public class StocksController implements StocksApiDocumentation {
     private final AssetOwnershipService assetOwnershipService;

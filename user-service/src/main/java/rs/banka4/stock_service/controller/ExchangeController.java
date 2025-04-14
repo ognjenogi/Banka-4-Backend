@@ -13,7 +13,7 @@ import rs.banka4.stock_service.domain.exchanges.dtos.ExchangeDto;
 import rs.banka4.stock_service.service.abstraction.ExchangeService;
 
 @RestController
-@RequestMapping("/exchanges")
+@RequestMapping("/stock/exchanges")
 @RequiredArgsConstructor
 public class ExchangeController implements ExchangeApiDocumentation {
 
