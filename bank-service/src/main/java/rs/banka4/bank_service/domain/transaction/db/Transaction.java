@@ -42,60 +42,12 @@ public class Transaction {
     private Account toAccount;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(
-            name = "amount",
-            column = @Column(
-                name = "from_amount",
-                nullable = false
-            )
-        )
-    })
-    @AssociationOverrides({
-        @AssociationOverride(
-            name = "currency",
-            joinColumns = @JoinColumn(
-                name = "from_currency_code",
-                nullable = false
-            )
-        )
-    })
     private MonetaryAmount from;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(
-            name = "amount",
-            column = @Column(
-                name = "to_amount",
-                nullable = false
-            )
-        )
-    })
-    @AssociationOverrides({
-        @AssociationOverride(
-            name = "currency",
-            joinColumns = @JoinColumn(
-                name = "to_currency_code",
-                nullable = false
-            )
-        )
-    })
     private MonetaryAmount to;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(
-            name = "amount",
-            column = @Column(name = "fee_amount")
-        )
-    })
-    @AssociationOverrides({
-        @AssociationOverride(
-            name = "currency",
-            joinColumns = @JoinColumn(name = "fee_currency_code")
-        )
-    })
     private MonetaryAmount fee;
 
     @Column(nullable = false)

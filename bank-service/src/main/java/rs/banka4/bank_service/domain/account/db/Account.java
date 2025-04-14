@@ -8,7 +8,6 @@ import java.util.UUID;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import rs.banka4.bank_service.domain.company.db.Company;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.domain.user.employee.db.Employee;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -72,18 +71,12 @@ public class Account {
     @ManyToOne
     private Company company;
 
-    @ManyToOne
-    private Currency currency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyCode currency;
 
     @PrePersist
     public void setAccountMaintenance() {
-        if (
-            this.currency != null
-                && CurrencyCode.RSD.equals(
-                    this.getCurrency()
-                        .getCode()
-                )
-        ) {
+        if (this.currency != null && CurrencyCode.RSD.equals(this.getCurrency())) {
             setAccountMaintenance(new BigDecimal("100.00"));
         }
     }

@@ -7,7 +7,7 @@ import java.util.UUID;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.currency.db.Currency;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 @Entity
 @Getter
@@ -23,9 +23,9 @@ public class LoanRequest {
 
     private BigDecimal amount;
 
-    @ManyToOne
-    @JoinColumn(name = "currency_code")
-    private Currency currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CurrencyCode currency;
 
     private String employmentStatus;
 

@@ -7,8 +7,10 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.options.db.Asset;
+import rs.banka4.bank_service.domain.user.User;
 
 @Entity
 @Builder
@@ -22,9 +24,9 @@ public class Order {
     @Id
     @Builder.Default
     private UUID id = UUID.randomUUID();
-    /** Trust me bro reference key */
-    @Column(nullable = false)
-    private UUID userId;
+
+    @ManyToOne(optional = false)
+    private User user;
 
     @ManyToOne(optional = false)
     private Asset asset;
@@ -79,9 +81,8 @@ public class Order {
     @Column(nullable = false)
     private boolean margin;
 
-    /** trust me bro reference key */
-    @Column(nullable = false)
-    private UUID accountId;
+    @ManyToOne(optional = false)
+    private Account account;
 
     /** did user who bought it, used it */
     @Column(nullable = false)
