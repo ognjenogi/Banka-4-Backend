@@ -98,8 +98,6 @@ public class TestDataRunner implements CommandLineRunner {
     private static final String CARD_STANDARD_CVV = "123";
 
     private static final UUID CARD_DOO = UUID.fromString("0ED4C23C-DEAF-4D44-A5BA-6BC1E48BC315");
-    private static final UUID CARD_DOO_AUTHORIZED_USER =
-        UUID.fromString("54F5792B-95B7-4E26-8E13-87A5A1520244");
     private static final String CARD_DOO_NUMBER = "8765432107654321";
     private static final String CARD_DOO_CVV = "321";
 
@@ -1011,7 +1009,6 @@ public class TestDataRunner implements CommandLineRunner {
 
         AuthorizedUser authorizedUsers =
             AuthorizedUser.builder()
-                .userId(CARD_DOO_AUTHORIZED_USER)
                 .firstName("Mehmmedalija")
                 .lastName("Karisik")
                 .dateOfBirth(LocalDate.of(1990, 1, 1))

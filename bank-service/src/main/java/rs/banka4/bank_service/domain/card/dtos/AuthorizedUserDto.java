@@ -2,15 +2,10 @@ package rs.banka4.bank_service.domain.card.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
-import java.util.UUID;
 import rs.banka4.rafeisen.common.dto.Gender;
 
 @Schema(description = "DTO representing an authorized user")
 public record AuthorizedUserDto(
-    @Schema(
-        description = "User ID",
-        example = "11111111-2222-3333-4444-555555555555"
-    ) UUID id,
     @Schema(
         description = "First name of the user",
         example = "Petar"

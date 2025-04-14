@@ -2,7 +2,6 @@ package rs.banka4.bank_service.service.mock.generators;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 import rs.banka4.bank_service.domain.card.db.CardName;
 import rs.banka4.bank_service.domain.card.db.CardStatus;
 import rs.banka4.bank_service.domain.card.db.CardType;
@@ -14,7 +13,6 @@ public class CardObjectMother {
 
     public static AuthorizedUserDto generateAuthorizedUserDto() {
         return new AuthorizedUserDto(
-            UUID.randomUUID(),
             "Djovak",
             "Nokovic",
             LocalDate.now()

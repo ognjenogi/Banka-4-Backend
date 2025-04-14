@@ -17,7 +17,6 @@ public class CardObjectMother {
 
     public static AuthorizedUserDto generateAuthorizedUserDto() {
         return new AuthorizedUserDto(
-            UUID.randomUUID(),
             "Djovak",
             "Nokovic",
             LocalDate.now()

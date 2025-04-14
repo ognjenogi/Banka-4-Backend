@@ -49,7 +49,6 @@ create table cards
     expires_at    date,
     account_id    uuid,
     id            uuid         not null,
-    user_id       uuid,
     address       varchar(255),
     card_name     varchar(255) not null check (card_name in ('VISA', 'MASTER_CARD', 'DINA_CARD', 'AMERICAN_EXPRESS')),
     card_number   varchar(255) not null unique,

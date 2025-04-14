@@ -1,6 +1,5 @@
 package rs.banka4.bank_service.domain.card.mapper;
 
-import java.util.UUID;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import rs.banka4.bank_service.domain.account.db.Account;
@@ -55,10 +54,6 @@ public interface CardMapper {
         target = "authorizedUserDto",
         source = "authorizedUser"
     )
-    @Mapping(
-        target = "authorizedUserDto.id",
-        source = "authorizedUser.userId"
-    )
     CardDto toDto(Card card);
 
     @Mapping(
@@ -81,10 +76,6 @@ public interface CardMapper {
         target = "expirationDate",
         source = "expiresAt"
     )
-    @Mapping(
-        target = "authorizedUserDto.id",
-        source = "authorizedUser.userId"
-    )
     CardDto toDtoWithDetails(Card card);
 
     @Named("mapAuthorizedUser")
@@ -92,7 +83,6 @@ public interface CardMapper {
         System.out.println("DTO: " + dto);
         if (dto == null) return null;
         return new AuthorizedUser(
-            UUID.randomUUID(),
             dto.firstName(),
             dto.lastName(),
             dto.dateOfBirth(),
