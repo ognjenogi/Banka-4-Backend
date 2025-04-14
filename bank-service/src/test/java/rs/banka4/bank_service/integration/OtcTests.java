@@ -30,6 +30,7 @@ import rs.banka4.bank_service.domain.trading.db.RequestStatus;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestUpdateDto;
 import rs.banka4.bank_service.domain.trading.utill.BankRoutingNumber;
+import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.service.impl.OtcRequestExpiryService;
 import rs.banka4.bank_service.utils.AssetGenerator;
@@ -66,6 +67,9 @@ public class OtcTests {
     private SecurityRepository securityRepository;
     @Autowired
     private OptionsRepository optionsRepository;
+
+    @Autowired
+    private UserGenerator userGen;
 
     @Autowired
     private AssetOwnershipRepository assetOwnershipRepository;
@@ -331,10 +335,11 @@ public class OtcTests {
     public void testCreateOtcRequest() throws Exception {
         UUID callerId = JwtPlaceholders.CLIENT_ID;
         UUID assetOwnerId = UUID.fromString("1fad2c01-f82f-41a6-822c-8ca1b3232575");
+        final var assetOwner = userGen.createClient(x -> x.id(assetOwnerId));
 
         // Set up dummy asset ownership record with sufficient available amount.
         setupDummyAssetOwnership(
-            assetOwnerId,
+            assetOwner,
             20,
             assetRepository,
             assetOwnershipRepository,
@@ -445,6 +450,7 @@ public class OtcTests {
     @Test
     @Transactional
     public void testExpireFinishedOtcRequests() {
+        final var assetOwner = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
         int initialReserved = 10;
         int initialPublic = 5;
 
@@ -458,7 +464,7 @@ public class OtcTests {
             );
         var assetOwn =
             createDummyAssetOwnership(
-                JwtPlaceholders.CLIENT_ID,
+                assetOwner,
                 initialReserved,
                 initialPublic,
                 assetRepository,

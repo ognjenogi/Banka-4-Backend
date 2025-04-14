@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
+import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 /**
@@ -17,17 +18,17 @@ public class ActuaryGenerator {
         UUID.fromString("a74c8e17-31f8-4f47-bb99-63c77d3b8d0e");
     public static final UUID FOR_NEWLY_CREATED_ACTUARY_3_UUID = UUID.randomUUID();
 
-    public static List<ActuaryInfo> makeExampleActuaries() {
+    public static List<ActuaryInfo> makeExampleActuaries(UserGenerator userGen) {
         return List.of(
             ActuaryInfo.builder()
-                .userId(ACTUARY_1_UUID)
+                .user(userGen.createEmployee(x -> x.id(ACTUARY_1_UUID)))
                 .needApproval(true)
                 .limit(new MonetaryAmount(new BigDecimal("10000"), CurrencyCode.RSD))
                 .usedLimit(new MonetaryAmount(new BigDecimal("2500"), CurrencyCode.RSD))
                 .build(),
 
             ActuaryInfo.builder()
-                .userId(ACTUARY_2_UUID)
+                .user(userGen.createEmployee(x -> x.id(ACTUARY_2_UUID)))
                 .needApproval(false)
                 .limit(new MonetaryAmount(new BigDecimal("50000"), CurrencyCode.USD))
                 .usedLimit(new MonetaryAmount(new BigDecimal("10000"), CurrencyCode.USD))

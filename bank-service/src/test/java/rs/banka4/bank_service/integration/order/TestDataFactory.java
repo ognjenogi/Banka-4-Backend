@@ -3,6 +3,7 @@ package rs.banka4.bank_service.integration.order;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
@@ -14,13 +15,13 @@ import rs.banka4.bank_service.domain.orders.db.OrderType;
 import rs.banka4.bank_service.domain.orders.db.Status;
 import rs.banka4.bank_service.domain.security.Security;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 public class TestDataFactory {
 
     public static final UUID EXCHANGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     public static final UUID ASSET_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
-    public static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
     public static final UUID ACCOUNT_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
     public static final UUID LISTING_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
     public static final UUID ORDER_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
@@ -55,9 +56,9 @@ public class TestDataFactory {
             .build();
     }
 
-    public static ActuaryInfo buildActuaryInfo() {
+    public static ActuaryInfo buildActuaryInfo(User user) {
         return ActuaryInfo.builder()
-            .userId(USER_ID)
+            .user(user)
             .needApproval(true)
             .limit(new MonetaryAmount(BigDecimal.valueOf(1_000_000), CurrencyCode.RSD))
             .usedLimit(new MonetaryAmount(BigDecimal.valueOf(1000), CurrencyCode.RSD))
@@ -77,14 +78,14 @@ public class TestDataFactory {
             .build();
     }
 
-    public static Order buildOrder() {
+    public static Order buildOrder(User user, Account account) {
         return Order.builder()
             .id(ORDER_ID)
             .asset(buildAsset())
             .direction(Direction.BUY)
             .quantity(100)
-            .accountId(ACCOUNT_ID)
-            .userId(USER_ID)
+            .account(account)
+            .user(user)
             .orderType(OrderType.MARKET)
             .status(Status.PENDING)
             .build();

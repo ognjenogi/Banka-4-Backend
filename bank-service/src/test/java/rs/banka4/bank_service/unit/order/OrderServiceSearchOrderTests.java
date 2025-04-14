@@ -20,6 +20,7 @@ import rs.banka4.bank_service.domain.orders.db.Status;
 import rs.banka4.bank_service.domain.orders.dtos.OrderDto;
 import rs.banka4.bank_service.domain.orders.mapper.OrderMapper;
 import rs.banka4.bank_service.exceptions.OrderNotFound;
+import rs.banka4.bank_service.generator.EmployeeObjectMother;
 import rs.banka4.bank_service.generator.OrderObjectMother;
 import rs.banka4.bank_service.repositories.OrderRepository;
 import rs.banka4.bank_service.service.impl.OrderServiceImpl;
@@ -43,8 +44,12 @@ public class OrderServiceSearchOrderTests {
         // Arrange
         List<Status> statuses = List.of(Status.APPROVED, Status.PENDING);
         Pageable pageable = PageRequest.of(0, 10);
+        final var employee = EmployeeObjectMother.generateBasicEmployee();
         List<Order> orders =
-            List.of(OrderObjectMother.generateBasicOrder(), OrderObjectMother.generateBasicOrder());
+            List.of(
+                OrderObjectMother.generateBasicOrder(employee, null),
+                OrderObjectMother.generateBasicOrder(employee, null)
+            );
         Page<Order> orderPage = new PageImpl<>(orders);
 
         when(orderRepository.findAllByStatusIn(statuses, pageable)).thenReturn(orderPage);
@@ -64,8 +69,12 @@ public class OrderServiceSearchOrderTests {
     void testSearchOrdersWithoutStatuses() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
+        final var employee = EmployeeObjectMother.generateBasicEmployee();
         List<Order> orders =
-            List.of(OrderObjectMother.generateBasicOrder(), OrderObjectMother.generateBasicOrder());
+            List.of(
+                OrderObjectMother.generateBasicOrder(employee, null),
+                OrderObjectMother.generateBasicOrder(employee, null)
+            );
         Page<Order> orderPage = new PageImpl<>(orders);
 
         when(orderRepository.findAll(pageable)).thenReturn(orderPage);
@@ -85,7 +94,8 @@ public class OrderServiceSearchOrderTests {
     void testGetOrderByIdSuccess() {
         // Arrange
         UUID orderId = UUID.randomUUID();
-        Order order = OrderObjectMother.generateBasicOrder();
+        final var employee = EmployeeObjectMother.generateBasicEmployee();
+        Order order = OrderObjectMother.generateBasicOrder(employee, null);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderMapper.toDto(order)).thenReturn(

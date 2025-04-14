@@ -16,6 +16,7 @@ import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
 import rs.banka4.bank_service.domain.listing.db.Listing;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.utils.AssetGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -38,6 +39,8 @@ public class OrderControllerTest {
     private ListingRepository listingRepository;
     @Autowired
     private ExchangeRepository exchangeRepository;
+    @Autowired
+    private UserGenerator userGen;
 
     private UUID stockId;
 
@@ -62,9 +65,10 @@ public class OrderControllerTest {
 
     @Test
     void shouldCreateOrderSuccessfully() {
+        final var client = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
         actuaryRepository.save(
             new ActuaryInfo(
-                JwtPlaceholders.CLIENT_ID,
+                client,
                 true,
                 new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD),
                 new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD)

@@ -18,6 +18,8 @@ import rs.banka4.bank_service.domain.orders.dtos.CreateOrderDto;
 import rs.banka4.bank_service.domain.orders.dtos.CreateOrderPreviewDto;
 import rs.banka4.bank_service.domain.orders.dtos.OrderDto;
 import rs.banka4.bank_service.domain.orders.dtos.OrderPreviewDto;
+import rs.banka4.bank_service.generator.AccountObjectMother;
+import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.service.abstraction.OrderService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -39,17 +41,25 @@ class OrderServiceTest {
     private ListingRepository listingRepository;
     @Autowired
     private ActuaryRepository actuaryRepository;
+    @Autowired
+    private AccountRepository accountRepo;
+    @Autowired
+    private UserGenerator userGen;
 
     private UUID assetId = TestDataFactory.ASSET_ID;
     private UUID accountId = TestDataFactory.ACCOUNT_ID;
+    private final UUID userUuid = UUID.fromString("6f72db23-afc8-4d71-b392-eb9e626ed9af");
 
     @BeforeEach
     void setUp() {
+        final var user = userGen.createClient(x -> x.id(userUuid));
+        final var account =
+            accountRepo.saveAndFlush(AccountObjectMother.generateBasicFromAccount());
         Exchange exchange = exchangeRepository.save(TestDataFactory.buildExchange());
         Asset asset = assetRepository.save(TestDataFactory.buildAsset());
-        actuaryRepository.save(TestDataFactory.buildActuaryInfo());
+        actuaryRepository.save(TestDataFactory.buildActuaryInfo(user));
         listingRepository.save(TestDataFactory.buildListing(asset, exchange));
-        orderRepository.save(TestDataFactory.buildOrder());
+        orderRepository.save(TestDataFactory.buildOrder(user, account));
     }
 
     @Test
@@ -66,7 +76,7 @@ class OrderServiceTest {
                 accountId
             );
 
-        OrderDto response = orderService.createOrder(dto, TestDataFactory.USER_ID);
+        OrderDto response = orderService.createOrder(dto, userUuid);
 
         assertThat(response).isNotNull();
         assertThat(

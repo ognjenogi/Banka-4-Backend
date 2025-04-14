@@ -29,6 +29,7 @@ import rs.banka4.bank_service.exceptions.AssetNotFound;
 import rs.banka4.bank_service.exceptions.ExchangeNotFound;
 import rs.banka4.bank_service.generator.ActuaryObjectMother;
 import rs.banka4.bank_service.generator.AssetObjectMother;
+import rs.banka4.bank_service.generator.EmployeeObjectMother;
 import rs.banka4.bank_service.generator.ListingObjectMother;
 import rs.banka4.bank_service.generator.OrderObjectMother;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
@@ -95,8 +96,9 @@ public class OrderServiceCreateOrderTests {
         OrderDto orderDto = OrderObjectMother.generateBasicOrderDto(expectedOrderType);
         Asset asset = AssetObjectMother.generateBasicStock();
         Listing listing = ListingObjectMother.generateBasicListing();
-        ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo();
-        Order order = OrderObjectMother.generateBasicOrder();
+        final var employee = EmployeeObjectMother.generateBasicEmployee();
+        ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo(employee);
+        Order order = OrderObjectMother.generateBasicOrder(employee, null);
 
         when(assetRepository.findById(dto.assetId())).thenReturn(Optional.of(asset));
         when(actuaryRepository.findByUserId(userId)).thenReturn(Optional.of(actuaryInfo));
@@ -133,7 +135,8 @@ public class OrderServiceCreateOrderTests {
     void testCreateOrderWithMissingExchange() {
         // Arrange
         CreateOrderDto dto = OrderObjectMother.generateBasicCreateOrderDto(Direction.BUY);
-        ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo();
+        final var employee = EmployeeObjectMother.generateBasicEmployee();
+        ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo(employee);
         Asset asset = AssetObjectMother.generateBasicStock();
 
         when(assetRepository.findById(dto.assetId())).thenReturn(Optional.of(asset));
@@ -164,8 +167,9 @@ public class OrderServiceCreateOrderTests {
         OrderDto orderDto = OrderObjectMother.generateBasicOrderDto(OrderType.MARKET);
         Asset asset = AssetObjectMother.generateBasicStock();
         Listing listing = ListingObjectMother.generateBasicListing();
-        ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo();
-        Order order = OrderObjectMother.generateBasicOrder();
+        final var employee = EmployeeObjectMother.generateBasicEmployee();
+        ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo(employee);
+        Order order = OrderObjectMother.generateBasicOrder(employee, null);
 
         when(assetRepository.findById(dto.assetId())).thenReturn(Optional.of(asset));
         when(actuaryRepository.findByUserId(userId)).thenReturn(Optional.of(actuaryInfo));

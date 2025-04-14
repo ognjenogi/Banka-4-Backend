@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
+import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
 import rs.banka4.bank_service.utils.ActuaryGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -34,12 +35,15 @@ public class ActuaryTests {
     @Autowired
     private ActuaryRepository actuaryRepository;
 
+    @Autowired
+    private UserGenerator userGen;
+
     private String jwtToken;
 
     @BeforeEach
     void setUp() {
         actuaryRepository.deleteAll();
-        List<ActuaryInfo> list = ActuaryGenerator.makeExampleActuaries();
+        List<ActuaryInfo> list = ActuaryGenerator.makeExampleActuaries(userGen);
         actuaryRepository.saveAll(list);
     }
 
@@ -283,7 +287,7 @@ public class ActuaryTests {
     private UUID createTestActuary() {
         UUID id = UUID.randomUUID();
         ActuaryInfo actuary = new ActuaryInfo();
-        actuary.setUserId(id);
+        actuary.setUser(userGen.createEmployee(x -> x.id(id)));
         actuary.setLimit(new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD));
         actuary.setUsedLimit(new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD));
         actuary.setNeedApproval(true);

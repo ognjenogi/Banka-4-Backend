@@ -3,6 +3,7 @@ package rs.banka4.bank_service.generator;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.options.db.Asset;
 import rs.banka4.bank_service.domain.orders.db.Direction;
@@ -21,7 +22,7 @@ public class OrderObjectMother {
      *
      * @return a new Order instance representing a basic BUY order
      */
-    public static Order generateBasicOrder(User user) {
+    public static Order generateBasicOrder(User user, Account account) {
         Asset asset = AssetObjectMother.generateBasicStock();
 
         return Order.builder()
@@ -44,7 +45,7 @@ public class OrderObjectMother {
             .stopValue(null)
             .allOrNothing(false)
             .margin(false)
-            .accountId(UUID.fromString("456e7890-e12b-34d3-c456-426614174222"))
+            .account(account)
             .used(false)
             .build();
     }

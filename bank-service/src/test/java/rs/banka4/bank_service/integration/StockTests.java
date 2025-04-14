@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnership;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnershipId;
+import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.utils.AssetGenerator;
 import rs.banka4.bank_service.utils.ExchangeGenerator;
@@ -33,6 +34,8 @@ public class StockTests {
     private ListingDailyPriceInfoRepository listingHistoryRepo;
     @Autowired
     private SecurityRepository securityRepo;
+    @Autowired
+    private UserGenerator userGen;
 
     @Test
     public void transfer_test_public() {
@@ -45,8 +48,9 @@ public class StockTests {
             assetRepository.findById(AssetGenerator.STOCK_EX1_UUID)
                 .get();
 
+        final var assetOwner = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
         assetOwnershipRepo.save(
-            new AssetOwnership(new AssetOwnershipId(JwtPlaceholders.CLIENT_ID, ex1), 100, 0, 0)
+            new AssetOwnership(new AssetOwnershipId(assetOwner, ex1), 100, 0, 0)
         );
 
         mvc.put()
@@ -82,8 +86,9 @@ public class StockTests {
             assetRepository.findById(AssetGenerator.STOCK_EX1_UUID)
                 .get();
 
+        final var assetOwner = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
         assetOwnershipRepo.save(
-            new AssetOwnership(new AssetOwnershipId(JwtPlaceholders.CLIENT_ID, ex1), 100, 50, 0)
+            new AssetOwnership(new AssetOwnershipId(assetOwner, ex1), 100, 50, 0)
         );
 
         mvc.put()
@@ -119,8 +124,9 @@ public class StockTests {
             assetRepository.findById(AssetGenerator.STOCK_EX1_UUID)
                 .get();
 
+        final var assetOwner = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
         assetOwnershipRepo.save(
-            new AssetOwnership(new AssetOwnershipId(JwtPlaceholders.CLIENT_ID, ex1), 100, 50, 0)
+            new AssetOwnership(new AssetOwnershipId(assetOwner, ex1), 100, 50, 0)
         );
 
         mvc.put()

@@ -10,6 +10,7 @@ import rs.banka4.bank_service.domain.security.stock.db.Stock;
 import rs.banka4.bank_service.domain.trading.db.ForeignBankId;
 import rs.banka4.bank_service.domain.trading.db.OtcRequest;
 import rs.banka4.bank_service.domain.trading.db.RequestStatus;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.bank_service.repositories.AssetOwnershipRepository;
 import rs.banka4.bank_service.repositories.AssetRepository;
 import rs.banka4.bank_service.repositories.OtcRequestRepository;
@@ -217,7 +218,7 @@ public class OtcRequestGen {
     }
 
     public static void setupDummyAssetOwnership(
-        UUID ownerUserId,
+        User owner,
         int totalAvailable,
         AssetRepository assetRepository,
         AssetOwnershipRepository assetOwnershipRepository,
@@ -227,7 +228,7 @@ public class OtcRequestGen {
             .forEach(assetRepository::saveAndFlush);
 
         var ex1 = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
-        AssetOwnershipId id = new AssetOwnershipId(ownerUserId, ex1.get());
+        AssetOwnershipId id = new AssetOwnershipId(owner, ex1.get());
         AssetOwnership assetOwnership = new AssetOwnership();
         assetOwnership.setId(id);
         assetOwnership.setPublicAmount(totalAvailable / 2);
@@ -236,7 +237,7 @@ public class OtcRequestGen {
     }
 
     public static AssetOwnership createDummyAssetOwnership(
-        UUID userId,
+        User owner,
         int reservedAmount,
         int publicAmount,
         AssetRepository assetRepository,
@@ -247,7 +248,7 @@ public class OtcRequestGen {
 
         var ex1 = assetRepository.findById(AssetGenerator.OPTION_EX1_PUT_UUID);
         AssetOwnershipId ownershipId = new AssetOwnershipId();
-        ownershipId.setUser(userId);
+        ownershipId.setUser(owner);
         ownershipId.setAsset(ex1.get());
 
         AssetOwnership assetOwnership = new AssetOwnership();
