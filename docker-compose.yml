@@ -16,24 +16,23 @@
 
 
 services:
-  # User service and its state
-  user_service:
-    hostname: userservice
+  # Bank service and its state
+  bank_service:
     build:
       context: .
       dockerfile: docker/Dockerfile-java
       args:
-        SERVICE: user-service
+        SERVICE: bank-service
     command:
-      - /code/user-service/build/libs/user-service-0.0.1-SNAPSHOT.jar
+      - /code/bank-service/build/libs/bank-service-0.0.1-SNAPSHOT.jar
       - --spring.profiles.active=dev,local
     depends_on:
-      user_service_db:
+      bank_service_db:
         condition: service_healthy
       broker:
         condition: service_started
     volumes:
-      - user_service_gradle:/home/service/.gradle
+      - bank_service_gradle:/home/service/.gradle
     post_start:
       - command: "chown -R service: /home/service/.gradle"
         user: root
@@ -52,8 +51,8 @@ services:
           path: ./testlib/
           target: /code/testlib/
         - action: sync+restart
-          path: ./user-service/
-          target: /code/user-service/
+          path: ./bank-service/
+          target: /code/bank-service/
           ignore:
             - src/main/resources/db/migration
         - action: sync+restart
@@ -63,86 +62,23 @@ services:
           path: ./settings.gradle.kts
           target: /code/settings.gradle.kts
 
-  user_service_db:
+  bank_service_db:
     image: postgres:17
     restart: unless-stopped
     shm_size: 128mb
     environment:
       POSTGRES_PASSWORD: lmaolmao123
-      POSTGRES_DB: user-service
-      POSTGRES_USER: user-service
+      POSTGRES_DB: bank-service
+      POSTGRES_USER: bank-service
     volumes:
-      - user_service_db_data:/var/lib/postgresql/data
+      - bank_service_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: "pg_isready -d user-service -U user-service"
+      test: "pg_isready -d bank-service -U bank-service"
       interval: 3s
       start_period: 3s
 #    ports:
 #      - "5432:5432"  # Default port for PostgreSQL
 #      - "5433:5432"  # Map container's 5432 to host's 5433
-
-  # Stock service and its state
-  stock_service:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile-java
-      args:
-        SERVICE: stock-service
-    environment:
-      ALPHAVANTAGE_APY_KEY: ${ALPHAVANTAGE_API_KEY:?alphavantage api key missing}
-    command:
-      - /code/stock-service/build/libs/stock-service-0.0.1-SNAPSHOT.jar
-      - --spring.profiles.active=dev,local
-    depends_on:
-      stock_service_db:
-        condition: service_healthy
-      broker:
-        condition: service_started
-    volumes:
-      - stock_service_gradle:/home/service/.gradle
-    post_start:
-      - command: "chown -R service: /home/service/.gradle"
-        user: root
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./common/build.gradle.kts
-          target: /code/common/build.gradle.kts
-        - action: sync+restart
-          path: ./common/src
-          target: /code/common/src
-        - action: sync+restart
-          path: ./buildSrc/
-          target: /code/buildSrc/
-        - action: sync+restart
-          path: ./testlib/
-          target: /code/testlib/
-        - action: sync+restart
-          path: ./stock-service/
-          target: /code/stock-service/
-          ignore:
-            - src/main/resources/db/migration
-        - action: sync+restart
-          path: ./build.gradle.kts
-          target: /code/build.gradle.kts
-        - action: sync+restart
-          path: ./settings.gradle.kts
-          target: /code/settings.gradle.kts
-
-  stock_service_db:
-    image: postgres:17
-    restart: unless-stopped
-    shm_size: 128mb
-    environment:
-      POSTGRES_PASSWORD: lmaolmao123
-      POSTGRES_DB: stock-service
-      POSTGRES_USER: stock-service
-    volumes:
-      - stock_service_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: "pg_isready -d stock-service -U stock-service"
-      interval: 3s
-      start_period: 3s
 
 
   # Notification service and its state
@@ -259,6 +195,6 @@ volumes:
   stock_service_gradle:
   # Database storage persistence.
   # notification_service_db_data:
-  user_service_db_data:
-  stock_service_db_data:
+  bank_service_db_data:
+  # stock_service_db_data:
   exchange_office_data:
