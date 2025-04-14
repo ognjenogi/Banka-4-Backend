@@ -1,6 +1,7 @@
 package rs.banka4.bank_service.service.impl;
 
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnership;
+import rs.banka4.bank_service.domain.assets.mappers.AssetMapper;
+import rs.banka4.bank_service.domain.listing.dtos.SecurityType;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
 import rs.banka4.bank_service.domain.trading.dtos.PublicStocksDto;
 import rs.banka4.bank_service.exceptions.NotEnoughStock;
@@ -72,6 +75,24 @@ public class AssetOwnershipServiceImpl implements AssetOwnershipService {
 
     @Override
     public Page<PublicStocksDto> getPublicStocks(Pageable pageable, String token) {
-        throw new RuntimeException("TODO: not implemented");
+        final var allPublic =
+            assetOwnershipRepository.findAllByPublicAmountGreaterThan(0, pageable);
+        return allPublic.map(o -> {
+            final var lastPrice =
+                listingService.getLatestPriceForStock(
+                    o.getId()
+                        .getAsset()
+                        .getId()
+                );
+            return AssetMapper.INSTANCE.mapPublicStocksDto(
+                o,
+                SecurityType.STOCK,
+                o.getId()
+                    .getUser()
+                    .getEmail(),
+                lastPrice,
+                OffsetDateTime.now()
+            );
+        });
     }
 }
