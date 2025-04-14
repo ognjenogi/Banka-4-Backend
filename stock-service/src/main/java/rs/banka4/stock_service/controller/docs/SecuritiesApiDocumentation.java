@@ -47,4 +47,5 @@ public interface SecuritiesApiDocumentation {
         @Parameter(description = "Page number") int page,
         @Parameter(description = "Number of securities per page") int size
     );
+
 }

@@ -13,4 +13,5 @@ public interface SecuritiesService {
         String name,
         Pageable pageable
     );
+
 }

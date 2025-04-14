@@ -15,6 +15,8 @@ public class WhiteListConfig {
         "/auth/forgot-password/*",
         "/auth/verify",
         "/docs/**",
+        "/transaction/pay-fee", // TODO: This route needs to be protected (Called from scheduler in
+                               // stock service)
         "/account/user/**"
     };
 

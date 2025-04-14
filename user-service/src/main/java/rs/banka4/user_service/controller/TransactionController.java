@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.user_service.controller.docs.TransactionApiDocumentation;
 import rs.banka4.user_service.domain.transaction.db.TransactionStatus;
+import rs.banka4.user_service.domain.transaction.dtos.CreateFeeTransactionDto;
 import rs.banka4.user_service.domain.transaction.dtos.CreatePaymentDto;
 import rs.banka4.user_service.domain.transaction.dtos.CreateTransferDto;
 import rs.banka4.user_service.domain.transaction.dtos.TransactionDto;
@@ -46,6 +47,16 @@ public class TransactionController implements TransactionApiDocumentation {
         TransactionDto transactionDto =
             transactionService.createTransfer(authentication, createTransferDto);
         return ResponseEntity.ok(transactionDto);
+    }
+
+    @Override
+    @PostMapping("/pay-fee")
+    public ResponseEntity<Void> payFee(
+        @RequestBody @Valid CreateFeeTransactionDto createFeeTransactionDto
+    ) {
+        transactionService.createFeeTransaction(createFeeTransactionDto);
+        return ResponseEntity.ok()
+            .build();
     }
 
     @Override

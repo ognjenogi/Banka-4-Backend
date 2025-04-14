@@ -29,4 +29,5 @@ public class SecuritiesController implements SecuritiesApiDocumentation {
     ) {
         return securityService.getSecurities(securityType, name, PageRequest.of(page, size));
     }
+
 }

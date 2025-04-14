@@ -46,6 +46,20 @@ public class SecurityConfig {
                             AuthorityAuthorizationManager.hasAuthority("ADMIN")
                         )
                     )
+                    .requestMatchers(HttpMethod.GET, "/orders")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.GET, "/orders/*")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
                     .requestMatchers(HttpMethod.POST, "/actuaries/register")
                     .hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/actuaries/update/**")
