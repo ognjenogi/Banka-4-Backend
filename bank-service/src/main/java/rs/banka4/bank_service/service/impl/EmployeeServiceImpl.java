@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.bank_service.domain.auth.dtos.LoginDto;
 import rs.banka4.bank_service.domain.auth.dtos.LoginResponseDto;
 import rs.banka4.bank_service.domain.user.PrivilegesDto;
@@ -29,6 +30,7 @@ import rs.banka4.bank_service.exceptions.user.client.NotActivated;
 import rs.banka4.bank_service.repositories.EmployeeRepository;
 import rs.banka4.bank_service.security.PreAuthBankUserAuthentication;
 import rs.banka4.bank_service.security.UnauthenticatedBankUserPrincipal;
+import rs.banka4.bank_service.service.abstraction.ActuaryService;
 import rs.banka4.bank_service.service.abstraction.EmployeeService;
 import rs.banka4.bank_service.service.abstraction.JwtService;
 import rs.banka4.bank_service.utils.specification.EmployeeSpecification;
@@ -50,6 +52,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final ActuaryService actuaryService;
 
 
     @Override
@@ -141,7 +144,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
 
         if (actuaryPayloadDto != null) {
-            throw new RuntimeException("TODO: not implemented");
+            actuaryService.createNewActuary(actuaryPayloadDto);
         }
 
         userService.sendVerificationEmail(employee.getFirstName(), employee.getEmail());
@@ -323,7 +326,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 }
 
             if (actuaryPayloadDto != null) {
-                throw new RuntimeException("TODO: not implemented");
+                actuaryService.createNewActuary(actuaryPayloadDto);
             }
         }
         // Agent <-> Supervisor or Actuary -> Employee
@@ -346,7 +349,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     actuaryPayloadDto = agentPayload(employee.getId());
                 }
 
-            throw new RuntimeException("TODO: not implemented");
+            actuaryService.changeActuaryDetails(pathId, actuaryPayloadDto);
         }
     }
 
