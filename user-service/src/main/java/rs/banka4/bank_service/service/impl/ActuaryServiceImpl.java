@@ -1,21 +1,14 @@
 package rs.banka4.bank_service.service.impl;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import rs.banka4.bank_service.config.clients.UserServiceClient;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
@@ -33,7 +26,6 @@ import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 public class ActuaryServiceImpl implements ActuaryService {
 
     private final ActuaryRepository actuaryRepository;
-    private final Retrofit userServiceRetrofit;
     private static final Logger logger = LoggerFactory.getLogger(ActuaryServiceImpl.class);
 
 
@@ -97,75 +89,7 @@ public class ActuaryServiceImpl implements ActuaryService {
         int page,
         int size
     ) {
-        UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
-        String token = "Bearer " + auth.getCredentials();
-
-        try {
-            Response<PaginatedResponse<EmployeeResponseDto>> response =
-                userServiceClient.searchActuaryOnly(
-                    token,
-                    firstName,
-                    lastName,
-                    email,
-                    position,
-                    page,
-                    size
-                )
-                    .execute();
-
-            if (!response.isSuccessful() || response.body() == null) {
-                logger.error("Failed to search actuaries. Response code: {}", response.code());
-                return ResponseEntity.status(response.code())
-                    .build();
-            }
-
-            PaginatedResponse<EmployeeResponseDto> employeePage = response.body();
-
-            if (
-                employeePage.getContent()
-                    .isEmpty()
-            ) {
-                logger.debug(
-                    "No actuaries found. Criteria - firstName: {}, lastName: {}, email: {}, position: {}, page: {}, size: {}",
-                    firstName,
-                    lastName,
-                    email,
-                    position,
-                    page,
-                    size
-                );
-                return ResponseEntity.ok(Page.empty());
-            }
-
-            List<CombinedResponse> combinedResponses =
-                employeePage.getContent()
-                    .stream()
-                    .map(this::toCombinedResponse)
-                    .collect(Collectors.toList());
-
-            logger.debug(
-                "Found {} actuaries matching the search criteria.",
-                combinedResponses.size()
-            );
-
-            return ResponseEntity.ok(
-                new PageImpl<>(
-                    combinedResponses,
-                    PageRequest.of(
-                        employeePage.getPage()
-                            .getNumber(),
-                        employeePage.getPage()
-                            .getSize()
-                    ),
-                    employeePage.getPage()
-                        .getTotalElements()
-                )
-            );
-        } catch (Exception e) {
-            logger.error("Exception occurred while searching actuaries", e);
-            return ResponseEntity.status(500)
-                .build();
-        }
+        throw new RuntimeException("TODO: not implemented");
     }
 
     private CombinedResponse toCombinedResponse(EmployeeResponseDto employee) {

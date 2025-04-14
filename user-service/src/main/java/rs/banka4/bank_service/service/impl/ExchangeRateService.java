@@ -3,7 +3,6 @@ package rs.banka4.bank_service.service.impl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import rs.banka4.rafeisen.common.currency.CurrencyCode;
  * </p>
  */
 @Service
-@RequiredArgsConstructor
 public class ExchangeRateService {
 
     private static final BigDecimal BANK_FEE = BigDecimal.valueOf(1.5);

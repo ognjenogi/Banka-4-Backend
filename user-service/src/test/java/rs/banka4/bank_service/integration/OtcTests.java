@@ -19,10 +19,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 import rs.banka4.bank_service.config.clients.UserServiceClient;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnership;
@@ -58,9 +56,6 @@ public class OtcTests {
     @Autowired
     private ObjectMapper objMapper;
 
-    @MockitoBean
-    private Retrofit userServiceRetrofit;
-
     @Autowired
     private OtcRequestRepository otcRequestRepository;
 
@@ -95,8 +90,6 @@ public class OtcTests {
             .thenReturn(dummyResponse);
         Mockito.when(userServiceClientMock.getUserInfo(Mockito.any(), Mockito.anyString()))
             .thenReturn(dummyCall);
-        Mockito.when(userServiceRetrofit.create(UserServiceClient.class))
-            .thenReturn(userServiceClientMock);
     }
 
     /**

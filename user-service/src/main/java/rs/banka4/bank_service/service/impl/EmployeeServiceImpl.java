@@ -18,9 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import rs.banka4.bank_service.config.clients.StockServiceClient;
 import rs.banka4.bank_service.domain.auth.dtos.LoginDto;
 import rs.banka4.bank_service.domain.auth.dtos.LoginResponseDto;
 import rs.banka4.bank_service.domain.user.PrivilegesDto;
@@ -53,7 +50,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    private final Retrofit stockServiceRetrofit;
 
 
     @Override
@@ -145,23 +141,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
 
         if (actuaryPayloadDto != null) {
-            StockServiceClient stockServiceClient =
-                stockServiceRetrofit.create(StockServiceClient.class);
-            String authorization = "Bearer " + jwtService.generateAccessToken(admin);
-            try {
-                Response<Void> response =
-                    stockServiceClient.registerActuary(authorization, actuaryPayloadDto)
-                        .execute();
-                if (!response.isSuccessful()) {
-                    LOGGER.error(
-                        "Failed to register actuary: {}",
-                        response.errorBody()
-                            .string()
-                    );
-                }
-            } catch (Exception e) {
-                LOGGER.error("Exception occurred while registering actuary", e);
-            }
+            throw new RuntimeException("TODO: not implemented");
         }
 
         userService.sendVerificationEmail(employee.getFirstName(), employee.getEmail());
@@ -343,23 +323,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 }
 
             if (actuaryPayloadDto != null) {
-                StockServiceClient stockServiceClient =
-                    stockServiceRetrofit.create(StockServiceClient.class);
-                String authorization = "Bearer " + jwtService.generateAccessToken(admin);
-                try {
-                    Response<Void> response =
-                        stockServiceClient.registerActuary(authorization, actuaryPayloadDto)
-                            .execute();
-                    if (!response.isSuccessful()) {
-                        LOGGER.error(
-                            "Failed to register actuary: {}",
-                            response.errorBody()
-                                .string()
-                        );
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Exception occurred while registering actuary", e);
-                }
+                throw new RuntimeException("TODO: not implemented");
             }
         }
         // Agent <-> Supervisor or Actuary -> Employee
@@ -382,19 +346,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     actuaryPayloadDto = agentPayload(employee.getId());
                 }
 
-            StockServiceClient stockServiceClient =
-                stockServiceRetrofit.create(StockServiceClient.class);
-            String authorization = "Bearer " + jwtService.generateAccessToken(admin);
-            try {
-                Response<Void> response =
-                    stockServiceClient.updateActuary(authorization, pathId, actuaryPayloadDto)
-                        .execute();
-                if (!response.isSuccessful()) {
-                    LOGGER.error("Failed to update actuary: {}", response.code());
-                }
-            } catch (Exception e) {
-                LOGGER.error("Exception occurred while updating actuary", e);
-            }
+            throw new RuntimeException("TODO: not implemented");
         }
     }
 

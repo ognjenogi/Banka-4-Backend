@@ -1,17 +1,12 @@
 package rs.banka4.bank_service.service.impl;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import rs.banka4.bank_service.config.clients.UserServiceClient;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
 import rs.banka4.bank_service.domain.trading.db.ForeignBankId;
 import rs.banka4.bank_service.domain.trading.db.OtcMapper;
@@ -37,7 +32,6 @@ public class OtcRequestServiceImp implements OtcRequestService {
     private final OtcRequestRepository otcRequestRepository;
     private final OtcMapper otcMapper;
     private final AssetOwnershipRepository assetOwnershipRepository;
-    private final Retrofit userServiceRetrofit;
     private final TradingService tradingService;
 
     @Override
@@ -171,48 +165,6 @@ public class OtcRequestServiceImp implements OtcRequestService {
         CurrencyCode currencyCode,
         BigDecimal premium
     ) {
-        UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
-        try {
-            Response<Set<AccountNumberDto>> response =
-                userServiceClient.getUserAccounts(userId)
-                    .execute();
-            if (!response.isSuccessful() || response.body() == null) {
-                throw new RequestFailed();
-            }
-            Set<AccountNumberDto> accounts = response.body();
-            AccountNumberDto currentAccount = null;
-            AccountNumberDto rightCurrencyAccount = null;
-            AccountNumberDto buyerAccount = null;
-            for (var account : accounts) {
-                if (
-                    account.currency()
-                        .equals(CurrencyCode.RSD)
-                ) currentAccount = account;
-                if (
-                    account.currency()
-                        .equals(currencyCode)
-                ) rightCurrencyAccount = account;
-            }
-            if (rightCurrencyAccount != null) {
-                if (
-                    premium != null
-                        && rightCurrencyAccount.availableBalance()
-                            .compareTo(premium)
-                            >= 0
-                ) return rightCurrencyAccount;
-                else {
-                    // TODO replace with insufficient funds on account exception
-                    throw new RequestFailed();
-                }
-            } else if (currentAccount != null) {
-                // TODO use exchange service to determine if there is enough funds
-                return currentAccount;
-            } else {
-                // TODO replace with no right account exception
-                throw new RequestFailed();
-            }
-        } catch (IOException e) {
-            throw new RequestFailed();
-        }
+        throw new RuntimeException("TODO: not implemented");
     }
 }

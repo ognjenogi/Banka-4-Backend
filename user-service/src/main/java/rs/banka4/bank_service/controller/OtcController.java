@@ -8,10 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import retrofit2.Retrofit;
-import rs.banka4.bank_service.config.clients.UserServiceClient;
 import rs.banka4.bank_service.controller.docs.OtcApiDocumentation;
-import rs.banka4.bank_service.domain.trading.db.OtcMapper;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestDto;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestUpdateDto;
@@ -23,8 +20,6 @@ import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 @RequiredArgsConstructor
 public class OtcController implements OtcApiDocumentation {
     private final OtcRequestService otcRequestService;
-    private final Retrofit userServiceRetrofit;
-    private final OtcMapper otcMapper;
 
     @Override
     @GetMapping("/me")
@@ -91,12 +86,10 @@ public class OtcController implements OtcApiDocumentation {
         Authentication auth,
         boolean unread
     ) {
-        UserServiceClient userServiceClient = userServiceRetrofit.create(UserServiceClient.class);
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId =
             ourAuth.getPrincipal()
                 .userId();
-        String token = "Bearer " + auth.getCredentials();
         var requests =
             unread
                 ? otcRequestService.getMyRequestsUnread(PageRequest.of(page, size), myId)
@@ -104,56 +97,7 @@ public class OtcController implements OtcApiDocumentation {
 
         Page<OtcRequestDto> dtoPage = requests.map(it -> {
             try {
-                var resFor =
-                    userServiceClient.getUserInfo(
-                        UUID.fromString(
-                            it.getMadeFor()
-                                .userId()
-                        ),
-                        token
-                    )
-                        .execute();
-                var resBy =
-                    userServiceClient.getUserInfo(
-                        UUID.fromString(
-                            it.getMadeBy()
-                                .userId()
-                        ),
-                        token
-                    )
-                        .execute();
-                var resMod =
-                    userServiceClient.getUserInfo(
-                        UUID.fromString(
-                            it.getModifiedBy()
-                                .userId()
-                        ),
-                        token
-                    )
-                        .execute();
-
-                if (
-                    !resFor.isSuccessful()
-                        || resFor.body() == null
-                        || !resBy.isSuccessful()
-                        || resBy.body() == null
-                        || !resMod.isSuccessful()
-                        || resMod.body() == null
-                ) {
-                    throw new RuntimeException("User info service error");
-                }
-
-                String madeByStr =
-                    resBy.body()
-                        .email();
-                String madeForStr =
-                    resFor.body()
-                        .email();
-                String modifiedByStr =
-                    resMod.body()
-                        .email();
-
-                return otcMapper.toOtcRequestDto(it, madeByStr, madeForStr, modifiedByStr);
+                throw new IllegalStateException("TODO: not implemented");
             } catch (Exception e) {
                 throw new RuntimeException("Error mapping OTC request", e);
             }
