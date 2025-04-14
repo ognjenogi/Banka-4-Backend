@@ -64,9 +64,11 @@ public class UserGenerator {
      *
      * <p>
      * Flushes the newly-created user into the database as a side-effect.
+     *
+     * @returns the new user.
      */
-    public void createEmployee(UserCustomizer<Employee.EmployeeBuilder<?, ?>> customizer) {
-        employeeRepo.save(
+    public Employee createEmployee(UserCustomizer<Employee.EmployeeBuilder<?, ?>> customizer) {
+        return employeeRepo.saveAndFlush(
             customizer.apply(
                 /* Keep in sync with the Javadoc above. */
                 Employee.builder()
@@ -87,11 +89,10 @@ public class UserGenerator {
             )
                 .build()
         );
-        employeeRepo.flush();
     }
 
-    public void createEmployeeLogin(UserCustomizer<Employee.EmployeeBuilder<?, ?>> customizer) {
-        employeeRepo.save(
+    public Employee createEmployeeLogin(UserCustomizer<Employee.EmployeeBuilder<?, ?>> customizer) {
+        return employeeRepo.saveAndFlush(
             customizer.apply(
                 /* Keep in sync with the Javadoc above. */
                 Employee.builder()
@@ -113,7 +114,6 @@ public class UserGenerator {
             )
                 .build()
         );
-        employeeRepo.flush();
     }
 
     private final EmployeeService employeeService;
@@ -173,9 +173,11 @@ public class UserGenerator {
      *
      * <p>
      * Flushes the newly-created user into the database as a side-effect.
+     *
+     * @return the new user.
      */
-    public void createClient(UserCustomizer<Client.ClientBuilder<?, ?>> customizer) {
-        clientRepo.save(
+    public Client createClient(UserCustomizer<Client.ClientBuilder<?, ?>> customizer) {
+        return clientRepo.saveAndFlush(
             customizer.apply(
                 /* Keep in sync with the Javadoc above. */
                 Client.builder()
@@ -194,6 +196,5 @@ public class UserGenerator {
             )
                 .build()
         );
-        clientRepo.flush();
     }
 }
