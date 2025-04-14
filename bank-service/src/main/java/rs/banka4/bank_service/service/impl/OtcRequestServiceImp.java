@@ -88,6 +88,7 @@ public class OtcRequestServiceImp implements OtcRequestService {
                 BankRoutingNumber.BANK4.getRoutingNumber(),
                 assetOwner.getId()
                     .getUser()
+                    .getId()
                     .toString()
             );
         var stock =

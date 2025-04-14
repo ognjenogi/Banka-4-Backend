@@ -139,7 +139,7 @@ public class OtcTests {
             """;
         var jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
-            .uri("/otc/me")
+            .uri("/stock/otc/me")
             .param("page", "0")
             .param("size", "10")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -160,7 +160,7 @@ public class OtcTests {
             createDummyOtcRequestNotMe(assetRepository, securityRepository, otcRequestRepository);
 
         mvc.get()
-            .uri("/otc/me")
+            .uri("/stock/otc/me")
             .param("page", "0")
             .param("size", "10")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
@@ -213,7 +213,7 @@ public class OtcTests {
             """;
         var jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
-            .uri("/otc/me/unread")
+            .uri("/stock/otc/me/unread")
             .param("page", "0")
             .param("size", "10")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -235,7 +235,7 @@ public class OtcTests {
         createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
 
         mvc.get()
-            .uri("/otc/me/unread")
+            .uri("/stock/otc/me/unread")
             .param("page", "0")
             .param("size", "10")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
@@ -262,7 +262,7 @@ public class OtcTests {
         createDummyOtcRequestMeRead(assetRepository, securityRepository, otcRequestRepository);
 
         mvc.patch()
-            .uri("/otc/reject/" + id)
+            .uri("/stock/otc/reject/" + id)
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .assertThat()
             .hasStatusOk();
@@ -292,7 +292,7 @@ public class OtcTests {
         var updateDto = new OtcRequestUpdateDto(null, momo, 10, LocalDate.parse("2025-04-11"));
         var body = objMapper.writeValueAsString(updateDto);
         mvc.patch()
-            .uri("/otc/update/" + id)
+            .uri("/stock/otc/update/" + id)
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
@@ -383,7 +383,7 @@ public class OtcTests {
         String jsonBody = objMapper.writeValueAsString(createDto);
 
         mvc.post()
-            .uri("/otc/create")
+            .uri("/stock/otc/create")
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonBody)

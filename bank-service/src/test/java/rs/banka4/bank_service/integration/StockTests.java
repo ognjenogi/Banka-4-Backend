@@ -54,7 +54,7 @@ public class StockTests {
         );
 
         mvc.put()
-            .uri("/stocks/transfer")
+            .uri("/stock/stocks/transfer")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .contentType("application/json")
             .content("""
@@ -92,7 +92,7 @@ public class StockTests {
         );
 
         mvc.put()
-            .uri("/stocks/transfer")
+            .uri("/stock/stocks/transfer")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .contentType("application/json")
             .content("""
@@ -130,7 +130,7 @@ public class StockTests {
         );
 
         mvc.put()
-            .uri("/stocks/transfer")
+            .uri("/stock/stocks/transfer")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .contentType("application/json")
             .content("""
@@ -167,7 +167,7 @@ public class StockTests {
         );
 
         mvc.get()
-            .uri("/stocks/" + AssetGenerator.STOCK_EX1_UUID + "/latestPrice")
+            .uri("/stock/stocks/" + AssetGenerator.STOCK_EX1_UUID + "/latestPrice")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .assertThat()
             .bodyJson()

@@ -1,8 +1,8 @@
 package rs.banka4.bank_service.domain.actuaries.db;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
-import rs.banka4.bank_service.domain.user.User;
 
 @Entity
 @Table(name = "actuary_informations")
@@ -13,8 +13,7 @@ import rs.banka4.bank_service.domain.user.User;
 @Builder
 public class ActuaryInfo {
     @Id
-    @OneToOne(optional = false)
-    private User user;
+    private UUID userId;
 
     @Column(nullable = false)
     private boolean needApproval;

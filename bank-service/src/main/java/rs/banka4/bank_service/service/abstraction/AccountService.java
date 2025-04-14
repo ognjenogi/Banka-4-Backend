@@ -11,6 +11,7 @@ import rs.banka4.bank_service.domain.account.dtos.AccountDto;
 import rs.banka4.bank_service.domain.account.dtos.CreateAccountDto;
 import rs.banka4.bank_service.domain.account.dtos.SetAccountLimitsDto;
 import rs.banka4.rafeisen.common.dto.AccountNumberDto;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 
 public interface AccountService {
     Set<AccountDto> getAccountsForClient(String token);
@@ -32,6 +33,8 @@ public interface AccountService {
         String accountNumber,
         PageRequest pageRequest
     );
+
+    Account getAccount(AuthenticatedBankUserAuthentication auth, UUID id);
 
     void makeAnAccountNumber(Account account);
 }

@@ -36,7 +36,8 @@ public class OrderController implements OrderApiDocumentation {
             orderService.createOrder(
                 request,
                 ourAuth.getPrincipal()
-                    .userId()
+                    .userId(),
+                ourAuth
             )
         );
     }

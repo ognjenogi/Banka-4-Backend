@@ -3,6 +3,7 @@ package rs.banka4.bank_service.integration.order;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,10 @@ import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.service.abstraction.OrderService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
+import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.testlib.integration.DbEnabledTest;
 
 @SpringBootTest
@@ -48,13 +53,26 @@ class OrderServiceTest {
 
     private UUID assetId = TestDataFactory.ASSET_ID;
     private UUID accountId = TestDataFactory.ACCOUNT_ID;
+    private UUID employeeId = UUID.fromString("e9eb41cc-1989-11f0-9256-d85ed35e4427");
     private final UUID userUuid = UUID.fromString("6f72db23-afc8-4d71-b392-eb9e626ed9af");
 
     @BeforeEach
     void setUp() {
-        final var user = userGen.createClient(x -> x.id(userUuid));
-        final var account =
-            accountRepo.saveAndFlush(AccountObjectMother.generateBasicFromAccount());
+        final var user =
+            userGen.createClient(
+                x -> x.id(userUuid)
+                    .email("release.me@gmail.com")
+            );
+        final var employee =
+            userGen.createEmployee(
+                x -> x.id(employeeId)
+                    .email("release.me@hotmail.rs")
+            );
+        var xd = AccountObjectMother.generateBasicFromAccount();
+        xd.setId(accountId);
+        xd.setClient(user);
+        xd.setEmployee(employee);
+        final var account = accountRepo.saveAndFlush(xd);
         Exchange exchange = exchangeRepository.save(TestDataFactory.buildExchange());
         Asset asset = assetRepository.save(TestDataFactory.buildAsset());
         actuaryRepository.save(TestDataFactory.buildActuaryInfo(user));
@@ -76,7 +94,16 @@ class OrderServiceTest {
                 accountId
             );
 
-        OrderDto response = orderService.createOrder(dto, userUuid);
+        OrderDto response =
+            orderService.createOrder(
+                dto,
+                userUuid,
+                new AuthenticatedBankUserAuthentication(
+                    new AuthenticatedBankUserPrincipal(UserType.CLIENT, userUuid),
+                    "",
+                    EnumSet.noneOf(Privilege.class)
+                )
+            );
 
         assertThat(response).isNotNull();
         assertThat(

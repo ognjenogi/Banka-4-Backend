@@ -96,11 +96,7 @@ public class OtcController implements OtcApiDocumentation {
                 : otcRequestService.getMyRequests(PageRequest.of(page, size), myId);
 
         Page<OtcRequestDto> dtoPage = requests.map(it -> {
-            try {
-                throw new IllegalStateException("TODO: not implemented");
-            } catch (Exception e) {
-                throw new RuntimeException("Error mapping OTC request", e);
-            }
+            throw new IllegalStateException("TODO: not implemented");
         });
 
         return ResponseEntity.ok(dtoPage);

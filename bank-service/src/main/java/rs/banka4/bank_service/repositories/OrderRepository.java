@@ -56,7 +56,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     @Query("""
              SELECT o FROM Order o
-             WHERE o.userId = :userId
+             WHERE o.user.id = :userId
              AND o.asset = :asset
              AND o.direction = :direction
              AND o.isDone = :isDone

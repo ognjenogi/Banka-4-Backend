@@ -58,7 +58,7 @@ public class TestDataFactory {
 
     public static ActuaryInfo buildActuaryInfo(User user) {
         return ActuaryInfo.builder()
-            .user(user)
+            .userId(user.getId())
             .needApproval(true)
             .limit(new MonetaryAmount(BigDecimal.valueOf(1_000_000), CurrencyCode.RSD))
             .usedLimit(new MonetaryAmount(BigDecimal.valueOf(1000), CurrencyCode.RSD))
@@ -88,6 +88,7 @@ public class TestDataFactory {
             .user(user)
             .orderType(OrderType.MARKET)
             .status(Status.PENDING)
+            .pricePerUnit(new MonetaryAmount(new BigDecimal(100), CurrencyCode.RSD))
             .build();
     }
 }

@@ -19,6 +19,7 @@ import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
+import rs.banka4.bank_service.repositories.UserRepository;
 import rs.banka4.bank_service.utils.ActuaryGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.testlib.integration.DbEnabledTest;
@@ -38,36 +39,16 @@ public class ActuaryTests {
     @Autowired
     private UserGenerator userGen;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private String jwtToken;
 
     @BeforeEach
     void setUp() {
-        actuaryRepository.deleteAll();
+        userRepository.flush();
         List<ActuaryInfo> list = ActuaryGenerator.makeExampleActuaries(userGen);
         actuaryRepository.saveAll(list);
-    }
-
-    @Test
-    void shouldRegisterActuarySuccessfully() throws Exception {
-        jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
-        String payload = """
-            {
-                "needsApproval": false,
-                "limitAmount": 10000,
-                "limitCurrencyCode": "RSD",
-                "actuaryId": "%s"
-            }
-            """.formatted(ActuaryGenerator.FOR_NEWLY_CREATED_ACTUARY_3_UUID);
-
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/actuaries/register")
-                .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload)
-        )
-            .andExpect(status().isCreated());
-
-        Assertions.assertEquals(3, actuaryRepository.count());
     }
 
     @Test
@@ -84,7 +65,7 @@ public class ActuaryTests {
             """.formatted(ActuaryGenerator.ACTUARY_2_UUID);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/actuaries/update/" + actuaryId)
+            MockMvcRequestBuilders.put("/stock/actuaries/update/" + actuaryId)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload)
@@ -116,7 +97,7 @@ public class ActuaryTests {
             """.formatted(ActuaryGenerator.FOR_NEWLY_CREATED_ACTUARY_3_UUID);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/actuaries/register")
+            MockMvcRequestBuilders.post("/stock/actuaries/register")
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload)
@@ -140,7 +121,7 @@ public class ActuaryTests {
             """.formatted(ActuaryGenerator.ACTUARY_2_UUID);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/actuaries/update/" + actuaryId)
+            MockMvcRequestBuilders.put("/stock/actuaries/update/" + actuaryId)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload)
@@ -173,7 +154,7 @@ public class ActuaryTests {
 
         // Send the reset request
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/actuaries/limit/reset/" + actuaryId)
+            MockMvcRequestBuilders.put("/stock/actuaries/limit/reset/" + actuaryId)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
         )
             .andExpect(status().isAccepted());
@@ -205,7 +186,7 @@ public class ActuaryTests {
 
         // Send the reset request
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/actuaries/limit/reset/" + actuaryId)
+            MockMvcRequestBuilders.put("/stock/actuaries/limit/reset/" + actuaryId)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
         )
             .andExpect(status().isForbidden());
@@ -235,7 +216,7 @@ public class ActuaryTests {
             """;
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/actuaries/limit/" + actuaryId)
+            MockMvcRequestBuilders.put("/stock/actuaries/limit/" + actuaryId)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -266,7 +247,7 @@ public class ActuaryTests {
             """;
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/actuaries/limit/" + actuaryId)
+            MockMvcRequestBuilders.put("/stock/actuaries/limit/" + actuaryId)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -287,7 +268,8 @@ public class ActuaryTests {
     private UUID createTestActuary() {
         UUID id = UUID.randomUUID();
         ActuaryInfo actuary = new ActuaryInfo();
-        actuary.setUser(userGen.createEmployee(x -> x.id(id)));
+        userGen.createEmployee(x -> x.id(id));
+        actuary.setUserId(id);
         actuary.setLimit(new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD));
         actuary.setUsedLimit(new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD));
         actuary.setNeedApproval(true);

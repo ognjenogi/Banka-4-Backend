@@ -14,7 +14,11 @@ import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 
 public interface OrderService {
 
-    OrderDto createOrder(CreateOrderDto request, UUID userId);
+    OrderDto createOrder(
+        CreateOrderDto request,
+        UUID userId,
+        AuthenticatedBankUserAuthentication authentication
+    );
 
     OrderPreviewDto calculateAveragePrice(CreateOrderPreviewDto request);
 

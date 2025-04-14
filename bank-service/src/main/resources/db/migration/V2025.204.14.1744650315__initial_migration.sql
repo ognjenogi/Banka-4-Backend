@@ -20,7 +20,7 @@ create table accounts
     account_type        varchar(255) check (account_type in
                                             ('STANDARD', 'SAVINGS', 'RETIREMENT', 'YOUTH', 'STUDENT', 'UNEMPLOYED',
                                              'DOO', 'AD', 'FOUNDATION')),
-    currency_code currency not null,
+    currency currency not null,
     primary key (id)
 );
 
@@ -43,23 +43,23 @@ create table bank_margins
 
 create table cards
 (
-    card_limit    numeric(38, 2),
-    created_at    date,
-    date_of_birth date,
-    expires_at    date,
-    account_id    uuid,
-    id            uuid         not null,
-    address       varchar(255),
-    card_name     varchar(255) not null check (card_name in ('VISA', 'MASTER_CARD', 'DINA_CARD', 'AMERICAN_EXPRESS')),
-    card_number   varchar(255) not null unique,
-    card_status   varchar(255) check (card_status in ('ACTIVATED', 'DEACTIVATED', 'BLOCKED')),
-    card_type     varchar(255) not null check (card_type in ('DEBIT', 'CREDIT')),
-    cvv           varchar(255) not null,
-    email         varchar(255),
-    first_name    varchar(255),
-    gender        varchar(255) check (gender in ('MALE', 'FEMALE')),
-    last_name     varchar(255),
-    phone_number  varchar(255),
+    card_limit                    numeric(38, 2),
+    created_at                    date,
+    authorized_user_date_of_birth date,
+    expires_at                    date,
+    account_id                    uuid,
+    id                            uuid         not null,
+    authorized_user_address       varchar(255),
+    card_name                     varchar(255) not null check (card_name in ('VISA', 'MASTER_CARD', 'DINA_CARD', 'AMERICAN_EXPRESS')),
+    card_number                   varchar(255) not null unique,
+    card_status                   varchar(255) check (card_status in ('ACTIVATED', 'DEACTIVATED', 'BLOCKED')),
+    card_type                     varchar(255) not null check (card_type in ('DEBIT', 'CREDIT')),
+    cvv                           varchar(255) not null,
+    authorized_user_email         varchar(255),
+    authorized_user_first_name    varchar(255),
+    authorized_user_gender        varchar(255) check (authorized_user_gender in ('MALE', 'FEMALE')),
+    authorized_user_last_name     varchar(255),
+    authorized_user_phone_number  varchar(255),
     primary key (id)
 );
 
@@ -134,7 +134,7 @@ create table loan_requests
     id                uuid not null,
     loan_id           uuid unique,
     contact_phone     varchar(255),
-    currency_code currency,
+    currency currency,
     employment_status varchar(255),
     interest_type     varchar(255) check (interest_type in ('FIXED', 'VARIABLE')),
     purpose_of_loan   varchar(255),
@@ -340,8 +340,8 @@ create table asset_ownership
     public_amount   integer not null,
     reserved_amount integer not null,
     id_asset_id     uuid    not null,
-    id_user         uuid    not null,
-    primary key (id_asset_id, id_user)
+    id_user_id      uuid    not null,
+    primary key (id_asset_id, id_user_id)
 );
 
 create table assets
@@ -441,12 +441,12 @@ create table orders
     all_or_nothing        boolean        not null,
     contract_size         integer        not null,
     is_done               boolean        not null,
-    limit_value_amount    numeric(38, 2) not null,
+    limit_value_amount    numeric(38, 2),
     margin                boolean        not null,
     price_per_unit_amount numeric(38, 2) not null,
     quantity              integer        not null,
     remaining_portions    integer        not null,
-    stop_value_amount     numeric(38, 2) not null,
+    stop_value_amount     numeric(38, 2),
     used                  boolean        not null,
     created_at            timestamp(6) with time zone not null default now(),
     last_modified         timestamp(6) with time zone not null,
@@ -456,11 +456,11 @@ create table orders
     id                    uuid           not null,
     user_id               uuid           not null,
     direction             varchar(255)   not null check (direction in ('BUY', 'SELL')),
-    limit_value_currency currency not null,
+    limit_value_currency currency,
     order_type            varchar(255)   not null check (order_type in ('MARKET', 'LIMIT', 'STOP', 'STOP_LIMIT')),
     price_per_unit_currency currency not null,
     status                varchar(255)   not null check (status in ('PENDING', 'APPROVED', 'DECLINED')),
-    stop_value_currency currency not null,
+    stop_value_currency currency,
     primary key (id)
 );
 
@@ -508,7 +508,7 @@ alter table if exists asset_ownership
 
 alter table if exists asset_ownership
     add constraint fk_asset_ownership_users
-        foreign key (id_user)
+        foreign key (id_user_id)
             references users;
 
 alter table if exists actuary_informations

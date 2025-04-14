@@ -39,6 +39,8 @@ import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.service.abstraction.*;
 import rs.banka4.bank_service.utils.specification.AccountSpecification;
 import rs.banka4.rafeisen.common.dto.AccountNumberDto;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.rafeisen.common.utils.specification.SpecificationCombinator;
 
 @Service
@@ -199,6 +201,32 @@ public class AccountServiceImpl implements AccountService {
         Page<Account> accounts = accountRepository.findAll(combinator.build(), pageRequest);
 
         return ResponseEntity.ok(accounts.map(AccountMapper.INSTANCE::toDto));
+    }
+
+    @Override
+    public Account getAccount(AuthenticatedBankUserAuthentication auth, UUID id) {
+        UUID userId =
+            auth.getPrincipal()
+                .userId();
+
+        Optional<Account> account = accountRepository.findById(id);
+
+        if (account.isEmpty()) {
+            throw new AccountNotFound();
+        }
+        if (
+            !auth.getPrincipal()
+                .userType()
+                .equals(UserType.EMPLOYEE)
+                && !account.get()
+                    .getClient()
+                    .getId()
+                    .equals(userId)
+        ) {
+            throw new IncorrectCredentials();
+        }
+
+        return account.get();
     }
 
     @Override

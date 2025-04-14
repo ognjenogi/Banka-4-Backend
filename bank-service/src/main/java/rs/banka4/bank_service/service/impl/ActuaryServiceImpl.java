@@ -55,7 +55,10 @@ public class ActuaryServiceImpl implements ActuaryService {
             );
         }
         ActuaryInfo actuaryInfo = new ActuaryInfo();
-        actuaryInfo.setUser(user.get());
+        actuaryInfo.setUserId(
+            user.get()
+                .getId()
+        );
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
         actuaryInfo.setUsedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD));
         actuaryInfo.setNeedApproval(dto.needsApproval());

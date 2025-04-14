@@ -23,10 +23,13 @@ import rs.banka4.bank_service.domain.orders.db.Status;
 import rs.banka4.bank_service.domain.orders.dtos.*;
 import rs.banka4.bank_service.domain.orders.mapper.OrderMapper;
 import rs.banka4.bank_service.domain.security.future.db.Future;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.bank_service.exceptions.*;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
 import rs.banka4.bank_service.repositories.AssetRepository;
 import rs.banka4.bank_service.repositories.OrderRepository;
+import rs.banka4.bank_service.repositories.UserRepository;
+import rs.banka4.bank_service.service.abstraction.AccountService;
 import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.abstraction.OrderService;
 import rs.banka4.rafeisen.common.exceptions.jwt.Unauthorized;
@@ -44,9 +47,15 @@ public class OrderServiceImpl implements OrderService {
     private final ActuaryRepository actuaryRepository;
     private final ListingService listingService;
     private final OrderExecutionService orderExecutionService;
+    private final UserRepository userRepository;
+    private final AccountService accountService;
 
     @Override
-    public OrderDto createOrder(CreateOrderDto dto, UUID userId) {
+    public OrderDto createOrder(
+        CreateOrderDto dto,
+        UUID userId,
+        AuthenticatedBankUserAuthentication auth
+    ) {
         Asset asset =
             assetRepository.findById(dto.assetId())
                 .orElseThrow(AssetNotFound::new);
@@ -86,8 +95,12 @@ public class OrderServiceImpl implements OrderService {
             );
         Status status = needsApproval ? Status.PENDING : Status.APPROVED;
 
+        User user =
+            userRepository.findById(actuaryInfo.getUserId())
+                .get();
+
         Order order = OrderMapper.INSTANCE.toEntity(dto);
-        order.setUser(actuaryInfo.getUser());
+        order.setUser(user);
         order.setAsset(asset);
         order.setOrderType(orderType);
         order.setQuantity(dto.quantity());
@@ -100,6 +113,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAllOrNothing(dto.allOrNothing());
         order.setAfterHours(afterHours);
         order.setUsed(false);
+        order.setAccount(accountService.getAccount(auth, dto.accountId()));
 
         Order savedOrder = orderRepository.saveAndFlush(order);
         return OrderMapper.INSTANCE.toDto(savedOrder);

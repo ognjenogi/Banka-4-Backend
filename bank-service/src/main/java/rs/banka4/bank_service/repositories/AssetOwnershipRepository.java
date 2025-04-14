@@ -11,7 +11,7 @@ import rs.banka4.bank_service.domain.assets.db.AssetOwnershipId;
 
 public interface AssetOwnershipRepository extends JpaRepository<AssetOwnership, AssetOwnershipId> {
     @Query(
-        value = "select a from AssetOwnership a where a.id.user = :userId and a.id.asset.id = :assetId"
+        value = "select a from AssetOwnership a where a.id.user.id = :userId and a.id.asset.id = :assetId"
     )
     Optional<AssetOwnership> findByMyId(UUID userId, UUID assetId);
 

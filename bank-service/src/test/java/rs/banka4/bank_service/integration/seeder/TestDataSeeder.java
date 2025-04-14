@@ -1,8 +1,11 @@
 package rs.banka4.bank_service.integration.seeder;
 
+import static rs.banka4.bank_service.runners.TestDataRunner.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rs.banka4.bank_service.domain.account.db.Account;
@@ -10,6 +13,7 @@ import rs.banka4.bank_service.domain.card.db.Card;
 import rs.banka4.bank_service.domain.card.db.CardName;
 import rs.banka4.bank_service.domain.card.db.CardStatus;
 import rs.banka4.bank_service.domain.card.db.CardType;
+import rs.banka4.bank_service.domain.loan.db.InterestRate;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanStatus;
 import rs.banka4.bank_service.domain.loan.db.LoanType;
@@ -36,6 +40,9 @@ public class TestDataSeeder {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private InterestRateRepository interestRateRepository;
 
 
     /**
@@ -66,12 +73,48 @@ public class TestDataSeeder {
         );
     }
 
+    private InterestRate createInterestRate(
+        UUID interestId,
+        long minAmount,
+        Long maxAmount,
+        double fixedRate
+    ) {
+        return InterestRate.builder()
+            .id(interestId)
+            .minAmount(BigDecimal.valueOf(minAmount))
+            .maxAmount(maxAmount != null ? BigDecimal.valueOf(maxAmount) : null)
+            .fixedRate(BigDecimal.valueOf(fixedRate))
+            .dateActiveFrom(LocalDate.now())
+            .dateActiveTo(
+                LocalDate.now()
+                    .plusYears(1)
+            )
+            .build();
+    }
+
+    private void interestRateSeeder() {
+        List<InterestRate> interestRates =
+            List.of(
+                createInterestRate(LOAN_INTEREST_0_500000, 0, 500000L, 6.25),
+                createInterestRate(LOAN_INTEREST_500001_1000000, 500001, 1000000L, 6.00),
+                createInterestRate(LOAN_INTEREST_1000001_2000000, 1000001, 2000000L, 5.75),
+                createInterestRate(LOAN_INTEREST_2000001_5000000, 2000001, 5000000L, 5.50),
+                createInterestRate(LOAN_INTEREST_5000001_10000000, 5000001, 10000000L, 5.25),
+                createInterestRate(LOAN_INTEREST_10000001_20000000, 10000001, 20000000L, 5.00),
+                createInterestRate(LOAN_INTEREST_20000001_2000000100, 20000001, 2000000100L, 4.75) // No
+                // upper limit
+            );
+
+        interestRateRepository.saveAllAndFlush(interestRates);
+    }
+
     /**
      * Kreira i čuva kredit u bazi.
      *
      * @return Sačuvani Loan objekat.
      */
     public Loan seedLoan(Account account) {
+        interestRateSeeder();
         return loanRepository.saveAndFlush(
             Loan.builder()
                 .loanNumber(100001L)
@@ -93,11 +136,16 @@ public class TestDataSeeder {
                 .status(LoanStatus.PROCESSING)
                 .type(LoanType.CASH)
                 .interestType(Loan.InterestType.FIXED)
+                .interestRate(
+                    interestRateRepository.findById(LOAN_INTEREST_0_500000)
+                        .get()
+                )
                 .build()
         );
     }
 
     public Loan seedRejectedLoan(Account account) {
+        interestRateSeeder();
         return loanRepository.saveAndFlush(
             Loan.builder()
                 .loanNumber(100002L)
@@ -119,6 +167,10 @@ public class TestDataSeeder {
                 .status(LoanStatus.REJECTED)
                 .type(LoanType.CASH)
                 .interestType(Loan.InterestType.FIXED)
+                .interestRate(
+                    interestRateRepository.findById(LOAN_INTEREST_0_500000)
+                        .get()
+                )
                 .build()
         );
     }
@@ -129,6 +181,7 @@ public class TestDataSeeder {
      * @return Listu sačuvanih Loans objekata.
      */
     public List<Loan> seedLoans(Account account) {
+        interestRateSeeder();
         Loan loan1 =
             loanRepository.saveAndFlush(
                 Loan.builder()
@@ -151,6 +204,10 @@ public class TestDataSeeder {
                     .status(LoanStatus.APPROVED)
                     .type(LoanType.CASH)
                     .interestType(Loan.InterestType.FIXED)
+                    .interestRate(
+                        interestRateRepository.findById(LOAN_INTEREST_0_500000)
+                            .get()
+                    )
                     .build()
             );
 
@@ -179,6 +236,10 @@ public class TestDataSeeder {
                     .status(LoanStatus.PAID_OFF)
                     .type(LoanType.CASH)
                     .interestType(Loan.InterestType.VARIABLE)
+                    .interestRate(
+                        interestRateRepository.findById(LOAN_INTEREST_0_500000)
+                            .get()
+                    )
                     .build()
             );
 

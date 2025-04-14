@@ -31,124 +31,122 @@ public class TestDataRunner implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestDataRunner.class);
     private final Environment environment;
 
-    private static final UUID EMPLOYEE_ALICE =
+    public static final UUID EMPLOYEE_ALICE =
         UUID.fromString("557514F1-2740-4C50-88CA-BE8235C1C4F3");
-    private static final UUID EMPLOYEE_ROBERT =
+    public static final UUID EMPLOYEE_ROBERT =
         UUID.fromString("D9BF337A-C052-43F3-947F-1CDDE9B48CAC");
-    private static final UUID EMPLOYEE_DANIEL =
+    public static final UUID EMPLOYEE_DANIEL =
         UUID.fromString("2A3EB11D-8686-4B24-92DC-273A88131548");
-    private static final UUID EMPLOYEE_SAMANTHA =
+    public static final UUID EMPLOYEE_SAMANTHA =
         UUID.fromString("C98DCD32-F0FF-4C0D-9D48-F0023844D984");
-    private static final UUID EMPLOYEE_JESSICA =
+    public static final UUID EMPLOYEE_JESSICA =
         UUID.fromString("7CE33D5F-11F5-490E-A21D-564FA3ADC3C7");
-    private static final UUID EMPLOYEE_MICHAEL =
+    public static final UUID EMPLOYEE_MICHAEL =
         UUID.fromString("4F7F5481-A667-47EE-8650-E6D8A2BC3616");
-    private static final UUID EMPLOYEE_LAURA =
+    public static final UUID EMPLOYEE_LAURA =
         UUID.fromString("3B086FD6-1991-4273-8CA3-F609458D3DDD");
-    private static final UUID EMPLOYEE_DAVID =
+    public static final UUID EMPLOYEE_DAVID =
         UUID.fromString("9F617476-BDCE-40AC-8999-E942890F0626");
-    private static final UUID EMPLOYEE_EMMA =
+    public static final UUID EMPLOYEE_EMMA =
         UUID.fromString("58C441D9-1A1D-4F21-8736-6E784BFE394E");
-    private static final UUID EMPLOYEE_CHRIS =
+    public static final UUID EMPLOYEE_CHRIS =
         UUID.fromString("D55C2670-F40D-4DF6-B06A-0CADB80AE023");
 
-    private static final UUID CLIENT_JOHN = UUID.fromString("D96CBD90-4DA2-44C4-866C-E0E37754F95D");
-    private static final UUID CLIENT_JANE = UUID.fromString("44ADDAB9-F74D-4974-9733-4B23E6D4DCC9");
-    private static final UUID CLIENT_DANIEL =
+    public static final UUID CLIENT_JOHN = UUID.fromString("D96CBD90-4DA2-44C4-866C-E0E37754F95D");
+    public static final UUID CLIENT_JANE = UUID.fromString("44ADDAB9-F74D-4974-9733-4B23E6D4DCC9");
+    public static final UUID CLIENT_DANIEL =
         UUID.fromString("B578A349-4271-4A22-8F10-DAE69DDFBB45");
-    private static final UUID CLIENT_BANK_SELF =
+    public static final UUID CLIENT_BANK_SELF =
         UUID.fromString("723B12AF-9DF4-4A9D-BE33-B054B02C7D90");
 
-    private static final UUID COMPANY_BIG_COMPANY_DOO =
+    public static final UUID COMPANY_BIG_COMPANY_DOO =
         UUID.fromString("259A9DFB-E5A6-46F0-AAD8-5E29496503C0");
-    private static final UUID COMPANY_RAFFEISEN_BANK =
+    public static final UUID COMPANY_RAFFEISEN_BANK =
         UUID.fromString("073F00D9-D258-4CF2-8559-BADCDF0D1350");
-    private static final UUID STATE_COMPANY =
+    public static final UUID STATE_COMPANY =
         UUID.fromString("6B730AA0-0E1C-11F0-B4C8-0800200C9A66");
 
-    private static final UUID LOAN_INTEREST_0_500000 =
+    public static final UUID LOAN_INTEREST_0_500000 =
         UUID.fromString("B0513B81-D32E-4F64-A9BF-D939AFE0E6A6");
-    private static final UUID LOAN_INTEREST_500001_1000000 =
+    public static final UUID LOAN_INTEREST_500001_1000000 =
         UUID.fromString("EF29BB2E-1C65-4C76-98D9-CA7FBCF2C6BB");
-    private static final UUID LOAN_INTEREST_1000001_2000000 =
+    public static final UUID LOAN_INTEREST_1000001_2000000 =
         UUID.fromString("9A52A003-06F9-4023-B18D-D06F6D857ADF");
-    private static final UUID LOAN_INTEREST_2000001_5000000 =
+    public static final UUID LOAN_INTEREST_2000001_5000000 =
         UUID.fromString("8EF87FA5-BA82-4A56-A5BB-AFC1C652225F");
-    private static final UUID LOAN_INTEREST_5000001_10000000 =
+    public static final UUID LOAN_INTEREST_5000001_10000000 =
         UUID.fromString("E0DB80D4-2244-483D-9D94-E11C8B7641E6");
-    private static final UUID LOAN_INTEREST_10000001_20000000 =
+    public static final UUID LOAN_INTEREST_10000001_20000000 =
         UUID.fromString("68B85D72-EB30-4136-A397-7E6D25DB8EED");
-    private static final UUID LOAN_INTEREST_20000001_2000000100 =
+    public static final UUID LOAN_INTEREST_20000001_2000000100 =
         UUID.fromString("E533B80B-B1F4-4B20-93D1-66B70401DE56");
 
-    private static final UUID BANK_MARGIN_CASH =
+    public static final UUID BANK_MARGIN_CASH =
         UUID.fromString("EA440E8A-B516-468E-B942-D3E5C208F0DD");
-    private static final UUID BANK_MARGIN_MORTGAGE =
+    public static final UUID BANK_MARGIN_MORTGAGE =
         UUID.fromString("6F01B5DC-ECF8-446E-B561-5720376C3E5A");
-    private static final UUID BANK_MARGIN_AUTO_LOAN =
+    public static final UUID BANK_MARGIN_AUTO_LOAN =
         UUID.fromString("69D72FF5-0018-4B71-8DAE-73797E5CBF52");
-    private static final UUID BANK_MARGIN_REFINANCING =
+    public static final UUID BANK_MARGIN_REFINANCING =
         UUID.fromString("D2A4F4D1-181C-46AF-9675-292699C980FC");
-    private static final UUID BANK_MARGIN_STUDENT_LOAN =
+    public static final UUID BANK_MARGIN_STUDENT_LOAN =
         UUID.fromString("AE8A5DCB-2ED9-4D04-A23A-DD49F4C3B47A");
 
-    private static final UUID CARD_STANDARD =
+    public static final UUID CARD_STANDARD =
         UUID.fromString("1A38A9BD-7231-402D-9A9C-4927953C23F3");
-    private static final String CARD_STANDARD_NUMBER = "1234567810345678";
-    private static final String CARD_STANDARD_CVV = "123";
+    public static final String CARD_STANDARD_NUMBER = "1234567810345678";
+    public static final String CARD_STANDARD_CVV = "123";
 
-    private static final UUID CARD_DOO = UUID.fromString("0ED4C23C-DEAF-4D44-A5BA-6BC1E48BC315");
-    private static final String CARD_DOO_NUMBER = "8765432107654321";
-    private static final String CARD_DOO_CVV = "321";
+    public static final UUID CARD_DOO = UUID.fromString("0ED4C23C-DEAF-4D44-A5BA-6BC1E48BC315");
+    public static final String CARD_DOO_NUMBER = "8765432107654321";
+    public static final String CARD_DOO_CVV = "321";
 
-    private static final UUID STATE_ACCOUNT =
+    public static final UUID STATE_ACCOUNT =
         UUID.fromString("1F969C90-0E1D-11F0-B4C8-0800200C9A66");
-    private static final String STATE_ACCOUNT_NUMBER = "4440001000000000999";
+    public static final String STATE_ACCOUNT_NUMBER = "4440001000000000999";
 
-    private static final UUID BANK_ACCOUNT_RSD =
+    public static final UUID BANK_ACCOUNT_RSD =
         UUID.fromString("8142AA92-D71E-461C-AD92-A3228FE46488");
-    private static final String BANK_ACCOUNT_RSD_NUMBER = "4440001000000000010";
+    public static final String BANK_ACCOUNT_RSD_NUMBER = "4440001000000000010";
 
-    private static final UUID BANK_ACCOUNT_EUR =
+    public static final UUID BANK_ACCOUNT_EUR =
         UUID.fromString("FBA778B9-063F-4C99-B00B-B5AC43CB464C");
-    private static final String BANK_ACCOUNT_EUR_NUMBER = "4440001000000000020";
+    public static final String BANK_ACCOUNT_EUR_NUMBER = "4440001000000000020";
 
-    private static final UUID BANK_ACCOUNT_USD =
+    public static final UUID BANK_ACCOUNT_USD =
         UUID.fromString("2EE2F6BC-3BBD-409B-80C2-DA4C8D605BA2");
-    private static final String BANK_ACCOUNT_USD_NUMBER = "4440001000000000120";
+    public static final String BANK_ACCOUNT_USD_NUMBER = "4440001000000000120";
 
-    private static final UUID BANK_ACCOUNT_CHF =
+    public static final UUID BANK_ACCOUNT_CHF =
         UUID.fromString("20558201-FF0C-405C-BE04-4185DCB3D11E");
-    private static final String BANK_ACCOUNT_CHF_NUMBER = "4440001000000000220";
+    public static final String BANK_ACCOUNT_CHF_NUMBER = "4440001000000000220";
 
-    private static final UUID BANK_ACCOUNT_JPY =
+    public static final UUID BANK_ACCOUNT_JPY =
         UUID.fromString("24A27A98-E983-4524-9949-3FA62414E05D");
-    private static final String BANK_ACCOUNT_JPY_NUMBER = "4440001000000000320";
+    public static final String BANK_ACCOUNT_JPY_NUMBER = "4440001000000000320";
 
-    private static final UUID BANK_ACCOUNT_AUD =
+    public static final UUID BANK_ACCOUNT_AUD =
         UUID.fromString("356388C5-5E16-4158-A9F5-A2A0A516E93B");
-    private static final String BANK_ACCOUNT_AUD_NUMBER = "4440001000000000420";
+    public static final String BANK_ACCOUNT_AUD_NUMBER = "4440001000000000420";
 
-    private static final UUID BANK_ACCOUNT_CAD =
+    public static final UUID BANK_ACCOUNT_CAD =
         UUID.fromString("D9ACCC48-A0D9-4C33-AB13-38966B5BD8E2");
-    private static final String BANK_ACCOUNT_CAD_NUMBER = "4440001000000000520";
+    public static final String BANK_ACCOUNT_CAD_NUMBER = "4440001000000000520";
 
-    private static final UUID BANK_ACCOUNT_GBP =
+    public static final UUID BANK_ACCOUNT_GBP =
         UUID.fromString("1944791A-0B92-4F83-815D-2C73C99F7980");
-    private static final String BANK_ACCOUNT_GBP_NUMBER = "4440001000000000620";
+    public static final String BANK_ACCOUNT_GBP_NUMBER = "4440001000000000620";
 
-    private static final UUID ACCOUNT_JOHN_DOO =
+    public static final UUID ACCOUNT_JOHN_DOO =
         UUID.fromString("5366EBCB-3F1C-4764-9E34-D2C61AA7E72A");
-    private static final String ACCOUNT_JOHN_DOO_NUMBER = "4440001000000000512";
+    public static final String ACCOUNT_JOHN_DOO_NUMBER = "4440001000000000512";
 
-    private static final UUID ACCOUNT_JANE_STANDARD =
+    public static final UUID ACCOUNT_JANE_STANDARD =
         UUID.fromString("04BFDE45-B5C6-433F-99D9-6485E55C28D6");
-    private static final String ACCOUNT_JANE_STANDARD_NUMBER = "4440001000000000521";
+    public static final String ACCOUNT_JANE_STANDARD_NUMBER = "4440001000000000521";
 
-    private static final UUID JOHN_CONTACT =
-        UUID.fromString("25A92DCD-A4CE-4AFA-BDF7-37B391E27B58");
-    private static final UUID JANE_CONTACT =
-        UUID.fromString("8A2DD617-9EB3-4216-AFB0-26C54CB8DDA9");
+    public static final UUID JOHN_CONTACT = UUID.fromString("25A92DCD-A4CE-4AFA-BDF7-37B391E27B58");
+    public static final UUID JANE_CONTACT = UUID.fromString("8A2DD617-9EB3-4216-AFB0-26C54CB8DDA9");
 
 
     private final ClientRepository clientRepository;

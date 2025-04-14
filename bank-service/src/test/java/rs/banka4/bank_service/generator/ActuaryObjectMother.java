@@ -15,7 +15,7 @@ public class ActuaryObjectMother {
      */
     public static ActuaryInfo generateBasicActuaryInfo(User user) {
         return ActuaryInfo.builder()
-            .user(user)
+            .userId(user.getId())
             .needApproval(true)
             .limit(new MonetaryAmount(BigDecimal.valueOf(1_000_000), CurrencyCode.RSD))
             .usedLimit(new MonetaryAmount(BigDecimal.valueOf(1000), CurrencyCode.RSD))

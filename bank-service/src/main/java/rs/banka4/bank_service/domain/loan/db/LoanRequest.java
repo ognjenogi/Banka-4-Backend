@@ -24,7 +24,10 @@ public class LoanRequest {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(
+        nullable = false,
+        columnDefinition = "currency"
+    )
     private CurrencyCode currency;
 
     private String employmentStatus;

@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -37,6 +38,10 @@ import rs.banka4.bank_service.repositories.AssetRepository;
 import rs.banka4.bank_service.repositories.OrderRepository;
 import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.impl.OrderServiceImpl;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
+import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.UserType;
 
 public class OrderServiceCreateOrderTests {
 
@@ -112,7 +117,16 @@ public class OrderServiceCreateOrderTests {
         when(orderMapper.toDto(order)).thenReturn(orderDto);
 
         // Act
-        OrderDto createdOrder = orderService.createOrder(dto, userId);
+        OrderDto createdOrder =
+            orderService.createOrder(
+                dto,
+                userId,
+                new AuthenticatedBankUserAuthentication(
+                    new AuthenticatedBankUserPrincipal(UserType.CLIENT, userId),
+                    "",
+                    EnumSet.noneOf(Privilege.class)
+                )
+            );
 
         // Assert
         verify(assetRepository).findById(dto.assetId());
@@ -128,7 +142,18 @@ public class OrderServiceCreateOrderTests {
         when(assetRepository.findById(dto.assetId())).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(AssetNotFound.class, () -> orderService.createOrder(dto, userId));
+        assertThrows(
+            AssetNotFound.class,
+            () -> orderService.createOrder(
+                dto,
+                userId,
+                new AuthenticatedBankUserAuthentication(
+                    new AuthenticatedBankUserPrincipal(UserType.CLIENT, userId),
+                    "",
+                    EnumSet.noneOf(Privilege.class)
+                )
+            )
+        );
     }
 
     @Test
@@ -144,7 +169,18 @@ public class OrderServiceCreateOrderTests {
         when(listingService.findActiveListingByAsset(asset.getId())).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ExchangeNotFound.class, () -> orderService.createOrder(dto, userId));
+        assertThrows(
+            ExchangeNotFound.class,
+            () -> orderService.createOrder(
+                dto,
+                userId,
+                new AuthenticatedBankUserAuthentication(
+                    new AuthenticatedBankUserPrincipal(UserType.CLIENT, userId),
+                    "",
+                    EnumSet.noneOf(Privilege.class)
+                )
+            )
+        );
     }
 
     @Test
@@ -157,7 +193,18 @@ public class OrderServiceCreateOrderTests {
         when(actuaryRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> orderService.createOrder(dto, userId));
+        assertThrows(
+            RuntimeException.class,
+            () -> orderService.createOrder(
+                dto,
+                userId,
+                new AuthenticatedBankUserAuthentication(
+                    new AuthenticatedBankUserPrincipal(UserType.CLIENT, userId),
+                    "",
+                    EnumSet.noneOf(Privilege.class)
+                )
+            )
+        );
     }
 
     @Test
@@ -183,7 +230,16 @@ public class OrderServiceCreateOrderTests {
         );
 
         // Act
-        OrderDto createdOrder = orderService.createOrder(dto, userId);
+        OrderDto createdOrder =
+            orderService.createOrder(
+                dto,
+                userId,
+                new AuthenticatedBankUserAuthentication(
+                    new AuthenticatedBankUserPrincipal(UserType.CLIENT, userId),
+                    "",
+                    EnumSet.noneOf(Privilege.class)
+                )
+            );
 
         // Assert
         verify(assetRepository).findById(dto.assetId());

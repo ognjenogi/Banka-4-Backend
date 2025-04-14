@@ -19,16 +19,26 @@ public class ActuaryGenerator {
     public static final UUID FOR_NEWLY_CREATED_ACTUARY_3_UUID = UUID.randomUUID();
 
     public static List<ActuaryInfo> makeExampleActuaries(UserGenerator userGen) {
+        userGen.createEmployee(
+            x -> x.id(ACTUARY_1_UUID)
+                .email("ddx1@gmail.com")
+                .username("saban1")
+        );
+        userGen.createEmployee(
+            x -> x.id(ACTUARY_2_UUID)
+                .email("ddx2@gmail.com")
+                .username("saban2")
+        );
         return List.of(
             ActuaryInfo.builder()
-                .user(userGen.createEmployee(x -> x.id(ACTUARY_1_UUID)))
+                .userId(ACTUARY_1_UUID)
                 .needApproval(true)
                 .limit(new MonetaryAmount(new BigDecimal("10000"), CurrencyCode.RSD))
                 .usedLimit(new MonetaryAmount(new BigDecimal("2500"), CurrencyCode.RSD))
                 .build(),
 
             ActuaryInfo.builder()
-                .user(userGen.createEmployee(x -> x.id(ACTUARY_2_UUID)))
+                .userId(ACTUARY_2_UUID)
                 .needApproval(false)
                 .limit(new MonetaryAmount(new BigDecimal("50000"), CurrencyCode.USD))
                 .usedLimit(new MonetaryAmount(new BigDecimal("10000"), CurrencyCode.USD))

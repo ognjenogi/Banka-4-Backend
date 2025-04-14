@@ -64,7 +64,7 @@ public class ListingTests {
 
         mvc.get()
             /* TODO(arsen): swap with security id? */
-            .uri("/listings/{stockId}", AssetGenerator.STOCK_EX1_UUID)
+            .uri("/stock/listings/{stockId}", AssetGenerator.STOCK_EX1_UUID)
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -103,7 +103,7 @@ public class ListingTests {
 
         mvc.get()
             /* TODO(arsen): swap with security id? */
-            .uri("/listings/options/{stockId}", AssetGenerator.STOCK_EX1_UUID)
+            .uri("/stock/listings/options/{stockId}", AssetGenerator.STOCK_EX1_UUID)
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .param("settlementDate", settlementDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
             .assertThat()
@@ -186,7 +186,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings/" + AssetGenerator.STOCK_EX1_UUID + "/priceChange")
+            .uri("/stock/listings/" + AssetGenerator.STOCK_EX1_UUID + "/priceChange")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -243,7 +243,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?page=0&size=2")
+            .uri("/stock/listings?page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -287,7 +287,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchName={name}&page=0&size=2", "Example O")
+            .uri("/stock/listings?searchName={name}&page=0&size=2", "Example O")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -324,7 +324,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchName={name}&page=0&size=2", "BlaBla")
+            .uri("/stock/listings?searchName={name}&page=0&size=2", "BlaBla")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -353,7 +353,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchTicker=EX1&page=0&size=2")
+            .uri("/stock/listings?searchTicker=EX1&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -390,7 +390,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchTicker=BLA&page=0&size=2")
+            .uri("/stock/listings?searchTicker=BLA&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -419,7 +419,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?askMin=60.00&askMax=70.00&page=0&size=2")
+            .uri("/stock/listings?askMin=60.00&askMax=70.00&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -455,7 +455,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?bidMin=60.00&bidMax=80.0&page=0&size=2")
+            .uri("/stock/listings?bidMin=60.00&bidMax=80.0&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -491,7 +491,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?bidMin=90.00&bidMax=100.0&page=0&size=2")
+            .uri("/stock/listings?bidMin=90.00&bidMax=100.0&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -520,7 +520,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?exchangePrefix=Nasdaq&page=0&size=2")
+            .uri("/stock/listings?exchangePrefix=Nasdaq&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -558,7 +558,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?volumeMin=0&volumeMax=10&page=0&size=2")
+            .uri("/stock/listings?volumeMin=0&volumeMax=10&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -606,7 +606,7 @@ public class ListingTests {
 
         mvc.get()
             .uri(
-                "/listings?settlementDateFrom="
+                "/stock/listings?settlementDateFrom="
                     + from
                     + "&settlementDateTo="
                     + to
@@ -649,7 +649,7 @@ public class ListingTests {
 
         mvc.get()
             .uri(
-                "/listings?searchName=Example&askMin=60.00&askMax=70.00&exchangePrefix=Nasdaq&page=0&size=2"
+                "/stock/listings?searchName=Example&askMin=60.00&askMax=70.00&exchangePrefix=Nasdaq&page=0&size=2"
             )
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
@@ -690,7 +690,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?askMin=110.00&askMax=90.00&page=0&size=2")
+            .uri("/stock/listings?askMin=110.00&askMax=90.00&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -729,7 +729,7 @@ public class ListingTests {
 
         mvc.get()
             .uri(
-                "/listings?settlementDateFrom="
+                "/stock/listings?settlementDateFrom="
                     + from
                     + "&settlementDateTo="
                     + to
@@ -772,7 +772,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?sortBy=PRICE&sortDirection=ASC&page=0&size=10")
+            .uri("/stock/listings?sortBy=PRICE&sortDirection=ASC&page=0&size=10")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -818,7 +818,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchName=&searchTicker=&page=0&size=2")
+            .uri("/stock/listings?searchName=&searchTicker=&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.ADMIN_EMPLOYEE_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -985,7 +985,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchName=&searchTicker=&page=0&size=2")
+            .uri("/stock/listings?searchName=&searchTicker=&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .assertThat()
             .hasStatusOk()
@@ -1025,7 +1025,7 @@ public class ListingTests {
 
         mvc.get()
             .uri(
-                "/listings?searchName=Example&askMin=60.00&askMax=70.00&exchangePrefix=Nasdaq&page=0&size=2"
+                "/stock/listings?searchName=Example&askMin=60.00&askMax=70.00&exchangePrefix=Nasdaq&page=0&size=2"
             )
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .assertThat()
@@ -1080,7 +1080,7 @@ public class ListingTests {
         );
 
         mvc.get()
-            .uri("/listings?searchName=&searchTicker=&page=0&size=2")
+            .uri("/stock/listings?searchName=&searchTicker=&page=0&size=2")
             .header("Authorization", "Bearer " + JwtPlaceholders.CLIENT_TOKEN)
             .assertThat()
             .hasStatusOk()

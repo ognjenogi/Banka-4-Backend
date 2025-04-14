@@ -11,11 +11,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
 import rs.banka4.bank_service.domain.listing.db.Listing;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.domain.user.employee.db.Employee;
+import rs.banka4.bank_service.generator.AccountObjectMother;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.utils.AssetGenerator;
@@ -41,6 +44,8 @@ public class OrderControllerTest {
     private ExchangeRepository exchangeRepository;
     @Autowired
     private UserGenerator userGen;
+    @Autowired
+    private AccountRepository accountRepo;
 
     private UUID stockId;
 
@@ -61,6 +66,8 @@ public class OrderControllerTest {
 
         Listing listing = TestDataFactory.buildListing(stock, exchange);
         listingRepository.save(listing);
+
+
     }
 
     @Test
@@ -68,12 +75,23 @@ public class OrderControllerTest {
         final var client = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
         actuaryRepository.save(
             new ActuaryInfo(
-                client,
+                client.getId(),
                 true,
                 new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD),
                 new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD)
             )
         );
+        Account a = AccountObjectMother.generateBasicToAccount();
+        Employee e =
+            userGen.createEmployee(
+                x -> x.id(UUID.randomUUID())
+                    .email("blabla@gmail.com")
+            );
+        a.setId(TestDataFactory.ACCOUNT_ID);
+        a.setClient(client);
+        a.setEmployee(e);
+        accountRepo.save(a);
+
         String jwt = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
 
         String payload = """
@@ -90,7 +108,7 @@ public class OrderControllerTest {
             """.formatted(AssetGenerator.STOCK_EX1_UUID, TestDataFactory.ACCOUNT_ID.toString());
 
         mvc.post()
-            .uri("/orders")
+            .uri("/stock/orders")
             .header("Authorization", jwt)
             .contentType("application/json")
             .content(payload)
@@ -122,7 +140,7 @@ public class OrderControllerTest {
             """.formatted(stockId);
 
         mvc.post()
-            .uri("/orders/calculate-average-price")
+            .uri("/stock/orders/calculate-average-price")
             .header("Authorization", jwt)
             .contentType("application/json")
             .content(payload)
@@ -147,7 +165,7 @@ public class OrderControllerTest {
             """;
 
         mvc.post()
-            .uri("/orders/calculate-average-price")
+            .uri("/stock/orders/calculate-average-price")
             .header("Authorization", jwt)
             .contentType("application/json")
             .content(payload)

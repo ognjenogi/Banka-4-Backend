@@ -72,6 +72,10 @@ public class Account {
     private Company company;
 
     @Enumerated(EnumType.STRING)
+    @Column(
+        nullable = false,
+        columnDefinition = "currency"
+    )
     private CurrencyCode currency;
 
     @PrePersist
