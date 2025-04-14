@@ -62,3 +62,14 @@ tasks.register("generateAllTestReports") {
 	description = "Convenience task to generate all test and coverage reports"
 	dependsOn(tasks.test, integrationTest, tasks.jacocoTestReport, integrationTestReport)
 }
+
+configurations {
+	/* Prevent accidentally using JUnit 4 (dependency of Testcontainers).  */
+	testCompileClasspath {
+		exclude(group = "junit", module = "junit")
+		exclude(
+			group = "org.junit.vintage",
+			module = "junit-vintage-engine"
+		)
+	}
+}
