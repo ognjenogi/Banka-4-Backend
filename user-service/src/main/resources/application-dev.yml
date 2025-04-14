@@ -62,3 +62,6 @@ alphavantage:
 listings:
   refetch-min: 20000000
   # 2 for testing, 15 for PM, 20000000 for others
+
+services:
+  exchange: 'http://exchange_office:8000/'

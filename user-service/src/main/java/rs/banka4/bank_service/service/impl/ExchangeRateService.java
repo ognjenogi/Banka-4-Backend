@@ -4,10 +4,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import rs.banka4.bank_service.domain.exchange.dtos.ExchangeRate;
 import rs.banka4.bank_service.domain.exchange.dtos.ExchangeRateDto;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -28,6 +29,11 @@ public class ExchangeRateService {
 
     private final RestTemplate restTemplate;
 
+    public ExchangeRateService(@Value("${services.exchange}") String exchangeBaseUrl) {
+        this.restTemplate = new RestTemplate();
+        this.restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(exchangeBaseUrl));
+    }
+
     /**
      * Fetches the latest exchange rates from the external exchange rate service.
      *
@@ -36,10 +42,8 @@ public class ExchangeRateService {
      *         unavailable.
      */
     public ExchangeRateDto getExchangeRates() {
-        String url = "http://exchange_office:8000/exchange-rate";
-        ResponseEntity<ExchangeRateDto> response =
-            restTemplate.exchange(url, HttpMethod.GET, null, ExchangeRateDto.class);
-        return response.getBody();
+        return restTemplate.exchange("/exchange-rate", HttpMethod.GET, null, ExchangeRateDto.class)
+            .getBody();
     }
 
     /**
