@@ -159,7 +159,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         Account bankAccount =
             bankAccountServiceImpl.getBankAccountForCurrency(
-                CurrencyCode.Code.valueOf(
+                CurrencyCode.valueOf(
                     createFeeTransactionDto.currencyCode()
                         .name()
                 )
