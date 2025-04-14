@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import rs.banka4.bank_service.config.clients.StockServiceClient;
@@ -54,7 +53,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    private final RestTemplate restTemplate;
     private final Retrofit stockServiceRetrofit;
 
 

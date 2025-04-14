@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
@@ -45,7 +43,6 @@ public class OrderServiceImpl implements OrderService {
     private final AssetRepository assetRepository;
     private final ActuaryRepository actuaryRepository;
     private final ListingService listingService;
-    private final RestTemplate restTemplate;
     private final OrderExecutionService orderExecutionService;
 
     @Override
@@ -621,20 +618,7 @@ public class OrderServiceImpl implements OrderService {
      * @param dto The DTO containing the fee transaction details.
      */
     private void payFee(CreateFeeTransactionDto dto) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<CreateFeeTransactionDto> entity = new HttpEntity<>(dto, headers);
-
-        try {
-            // TODO: Move this URL to configuration
-            String url = "http://userservice:8080/transaction/pay-fee";
-            restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
-        } catch (RestClientException ex) {
-            throw new RuntimeException(
-                "Failed to call transaction service: " + ex.getMessage(),
-                ex
-            );
-        }
+        throw new RuntimeException("Not implemented yet");
     }
 
 }
