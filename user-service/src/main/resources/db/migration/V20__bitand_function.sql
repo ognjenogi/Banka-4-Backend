@@ -1,5 +1,0 @@
-CREATE OR REPLACE FUNCTION bitand(bigint, bigint)
-RETURNS bigint
-AS $$
-  SELECT $1 & $2;
-$$ LANGUAGE SQL IMMUTABLE;

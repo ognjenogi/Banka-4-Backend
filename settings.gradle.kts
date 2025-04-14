@@ -1,5 +1,2 @@
 rootProject.name = "rafeisen-backend"
-include(
-	"user-service", "notification-service", "stock-service", "testlib",
-	"common"
-)
+include("user-service", "notification-service", "testlib", "common")

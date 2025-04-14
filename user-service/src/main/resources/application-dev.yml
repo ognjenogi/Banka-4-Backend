@@ -38,6 +38,13 @@ spring:
             scripts:
               action: create
               create-target: /dev/stderr
+
+logging:
+  level:
+    org.springframework: INFO
+    rs.banka4: TRACE
+
+
 springdoc:
   api-docs:
     path: /docs/api
@@ -48,3 +55,14 @@ jwt:
   secret:
     key: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
   expiration: 604800000
+
+alphavantage:
+  api-key: ${ALPHAVANTAGE_APY_KEY}
+
+listings:
+  refetch-min: 20000000
+  # 2 for testing, 15 for PM, 20000000 for others
+
+banka4:
+  services:
+    user: 'http://gateway:80/'

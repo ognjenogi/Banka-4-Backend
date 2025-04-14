@@ -50,6 +50,11 @@ dependencies {
 	implementation("com.squareup.retrofit2:retrofit:2.11.0")
 	implementation("com.squareup.retrofit2:converter-jackson:2.11.0")
 
+	val hibernateVer = dependencyManagement.importedProperties["hibernate.version"]
+	annotationProcessor("org.hibernate:hibernate-jpamodelgen:${hibernateVer}")
+
+	implementation("org.apache.commons:commons-math3:3.6.1")
+
 	runtimeOnly("javax.cache:cache-api:1.1.1")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")

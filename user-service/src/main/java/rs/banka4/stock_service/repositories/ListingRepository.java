@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import org.springframework.transaction.annotation.Transactional;
+import rs.banka4.stock_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.stock_service.domain.listing.db.Listing;
 import rs.banka4.stock_service.domain.security.Security;
 
