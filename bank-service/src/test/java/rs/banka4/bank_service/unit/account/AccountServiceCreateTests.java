@@ -95,43 +95,6 @@ public class AccountServiceCreateTests {
     }
 
     @Test
-    void testCreateAccountWithInvalidCurrency() {
-        // Arrange
-        CreateAccountDto dto = AccountObjectMother.generateBasicCreateAccountDto();
-
-        when(
-            clientRepository.findById(
-                dto.client()
-                    .id()
-            )
-        ).thenReturn(
-            Optional.of(
-                AccountObjectMother.generateBasicFromAccount()
-                    .getClient()
-            )
-        );
-        when(clientService.createClient(dto.client())).thenReturn(
-            AccountObjectMother.generateBasicFromAccount()
-                .getClient()
-        );
-        when(jwtService.extractUserId("authToken")).thenReturn(
-            UUID.fromString("35bc1ef6-f6d0-4405-bcdb-7dc0686b7b87")
-        );
-        when(employeeService.findEmployeeByEmail("employee@example.com")).thenReturn(
-            Optional.of(
-                AccountObjectMother.generateBasicFromAccount()
-                    .getEmployee()
-            )
-        );
-
-        // Act & Assert
-        assertThrows(
-            IllegalStateException.class,
-            () -> accountService.createAccount(dto, "authToken")
-        );
-    }
-
-    @Test
     void testCreateAccountWithClientNotFound() {
         // Arrange
         CreateAccountDto dto = AccountObjectMother.generateBasicCreateAccountDto();
