@@ -193,10 +193,7 @@ public class LoanInstallmentScheduler {
 
             // Transfer installment amount to bank account
             Account bankAccount =
-                bankAccountService.getBankAccountForCurrency(
-                    account.getCurrency()
-                        .getCode()
-                );
+                bankAccountService.getBankAccountForCurrency(account.getCurrency());
             bankAccount.setBalance(
                 bankAccount.getBalance()
                     .add(installmentAmount)
@@ -269,8 +266,7 @@ public class LoanInstallmentScheduler {
                     account.getClient().firstName,
                     loan.getLoanNumber(),
                     installment.getInstallmentAmount(),
-                    account.getCurrency()
-                        .getCode(),
+                    account.getCurrency(),
                     LocalDate.now()
                 );
             rabbitTemplate.convertAndSend(
@@ -290,8 +286,7 @@ public class LoanInstallmentScheduler {
                     account.getClient().firstName,
                     loan.getLoanNumber(),
                     installment.getInstallmentAmount(),
-                    account.getCurrency()
-                        .getCode(),
+                    account.getCurrency(),
                     LocalDate.now()
                 );
             rabbitTemplate.convertAndSend(

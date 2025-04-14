@@ -5,7 +5,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 import rs.banka4.bank_service.domain.account.mapper.AccountMapper;
-import rs.banka4.bank_service.domain.currency.mapper.CurrencyMapper;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanInstallment;
 import rs.banka4.bank_service.domain.loan.db.LoanRequest;
@@ -15,7 +14,7 @@ import rs.banka4.bank_service.domain.loan.dtos.LoanApplicationDto;
 @Mapper(
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
     uses = {
-        CurrencyMapper.class,AccountMapper.class
+        AccountMapper.class
     }
 )
 public interface LoanMapper {
@@ -26,7 +25,7 @@ public interface LoanMapper {
 
     @Mapping(
         target = "currency",
-        expression = "java(loan.getAccount().getCurrency())"
+        expression = "java(new CurrencyDto(loan.getAccount().getCurrency()))"
     )
     LoanInformationDto toDto(Loan loan);
 
@@ -44,7 +43,7 @@ public interface LoanMapper {
     )
     @Mapping(
         target = "currency",
-        expression = "java(loanRequest.getAccount().getCurrency())"
+        expression = "java(new CurrencyDto(loanRequest.getAccount().getCurrency()))"
     )
     LoanApplicationResponseDto toDtoApplicationResponse(LoanRequest loanRequest);
 

@@ -18,7 +18,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationContext;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.auth.dtos.NotificationTransferDto;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.loan.db.*;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.repositories.AccountRepository;
@@ -73,9 +72,8 @@ class LoanInstallmentSchedulerTest {
         account.setBalance(new BigDecimal("5000"));
         account.setAvailableBalance(new BigDecimal("5000"));
 
-        Currency currency = new Currency();
-        currency.setCode(CurrencyCode.RSD); // Use the appropriate currency code
-        account.setCurrency(currency); // Ensure account has a currency
+
+        account.setCurrency(CurrencyCode.RSD); // Ensure account has a currency
 
 
         Client client = new Client();
@@ -122,12 +120,9 @@ class LoanInstallmentSchedulerTest {
                 PaymentStatus.UNPAID
             )
         ).thenReturn(List.of(installment));
-        when(
-            bankAccountService.getBankAccountForCurrency(
-                account.getCurrency()
-                    .getCode()
-            )
-        ).thenReturn(bankAccount);
+        when(bankAccountService.getBankAccountForCurrency(account.getCurrency())).thenReturn(
+            bankAccount
+        );
 
         loanInstallmentScheduler.processDueInstallments();
 
@@ -169,12 +164,9 @@ class LoanInstallmentSchedulerTest {
                     .minusDays(3)
             )
         ).thenReturn(List.of(installment));
-        when(
-            bankAccountService.getBankAccountForCurrency(
-                account.getCurrency()
-                    .getCode()
-            )
-        ).thenReturn(bankAccount);
+        when(bankAccountService.getBankAccountForCurrency(account.getCurrency())).thenReturn(
+            bankAccount
+        );
 
         loanInstallmentScheduler.retryDelayedInstallments();
 

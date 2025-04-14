@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanStatus;
 import rs.banka4.bank_service.exceptions.loan.LoanAlreadyJudged;
@@ -111,9 +110,7 @@ public class ManageLoansTests {
         loan.setAmount(new BigDecimal("1000"));
 
         Account userAccount = new Account();
-        Currency currency = new Currency();
-        currency.setCode(CurrencyCode.RSD);
-        userAccount.setCurrency(currency);
+        userAccount.setCurrency(CurrencyCode.RSD);
         userAccount.setBalance(new BigDecimal("5000"));
         loan.setAccount(userAccount);
 
@@ -123,7 +120,7 @@ public class ManageLoansTests {
         when(jwtService.extractRole("jwt")).thenReturn("employee");
         when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(loan));
         when(loanRepository.save(loan)).thenReturn(loan);
-        when(bankAccountService.getBankAccountForCurrency(currency.getCode())).thenReturn(
+        when(bankAccountService.getBankAccountForCurrency(CurrencyCode.RSD)).thenReturn(
             bankAccount
         );
 

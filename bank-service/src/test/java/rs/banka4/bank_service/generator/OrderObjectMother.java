@@ -11,6 +11,7 @@ import rs.banka4.bank_service.domain.orders.db.OrderType;
 import rs.banka4.bank_service.domain.orders.db.Status;
 import rs.banka4.bank_service.domain.orders.dtos.CreateOrderDto;
 import rs.banka4.bank_service.domain.orders.dtos.OrderDto;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 public class OrderObjectMother {
@@ -20,12 +21,12 @@ public class OrderObjectMother {
      *
      * @return a new Order instance representing a basic BUY order
      */
-    public static Order generateBasicOrder() {
+    public static Order generateBasicOrder(User user) {
         Asset asset = AssetObjectMother.generateBasicStock();
 
         return Order.builder()
             .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-            .userId(UUID.fromString("987e6543-e21b-45d3-b456-426614174111"))
+            .user(user)
             .asset(asset)
             .orderType(OrderType.MARKET)
             .quantity(100)

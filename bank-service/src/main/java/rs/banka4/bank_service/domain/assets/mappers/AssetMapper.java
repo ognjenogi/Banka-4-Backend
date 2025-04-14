@@ -29,7 +29,7 @@ public interface AssetMapper {
     )
     @Mapping(
         target = "sellerId",
-        expression = "java(assetOwnership.getId().getUser())"
+        expression = "java(assetOwnership.getId().getUser().getId())"
     )
     @Mapping(
         target = "stockId",

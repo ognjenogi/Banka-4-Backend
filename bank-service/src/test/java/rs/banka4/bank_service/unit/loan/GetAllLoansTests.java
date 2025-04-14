@@ -20,7 +20,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.currency.db.Currency;
+import rs.banka4.bank_service.domain.account.dtos.CurrencyDto;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanRequest;
 import rs.banka4.bank_service.domain.loan.db.LoanStatus;
@@ -53,11 +53,7 @@ public class GetAllLoansTests {
         Account account = new Account();
         account.setId(UUID.randomUUID());
         account.setAccountNumber("35123456789012345678");
-        account.setCurrency(
-            Currency.builder()
-                .name("EUR")
-                .build()
-        );
+        account.setCurrency(CurrencyCode.EUR);
 
         Loan loan = new Loan();
         loan.setLoanNumber(1234567L);
@@ -65,11 +61,7 @@ public class GetAllLoansTests {
         sampleLoanRequest = new LoanRequest();
         sampleLoanRequest.setId(UUID.randomUUID());
         sampleLoanRequest.setAmount(new BigDecimal("10000"));
-        sampleLoanRequest.setCurrency(new Currency());
-        sampleLoanRequest.getCurrency()
-            .setCode(CurrencyCode.EUR);
-        sampleLoanRequest.getCurrency()
-            .setName("Euro");
+        sampleLoanRequest.setCurrency(CurrencyCode.RSD);
         sampleLoanRequest.setPurposeOfLoan("Education");
         sampleLoanRequest.setMonthlyIncome(new BigDecimal("2500"));
         sampleLoanRequest.setEmploymentStatus("Permanent");
@@ -98,13 +90,7 @@ public class GetAllLoansTests {
                 LocalDate.now()
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
-                new Currency(
-                    CurrencyCode.RSD,
-                    "Serbian Dinar",
-                    "RSD",
-                    "Serbian Dinar currency",
-                    true
-                ),
+                new CurrencyDto(CurrencyCode.RSD),
                 LoanStatus.APPROVED,
                 Loan.InterestType.FIXED
             ),
@@ -122,13 +108,7 @@ public class GetAllLoansTests {
                 LocalDate.now()
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
-                new Currency(
-                    CurrencyCode.RSD,
-                    "Serbian Dinar",
-                    "RSD",
-                    "Serbian Dinar currency",
-                    true
-                ),
+                new CurrencyDto(CurrencyCode.RSD),
                 LoanStatus.APPROVED,
                 Loan.InterestType.FIXED
 
@@ -147,13 +127,7 @@ public class GetAllLoansTests {
                 LocalDate.now()
                     .plusMonths(1),
                 BigDecimal.valueOf(5000),
-                new Currency(
-                    CurrencyCode.RSD,
-                    "Serbian Dinar",
-                    "RSD",
-                    "Serbian Dinar currency",
-                    true
-                ),
+                new CurrencyDto(CurrencyCode.RSD),
                 LoanStatus.APPROVED,
                 Loan.InterestType.FIXED
             )
@@ -171,11 +145,7 @@ public class GetAllLoansTests {
         account1.setAccountNumber("12");
         loan1.setAccount(account1);
 
-        Currency currency = new Currency();
-        currency.setCode(CurrencyCode.EUR);
-        currency.setName("EUR");
-        currency.setActive(true);
-        currency.setSymbol("E");
+        var currency = CurrencyCode.EUR;
 
         Loan loan2 = new Loan();
         loan2.setLoanNumber(222L);

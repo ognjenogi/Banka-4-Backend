@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.transaction.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.transaction.db.Transaction;
 import rs.banka4.bank_service.domain.transaction.db.TransactionStatus;
@@ -385,11 +384,7 @@ public class TransactionServiceImpl implements TransactionService {
         // Same -> Same
         if (
             fromAccount.getCurrency()
-                .getCode()
-                .equals(
-                    toAccount.getCurrency()
-                        .getCode()
-                )
+                .equals(toAccount.getCurrency())
         ) {
             fromAccount.setBalance(
                 fromAccount.getBalance()
@@ -404,7 +399,6 @@ public class TransactionServiceImpl implements TransactionService {
         else
             if (
                 fromAccount.getCurrency()
-                    .getCode()
                     .equals(CurrencyCode.RSD)
             ) {
                 fee = transferFromRsdToForeign(fromAccount, toAccount, amount);
@@ -412,7 +406,6 @@ public class TransactionServiceImpl implements TransactionService {
                 // Foreign -> RSD
                 if (
                     toAccount.getCurrency()
-                        .getCode()
                         .equals(CurrencyCode.RSD)
                 ) {
                     fee = transferFromForeignToRsd(fromAccount, toAccount, amount);
@@ -496,10 +489,8 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal convertedAmount =
             exchangeRateService.convertCurrency(
                 amount,
-                fromAccount.getCurrency()
-                    .getCode(),
+                fromAccount.getCurrency(),
                 toAccount.getCurrency()
-                    .getCode()
             );
 
         // Charge the fee
@@ -515,10 +506,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Decrease the bank account in foreign currency for the full amount that the user receives
         Account foreignBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(
-                toAccount.getCurrency()
-                    .getCode()
-            );
+            bankAccountServiceImpl.getBankAccountForCurrency(toAccount.getCurrency());
         foreignBankAccount.setBalance(
             foreignBankAccount.getBalance()
                 .subtract(convertedAmount)
@@ -571,10 +559,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Transfer Foreign from client to Foreign bank account
         Account foreignBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(
-                fromAccount.getCurrency()
-                    .getCode()
-            );
+            bankAccountServiceImpl.getBankAccountForCurrency(fromAccount.getCurrency());
         fromAccount.setBalance(
             fromAccount.getBalance()
                 .subtract(amount)
@@ -594,8 +579,7 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal convertedAmount =
             exchangeRateService.convertCurrency(
                 amount,
-                fromAccount.getCurrency()
-                    .getCode(),
+                fromAccount.getCurrency(),
                 CurrencyCode.RSD
             );
 
@@ -664,10 +648,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Transfer ForeignFrom from client to ForeignFrom bank account (EUR Client -> EUR Bank)
         Account foreignBankAccount =
-            bankAccountServiceImpl.getBankAccountForCurrency(
-                fromAccount.getCurrency()
-                    .getCode()
-            );
+            bankAccountServiceImpl.getBankAccountForCurrency(fromAccount.getCurrency());
         fromAccount.setBalance(
             fromAccount.getBalance()
                 .subtract(amount)
@@ -688,8 +669,7 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal amountInRSD =
             exchangeRateService.convertCurrency(
                 amount,
-                fromAccount.getCurrency()
-                    .getCode(),
+                fromAccount.getCurrency(),
                 CurrencyCode.RSD
             );
         rsdBankAccount.setBalance(
@@ -724,7 +704,6 @@ public class TransactionServiceImpl implements TransactionService {
                 amountInRSD,
                 CurrencyCode.RSD,
                 toAccount.getCurrency()
-                    .getCode()
             );
         Account foreignToBankAccount =
             bankAccountServiceImpl.getBankAccountForCurrency(CurrencyCode.USD);
@@ -935,17 +914,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     private BigDecimal convertCurrency(
         BigDecimal amount,
-        Currency fromCurrency,
-        Currency toCurrency
+        CurrencyCode fromCurrency,
+        CurrencyCode toCurrency
     ) {
         if (fromCurrency.equals(toCurrency)) {
             return amount;
         }
-        return exchangeRateService.convertCurrency(
-            amount,
-            fromCurrency.getCode(),
-            toCurrency.getCode()
-        );
+        return exchangeRateService.convertCurrency(amount, fromCurrency, toCurrency);
     }
 
     @Transactional

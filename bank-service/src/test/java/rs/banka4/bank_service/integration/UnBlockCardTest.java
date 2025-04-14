@@ -15,12 +15,10 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.card.db.Card;
 import rs.banka4.bank_service.domain.card.db.CardStatus;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.integration.seeder.TestDataSeeder;
 import rs.banka4.bank_service.repositories.AccountRepository;
 import rs.banka4.bank_service.repositories.CardRepository;
-import rs.banka4.bank_service.repositories.CurrencyRepository;
 import rs.banka4.bank_service.service.abstraction.JwtService;
 import rs.banka4.testlib.integration.DbEnabledTest;
 
@@ -46,9 +44,6 @@ public class UnBlockCardTest {
     private CardRepository cardRepository;
 
     @Autowired
-    private CurrencyRepository currencyRepository;
-
-    @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private TestDataSeeder testDataSeeder;
@@ -62,7 +57,7 @@ public class UnBlockCardTest {
     @BeforeEach
     void setUp() {
         account = testDataSeeder.seedAccount();
-        Currency currency = testDataSeeder.seedCurrency();
+        var currency = testDataSeeder.seedCurrency();
 
         userGen.createEmployee(x -> x);
         var toks = userGen.doEmployeeLogin("john.doe@example.com", "test");

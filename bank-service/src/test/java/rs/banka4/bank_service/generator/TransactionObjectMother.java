@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.transaction.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.transaction.db.Transaction;
 import rs.banka4.bank_service.domain.transaction.db.TransactionStatus;
@@ -86,14 +85,8 @@ public class TransactionObjectMother {
             .build();
     }
 
-    public static Currency generateCurrency(CurrencyCode code) {
-        return Currency.builder()
-            .name("Fake")
-            .symbol("X")
-            .description("Fake currency")
-            .active(true)
-            .code(code)
-            .build();
+    public static CurrencyCode generateCurrency(CurrencyCode code) {
+        return code;
     }
 
     public static TransactionDto generateTransactionDto(
@@ -129,7 +122,7 @@ public class TransactionObjectMother {
         Account fromAccount,
         Account toAccount,
         BigDecimal amount,
-        Currency currency,
+        CurrencyCode currency,
         TransactionStatus status
     ) {
         return Transaction.builder()

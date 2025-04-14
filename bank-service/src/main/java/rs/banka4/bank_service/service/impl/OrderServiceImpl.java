@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
         Status status = needsApproval ? Status.PENDING : Status.APPROVED;
 
         Order order = OrderMapper.INSTANCE.toEntity(dto);
-        order.setUserId(userId);
+        order.setUser(actuaryInfo.getUser());
         order.setAsset(asset);
         order.setOrderType(orderType);
         order.setQuantity(dto.quantity());
@@ -566,9 +566,11 @@ public class OrderServiceImpl implements OrderService {
                 if (executed) {
                     payFee(
                         new CreateFeeTransactionDto(
-                            order.getUserId()
+                            order.getUser()
+                                .getId()
                                 .toString(),
-                            order.getAccountId()
+                            order.getAccount()
+                                .getId()
                                 .toString(),
                             commission,
                             order.getPricePerUnit()
@@ -597,9 +599,11 @@ public class OrderServiceImpl implements OrderService {
                 if (executed) {
                     payFee(
                         new CreateFeeTransactionDto(
-                            order.getUserId()
+                            order.getUser()
+                                .getId()
                                 .toString(),
-                            order.getAccountId()
+                            order.getAccount()
+                                .getId()
                                 .toString(),
                             commission,
                             order.getPricePerUnit()

@@ -22,7 +22,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.transaction.db.Transaction;
 import rs.banka4.bank_service.domain.transaction.db.TransactionStatus;
 import rs.banka4.bank_service.domain.transaction.dtos.TransactionDto;
@@ -219,7 +218,7 @@ public class TransactionServiceGetTests {
         String token = "mocked-token";
         Account fromAccount = AccountObjectMother.generateBasicFromAccount();
         Account toAccount = AccountObjectMother.generateBasicToAccount();
-        Currency currency = TransactionObjectMother.generateCurrency(CurrencyCode.EUR);
+        var currency = TransactionObjectMother.generateCurrency(CurrencyCode.EUR);
 
         Transaction transaction1 =
             TransactionObjectMother.generateTransaction(

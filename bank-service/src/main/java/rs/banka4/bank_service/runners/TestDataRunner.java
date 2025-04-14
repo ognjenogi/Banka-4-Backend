@@ -15,7 +15,6 @@ import rs.banka4.bank_service.domain.account.db.AccountType;
 import rs.banka4.bank_service.domain.card.db.*;
 import rs.banka4.bank_service.domain.company.db.ActivityCode;
 import rs.banka4.bank_service.domain.company.db.Company;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.loan.db.*;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.domain.user.client.db.ClientContact;
@@ -157,7 +156,6 @@ public class TestDataRunner implements CommandLineRunner {
     private final ClientRepository clientRepository;
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CurrencyRepository currencyRepository;
     private final AccountRepository accountRepository;
     private final ActivityCodeRepository activityCodeRepository;
     private final CompanyRepository companyRepository;
@@ -171,7 +169,6 @@ public class TestDataRunner implements CommandLineRunner {
         /* Production seeders. */
         interestRateSeeder();
         seedBankMargins();
-        currencySeeder();
         activityCodeSeeder();
         bankSelfClientSeeder();
         bankSeeder();
@@ -192,9 +189,7 @@ public class TestDataRunner implements CommandLineRunner {
 
     /**
      * Install a client with ID {@link #CLIENT_BANK_SELF} that's used as the owner for all
-     * bank-owned bank accounts.
-     *
-     * Disabled by default, as it lacks a password.
+     * bank-owned bank accounts. Disabled by default, as it lacks a password.
      */
     private void bankSelfClientSeeder() {
         var bankSelfClient =
@@ -227,9 +222,6 @@ public class TestDataRunner implements CommandLineRunner {
             clientRepository.findById(CLIENT_JANE)
                 .orElseThrow(() -> new RuntimeException("Client John not found"));
 
-        Currency currencyRSD = currencyRepository.findByCode(CurrencyCode.RSD);
-        Currency currencyEUR = currencyRepository.findByCode(CurrencyCode.EUR);
-
         Company company =
             companyRepository.findById(COMPANY_BIG_COMPANY_DOO)
                 .orElseThrow(() -> new RuntimeException("Company BigCompany not found"));
@@ -252,7 +244,7 @@ public class TestDataRunner implements CommandLineRunner {
                 .monthlyLimit(new BigDecimal("5000.00"))
                 .client(clientJohn)
                 .employee(employee)
-                .currency(currencyRSD)
+                .currency(CurrencyCode.RSD)
                 .company(company)
                 .build();
 
@@ -274,7 +266,7 @@ public class TestDataRunner implements CommandLineRunner {
                 .monthlyLimit(new BigDecimal("5000.00"))
                 .client(clientJane)
                 .employee(employee)
-                .currency(currencyEUR)
+                .currency(CurrencyCode.EUR)
                 .build();
 
         accountRepository.saveAndFlush(dooAcount);
@@ -934,75 +926,6 @@ public class TestDataRunner implements CommandLineRunner {
         });
     }
 
-    protected void currencySeeder() {
-        Set<Currency> currencies =
-            Set.of(
-                Currency.builder()
-                    .name("Serbian Dinar")
-                    .symbol("RSD")
-                    .description("Serbian national currency")
-                    .active(true)
-                    .code(CurrencyCode.RSD)
-                    .build(),
-                Currency.builder()
-                    .name("Euro")
-                    .symbol("EUR")
-                    .description("European Union currency")
-                    .active(true)
-                    .code(CurrencyCode.EUR)
-                    .build(),
-                Currency.builder()
-                    .name("US Dollar")
-                    .symbol("USD")
-                    .description("United States currency")
-                    .active(true)
-                    .code(CurrencyCode.USD)
-                    .build(),
-                Currency.builder()
-                    .name("Swiss Franc")
-                    .symbol("CHF")
-                    .description("Swiss national currency")
-                    .active(true)
-                    .code(CurrencyCode.CHF)
-                    .build(),
-                Currency.builder()
-                    .name("Japanese Yen")
-                    .symbol("JPY")
-                    .description("Japanese national currency")
-                    .active(true)
-                    .code(CurrencyCode.JPY)
-                    .build(),
-                Currency.builder()
-                    .name("Australian Dollar")
-                    .symbol("AUD")
-                    .description("Australian national currency")
-                    .active(true)
-                    .code(CurrencyCode.AUD)
-                    .build(),
-                Currency.builder()
-                    .name("Canadian Dollar")
-                    .symbol("CAD")
-                    .description("Canadian national currency")
-                    .active(true)
-                    .code(CurrencyCode.CAD)
-                    .build(),
-                Currency.builder()
-                    .name("British Pound")
-                    .symbol("GBP")
-                    .description("United Kingdom national currency")
-                    .active(true)
-                    .code(CurrencyCode.GBP)
-                    .build()
-            );
-
-        // TODO(arsen): don't use findByCode. Actually, remove this whole thing. It is goofy.
-        for (Currency currency : currencies) {
-            if (currencyRepository.findByCode(currency.getCode()) == null) {
-                currencyRepository.saveAndFlush(currency);
-            }
-        }
-    }
-
     private void seedBankMargins() {
         bankMarginRepository.saveAndFlush(
             BankMargin.builder()
@@ -1114,7 +1037,6 @@ public class TestDataRunner implements CommandLineRunner {
 
         companyRepository.saveAndFlush(stateCompany);
 
-        Currency rsdCurrency = currencyRepository.findByCode(CurrencyCode.RSD);
 
         Account stateAccount =
             Account.builder()
@@ -1131,7 +1053,7 @@ public class TestDataRunner implements CommandLineRunner {
                 .active(true)
                 .accountType(AccountType.DOO)
                 .company(stateCompany)
-                .currency(rsdCurrency)
+                .currency(CurrencyCode.RSD)
                 .build();
 
         accountRepository.saveAndFlush(stateAccount);
@@ -1183,13 +1105,13 @@ public class TestDataRunner implements CommandLineRunner {
                 BANK_ACCOUNT_GBP_NUMBER
             );
 
-        List<Currency> currencies = currencyRepository.findAll();
+        var currencies = CurrencyCode.values();
         List<Account> accounts = new ArrayList<>();
 
         for (int i = 0; i < bankAccountNumbers.size(); i++) {
             UUID accountId = bankAccountIds.get(i);
             String accountNumber = bankAccountNumbers.get(i);
-            Currency currency = currencies.get(i);
+            CurrencyCode currency = currencies[i];
 
             Account account =
                 Account.builder()

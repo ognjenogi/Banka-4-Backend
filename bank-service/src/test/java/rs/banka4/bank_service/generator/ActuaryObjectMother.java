@@ -1,9 +1,9 @@
 package rs.banka4.bank_service.generator;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 public class ActuaryObjectMother {
@@ -13,9 +13,9 @@ public class ActuaryObjectMother {
      *
      * @return a new ActuaryInfo instance
      */
-    public static ActuaryInfo generateBasicActuaryInfo() {
+    public static ActuaryInfo generateBasicActuaryInfo(User user) {
         return ActuaryInfo.builder()
-            .userId(UUID.fromString("987e6543-e21b-45d3-b456-426614174111"))
+            .user(user)
             .needApproval(true)
             .limit(new MonetaryAmount(BigDecimal.valueOf(1_000_000), CurrencyCode.RSD))
             .usedLimit(new MonetaryAmount(BigDecimal.valueOf(1000), CurrencyCode.RSD))

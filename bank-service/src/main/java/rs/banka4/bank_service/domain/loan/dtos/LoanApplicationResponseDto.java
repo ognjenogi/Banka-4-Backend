@@ -2,7 +2,7 @@ package rs.banka4.bank_service.domain.loan.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
-import rs.banka4.bank_service.domain.currency.db.Currency;
+import rs.banka4.bank_service.domain.account.dtos.CurrencyDto;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanType;
 
@@ -26,7 +26,7 @@ public record LoanApplicationResponseDto(
     @Schema(
         description = "Currency of the loan",
         example = "EUR"
-    ) Currency currency,
+    ) CurrencyDto currency,
 
     @Schema(
         description = "Purpose of the loan",

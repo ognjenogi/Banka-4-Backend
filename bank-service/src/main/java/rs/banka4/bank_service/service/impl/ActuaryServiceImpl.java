@@ -1,6 +1,7 @@
 package rs.banka4.bank_service.service.impl;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -13,10 +14,13 @@ import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.bank_service.domain.response.*;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.bank_service.exceptions.ActuaryNotFoundException;
 import rs.banka4.bank_service.exceptions.CannotUpdateActuaryException;
 import rs.banka4.bank_service.exceptions.NegativeLimitException;
+import rs.banka4.bank_service.exceptions.user.UserNotFound;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
+import rs.banka4.bank_service.repositories.UserRepository;
 import rs.banka4.bank_service.service.abstraction.ActuaryService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
@@ -27,6 +31,7 @@ public class ActuaryServiceImpl implements ActuaryService {
 
     private final ActuaryRepository actuaryRepository;
     private static final Logger logger = LoggerFactory.getLogger(ActuaryServiceImpl.class);
+    private final UserRepository userRepository;
 
 
     @Override
@@ -42,9 +47,15 @@ public class ActuaryServiceImpl implements ActuaryService {
                     .toString()
             );
         }
-
+        Optional<User> user = userRepository.findById(dto.actuaryId());
+        if (user.isEmpty()) {
+            throw new UserNotFound(
+                dto.actuaryId()
+                    .toString()
+            );
+        }
         ActuaryInfo actuaryInfo = new ActuaryInfo();
-        actuaryInfo.setUserId(dto.actuaryId());
+        actuaryInfo.setUser(user.get());
         actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
         actuaryInfo.setUsedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD));
         actuaryInfo.setNeedApproval(dto.needsApproval());

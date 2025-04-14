@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.account.dtos.AccountClientIdDto;
 import rs.banka4.bank_service.domain.account.dtos.CreateAccountDto;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.integration.seeder.TestDataSeeder;
@@ -64,7 +63,7 @@ public class CreateAccountTest {
 
     @Test
     void createAccountSuccessfully() throws Exception {
-        Currency currency = testDataSeeder.seedCurrency();
+        var currency = testDataSeeder.seedCurrency();
         Client client =
             clientRepository.findByEmail("salko.dinamitas@gmail.com")
                 .get();
@@ -92,7 +91,7 @@ public class CreateAccountTest {
                 accountClientIdDto,
                 null,
                 BigDecimal.valueOf(5000),
-                currency.getCode(),
+                currency,
                 true
             );
 

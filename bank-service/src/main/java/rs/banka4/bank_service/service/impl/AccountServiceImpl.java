@@ -27,7 +27,6 @@ import rs.banka4.bank_service.domain.card.dtos.CreateCardDto;
 import rs.banka4.bank_service.domain.company.db.Company;
 import rs.banka4.bank_service.domain.company.dtos.CreateCompanyDto;
 import rs.banka4.bank_service.domain.company.mapper.CompanyMapper;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.domain.user.employee.db.Employee;
 import rs.banka4.bank_service.exceptions.account.*;
@@ -39,7 +38,6 @@ import rs.banka4.bank_service.exceptions.user.employee.EmployeeNotFound;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.service.abstraction.*;
 import rs.banka4.bank_service.utils.specification.AccountSpecification;
-import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 import rs.banka4.rafeisen.common.utils.specification.SpecificationCombinator;
 
@@ -50,7 +48,6 @@ public class AccountServiceImpl implements AccountService {
 
     private final ClientService clientService;
     private final CompanyService companyService;
-    private final CurrencyRepository currencyRepository;
     private final CompanyMapper companyMapper;
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
@@ -139,7 +136,7 @@ public class AccountServiceImpl implements AccountService {
             account.setAccountType(AccountType.STANDARD);
         }
 
-        connectCurrencyToAccount(account, createAccountDto);
+        account.setCurrency(createAccountDto.currency());
         connectEmployeeToAccount(account, auth);
         account.setAvailableBalance(createAccountDto.availableBalance());
         account.setBalance(createAccountDto.availableBalance());
@@ -334,24 +331,6 @@ public class AccountServiceImpl implements AccountService {
                 );
             }
         }
-    }
-
-    /**
-     * Connects the specified currency to the given account.
-     *
-     * @param account the account to which the currency is to be connected
-     * @param createAccountDto contains the details of the currency code {@link CurrencyCode}
-     * @throws IllegalStateException if the currency code does not exist in the repository
-     */
-    private void connectCurrencyToAccount(Account account, CreateAccountDto createAccountDto) {
-        Currency currency = currencyRepository.findByCode(createAccountDto.currency());
-        if (currency == null)
-            throw new IllegalStateException(
-                "Currency  by code %s not in database".formatted(createAccountDto.currency())
-            );
-
-        account.setCurrency(currency);
-        account.setAccountMaintenance();
     }
 
     /**

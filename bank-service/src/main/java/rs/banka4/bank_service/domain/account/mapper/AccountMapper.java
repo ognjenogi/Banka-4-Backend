@@ -7,7 +7,6 @@ import rs.banka4.bank_service.domain.account.dtos.AccountDto;
 import rs.banka4.bank_service.domain.account.dtos.AccountTypeDto;
 import rs.banka4.bank_service.domain.account.dtos.CreateAccountDto;
 import rs.banka4.bank_service.domain.company.mapper.CompanyMapper;
-import rs.banka4.bank_service.domain.currency.mapper.CurrencyMapper;
 import rs.banka4.bank_service.domain.user.client.mapper.ClientMapper;
 import rs.banka4.bank_service.domain.user.employee.mapper.EmployeeMapper;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -16,7 +15,7 @@ import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 @Mapper(
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
     uses = {
-        CompanyMapper.class,CurrencyMapper.class,ClientMapper.class,EmployeeMapper.class
+        CompanyMapper.class,ClientMapper.class,EmployeeMapper.class
     }
 )
 public interface AccountMapper {
@@ -36,11 +35,7 @@ public interface AccountMapper {
         if (account == null || account.getCurrency() == null || account.getAccountType() == null) {
             return null;
         }
-        if (
-            account.getCurrency()
-                .getCode()
-                == CurrencyCode.RSD
-        ) {
+        if (account.getCurrency() == CurrencyCode.RSD) {
             if (
                 account.getAccountType()
                     .isBusiness()
@@ -63,7 +58,7 @@ public interface AccountMapper {
 
     @Mapping(
         target = "currency",
-        expression = "java(account.getCurrency().getCode())"
+        expression = "java(account.getCurrency())"
     )
     AccountNumberDto toAccountNumberDto(Account account);
 }

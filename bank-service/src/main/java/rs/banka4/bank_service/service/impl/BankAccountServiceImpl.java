@@ -47,11 +47,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     public Account getBankAccountForCurrency(CurrencyCode currency) {
         return getBankAccounts().stream()
-            .filter(
-                account -> account.getCurrency()
-                    .getCode()
-                    == currency
-            )
+            .filter(account -> account.getCurrency() == currency)
             .findFirst()
             .orElseThrow(
                 () -> new AccountNotFound("Bank account for currency " + currency + " not found")

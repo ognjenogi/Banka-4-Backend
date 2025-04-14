@@ -2,7 +2,7 @@ package rs.banka4.bank_service.generator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import rs.banka4.bank_service.domain.currency.db.Currency;
+import rs.banka4.bank_service.domain.account.dtos.CurrencyDto;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanStatus;
 import rs.banka4.bank_service.domain.loan.db.LoanType;
@@ -43,7 +43,7 @@ public class LoanObjectMother {
             LocalDate.now()
                 .plusDays(30),
             BigDecimal.valueOf(900.00),
-            new Currency(CurrencyCode.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true),
+            new CurrencyDto(CurrencyCode.RSD),
             LoanStatus.APPROVED,
             Loan.InterestType.FIXED
         );

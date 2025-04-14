@@ -6,13 +6,8 @@ import java.util.EnumSet;
 import java.util.UUID;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.account.db.AccountType;
-import rs.banka4.bank_service.domain.account.dtos.AccountClientIdDto;
-import rs.banka4.bank_service.domain.account.dtos.AccountDto;
-import rs.banka4.bank_service.domain.account.dtos.AccountTypeDto;
-import rs.banka4.bank_service.domain.account.dtos.CreateAccountDto;
+import rs.banka4.bank_service.domain.account.dtos.*;
 import rs.banka4.bank_service.domain.company.dtos.CompanyDto;
-import rs.banka4.bank_service.domain.currency.db.Currency;
-import rs.banka4.bank_service.domain.currency.mapper.CurrencyMapper;
 import rs.banka4.bank_service.domain.user.client.dtos.ClientDto;
 import rs.banka4.bank_service.domain.user.employee.dtos.EmployeeDto;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -82,11 +77,7 @@ public class AccountObjectMother {
             AccountTypeDto.CheckingPersonal,
             BigDecimal.valueOf(100.00),
             BigDecimal.valueOf(1000.00),
-            CurrencyMapper.INSTANCE.toDto(
-                Currency.builder()
-                    .code(CurrencyCode.RSD)
-                    .build()
-            ),
+            new CurrencyDto(CurrencyCode.RSD),
             new EmployeeDto(
                 UUID.randomUUID(),
                 "John",
@@ -126,9 +117,7 @@ public class AccountObjectMother {
         account.setAccountType(AccountType.STANDARD);
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
-        account.setCurrency(
-            new Currency(CurrencyCode.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true)
-        );
+        account.setCurrency(CurrencyCode.RSD);
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
             ClientObjectMother.generateClient(
@@ -148,9 +137,7 @@ public class AccountObjectMother {
         account.setAccountType(AccountType.STANDARD);
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
-        account.setCurrency(
-            new Currency(CurrencyCode.EUR, "European Currency", "EUR", "European currency", true)
-        );
+        account.setCurrency(CurrencyCode.EUR);
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
             ClientObjectMother.generateClient(
@@ -170,9 +157,7 @@ public class AccountObjectMother {
         account.setAccountType(AccountType.STANDARD);
         account.setDailyLimit(BigDecimal.valueOf(1000.00));
         account.setMonthlyLimit(BigDecimal.valueOf(10000.00));
-        account.setCurrency(
-            new Currency(CurrencyCode.RSD, "Serbian Dinar", "RSD", "Serbian Dinar currency", true)
-        );
+        account.setCurrency(CurrencyCode.RSD);
         account.setEmployee(EmployeeObjectMother.generateBasicEmployee());
         account.setClient(
             ClientObjectMother.generateClient(

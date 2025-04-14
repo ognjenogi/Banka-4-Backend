@@ -10,7 +10,6 @@ import rs.banka4.bank_service.domain.card.db.Card;
 import rs.banka4.bank_service.domain.card.db.CardName;
 import rs.banka4.bank_service.domain.card.db.CardStatus;
 import rs.banka4.bank_service.domain.card.db.CardType;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.db.LoanStatus;
 import rs.banka4.bank_service.domain.loan.db.LoanType;
@@ -19,9 +18,6 @@ import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 @Component
 public class TestDataSeeder {
-
-    @Autowired
-    private CurrencyRepository currencyRepository;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -47,16 +43,8 @@ public class TestDataSeeder {
      *
      * @return Sačuvani Currency objekat.
      */
-    public Currency seedCurrency() {
-        Currency currency =
-            Currency.builder()
-                .name("Euro")
-                .description("Euro currency")
-                .symbol("€")
-                .code(CurrencyCode.EUR)
-                .active(true)
-                .build();
-        return currencyRepository.saveAndFlush(currency);
+    public CurrencyCode seedCurrency() {
+        return CurrencyCode.EUR;
     }
 
     /**
@@ -65,7 +53,7 @@ public class TestDataSeeder {
      * @return Sačuvani Account objekat.
      */
     public Account seedAccount() {
-        Currency currency = seedCurrency();
+        var currency = seedCurrency();
 
         return accountRepository.saveAndFlush(
             Account.builder()
@@ -265,7 +253,7 @@ public class TestDataSeeder {
      * @return List of two saved Account objects.
      */
     public List<Account> seedTwoAccounts() {
-        Currency currency = seedCurrency();
+        var currency = seedCurrency();
         Account account1 = seedAccount();
         Account account2 =
             Account.builder()

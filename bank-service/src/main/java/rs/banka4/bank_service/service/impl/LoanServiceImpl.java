@@ -283,7 +283,6 @@ public class LoanServiceImpl implements LoanService {
                 loan.get()
                     .getAccount()
                     .getCurrency()
-                    .getCode()
             );
         Account userAccount =
             loan.get()

@@ -24,7 +24,7 @@ public interface TransactionMapper {
         target = "fromAmount"
     )
     @Mapping(
-        source = "from.currency.code",
+        source = "from.currency",
         target = "fromCurrency"
     )
     @Mapping(
@@ -32,7 +32,7 @@ public interface TransactionMapper {
         target = "toAmount"
     )
     @Mapping(
-        source = "to.currency.code",
+        source = "to.currency",
         target = "toCurrency"
     )
     @Mapping(
@@ -40,7 +40,7 @@ public interface TransactionMapper {
         target = "feeAmount"
     )
     @Mapping(
-        source = "fee.currency.code",
+        source = "fee.currency",
         target = "feeCurrency"
     )
     TransactionDto toDto(Transaction transaction);

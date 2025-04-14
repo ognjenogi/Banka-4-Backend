@@ -18,7 +18,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.account.dtos.AccountDto;
-import rs.banka4.bank_service.domain.currency.db.Currency;
 import rs.banka4.bank_service.domain.loan.db.Loan;
 import rs.banka4.bank_service.domain.loan.dtos.LoanApplicationDto;
 import rs.banka4.bank_service.domain.loan.dtos.LoanInformationDto;
@@ -75,11 +74,7 @@ public class ListingLoansTests {
 
         UUID accountId = UUID.randomUUID();
 
-        Currency currency = new Currency();
-        currency.setCode(CurrencyCode.EUR);
-        currency.setName("EUR");
-        currency.setActive(true);
-        currency.setSymbol("E");
+        var currency = CurrencyCode.EUR;
 
         account = new Account();
         account.setId(accountId);

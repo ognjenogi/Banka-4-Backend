@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.annotation.Nullable;
 import rs.banka4.bank_service.domain.company.dtos.CompanyDto;
-import rs.banka4.bank_service.domain.currency.dtos.CurrencyDto;
 import rs.banka4.bank_service.domain.user.client.dtos.ClientDto;
 import rs.banka4.bank_service.domain.user.employee.dtos.EmployeeDto;
 
