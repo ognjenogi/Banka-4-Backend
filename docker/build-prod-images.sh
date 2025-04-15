@@ -6,7 +6,7 @@ prefix=harbor.k8s.elab.rs/banka-4/
 : "${version:=$(git rev-parse HEAD)}"
 
 java_services=(
-    {notification,user,stock}-service
+    {notification,bank}-service
 )
 
 for service in "${java_services[@]}"; do

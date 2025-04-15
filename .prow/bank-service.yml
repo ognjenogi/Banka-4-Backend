@@ -1,7 +1,7 @@
-# Run tests and integration tests on the stock-service
+# Run tests and integration tests on the bank-service
 presubmits:
-  - name: pull-banka-4-backend-stock-service-test
-    run_if_changed: "^(.*kts$|(common|stock-service)/|\\.prow/)"
+  - name: pull-banka-4-backend-bank-service-test
+    run_if_changed: "^(.*kts$|(common|testlib|buildSrc|bank-service)/|\\.prow/)"
     decorate: true
     spec:
       containers:
@@ -15,21 +15,21 @@ presubmits:
 
               fail=
               gradle clean || fail=yes
-              gradle :stock-service:generateAllTestReports || fail=yes
+              gradle :bank-service:generateAllTestReports || fail=yes
 
               # Collect test reports.
               (
-                cp -r stock-service/build/reports /logs/artifacts/stock-service-reports
+                cp -r bank-service/build/reports /logs/artifacts/bank-service-reports
                 cp -r build/reports /logs/artifacts/toplevel-reports
                 set +x
                 for reportDir in \
                   reports/tests/{integrationTest,test} \
                   reports/jacoco{,Integration}Test; do
-                    if [[ ! -d stock-service/build/"${reportDir}" ]]; then
+                    if [[ ! -d bank-service/build/"${reportDir}" ]]; then
                       echo >&2 "Report directory ${reportDir} doesn't exist, skipping..."
                       continue
                     fi
-                    echo "${GCSWEB_URL}/prow-logs/pr-logs/pull/${REPO_OWNER}_${REPO_NAME}/${PULL_NUMBER}/${JOB_NAME}/${BUILD_NUMBER}/artifacts/stock-service/${reportDir}/index.html"
+                    echo "${GCSWEB_URL}/prow-logs/pr-logs/pull/${REPO_OWNER}_${REPO_NAME}/${PULL_NUMBER}/${JOB_NAME}/${BUILD_NUMBER}/artifacts/bank-service/${reportDir}/index.html"
                 done
                 if [[ -f build/reports/problems/problems-report.html ]]; then
                   echo "${GCSWEB_URL}/prow-logs/pr-logs/pull/${REPO_OWNER}_${REPO_NAME}/${PULL_NUMBER}/${JOB_NAME}/${BUILD_NUMBER}/artifacts/toplevel-reports/problems/problems-report.html"
