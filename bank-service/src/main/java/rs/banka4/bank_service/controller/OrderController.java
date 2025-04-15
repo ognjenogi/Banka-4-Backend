@@ -67,4 +67,20 @@ public class OrderController implements OrderApiDocumentation {
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
+    @Override
+    @PostMapping("/{orderId}/approve")
+    public ResponseEntity<Void> acceptOrder(@PathVariable String orderId) {
+        orderService.acceptOrder(UUID.fromString(orderId));
+        return ResponseEntity.ok()
+            .build();
+    }
+
+    @Override
+    @PostMapping("/{orderId}/decline")
+    public ResponseEntity<Void> declineOrder(@PathVariable String orderId) {
+        orderService.declineOrder(UUID.fromString(orderId));
+        return ResponseEntity.ok()
+            .build();
+    }
+
 }

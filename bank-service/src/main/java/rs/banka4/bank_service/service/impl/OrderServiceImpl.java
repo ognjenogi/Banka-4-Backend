@@ -8,7 +8,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
@@ -157,6 +156,44 @@ public class OrderServiceImpl implements OrderService {
             orders = orderRepository.findAllByStatusIn(statuses, pageable);
         }
         return orders.map(OrderMapper.INSTANCE::toDto);
+    }
+
+    @Override
+    public void acceptOrder(UUID orderId) {
+        Order order =
+            orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound(orderId.toString()));
+
+        if (
+            !order.getStatus()
+                .equals(Status.PENDING)
+        ) throw new AlreadyUpdatedOrderStatus();
+
+        if (hasSettlementDatePassed(order.getAsset())) {
+            throw new SettlementDatePassedException();
+        }
+
+        order.setStatus(Status.APPROVED);
+
+        orderRepository.save(order);
+    }
+
+    @Override
+    public void declineOrder(UUID orderId) {
+        Order order =
+            orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound(orderId.toString()));
+
+        if (
+            !order.getStatus()
+                .equals(Status.PENDING)
+        ) throw new AlreadyUpdatedOrderStatus();
+
+        order.setStatus(Status.DECLINED);
+        order.setDone(true);
+        order.setUsed(true);
+
+        orderRepository.save(order);
     }
 
     @Override

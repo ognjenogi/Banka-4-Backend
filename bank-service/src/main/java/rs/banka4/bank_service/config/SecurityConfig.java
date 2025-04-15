@@ -78,14 +78,13 @@ public class SecurityConfig {
                             AuthorityAuthorizationManager.hasAuthority("ADMIN")
                         )
                     )
-                    .requestMatchers(HttpMethod.GET, "/stock/orders")
-                    .access(
-                        AuthorizationManagers.anyOf(
-                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
-                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
-                        )
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/stock/orders",
+                        "/stock/orders/*",
+                        "/stock/orders/{orderId}/approve",
+                        "/stock/orders/{orderId}/decline"
                     )
-                    .requestMatchers(HttpMethod.GET, "/stock/orders/*")
                     .access(
                         AuthorizationManagers.anyOf(
                             AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),

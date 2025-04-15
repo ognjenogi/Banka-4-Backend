@@ -26,6 +26,10 @@ public interface OrderService {
 
     Page<OrderDto> searchOrders(List<Status> statuses, Pageable pageable);
 
+    void acceptOrder(UUID orderId);
+
+    void declineOrder(UUID orderId);
+
     void executeOrders();
 
     void updateOrderStatus(
