@@ -26,5 +26,3 @@ logging:
     org.hibernate.type.descriptor.sql: DEBUG
     org.hibernate.type: TRACE
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-services:
-  exchange: 'http://raf.rs'

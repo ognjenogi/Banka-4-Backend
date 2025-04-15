@@ -32,8 +32,8 @@ import rs.banka4.bank_service.repositories.AccountRepository;
 import rs.banka4.bank_service.repositories.ClientContactRepository;
 import rs.banka4.bank_service.repositories.ClientRepository;
 import rs.banka4.bank_service.repositories.TransactionRepository;
+import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
 import rs.banka4.bank_service.service.abstraction.JwtService;
-import rs.banka4.bank_service.service.impl.ExchangeRateService;
 import rs.banka4.bank_service.service.impl.TotpServiceImpl;
 import rs.banka4.bank_service.service.impl.TransactionServiceImpl;
 

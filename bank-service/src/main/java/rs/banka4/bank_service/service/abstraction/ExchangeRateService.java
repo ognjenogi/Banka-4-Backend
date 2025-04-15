@@ -1,14 +1,7 @@
-package rs.banka4.bank_service.service.impl;
+package rs.banka4.bank_service.service.abstraction;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Map;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import rs.banka4.bank_service.domain.exchange.dtos.ExchangeRate;
 import rs.banka4.bank_service.domain.exchange.dtos.ExchangeRateDto;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
@@ -20,17 +13,8 @@ import rs.banka4.rafeisen.common.currency.CurrencyCode;
  * conversion and fee calculation.
  * </p>
  */
-@Service
-public class ExchangeRateService {
-
-    private static final BigDecimal BANK_FEE = BigDecimal.valueOf(1.5);
-
-    private final RestTemplate restTemplate;
-
-    public ExchangeRateService(@Value("${services.exchange}") String exchangeBaseUrl) {
-        this.restTemplate = new RestTemplate();
-        this.restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(exchangeBaseUrl));
-    }
+public abstract class ExchangeRateService {
+    public static final BigDecimal BANK_FEE = BigDecimal.valueOf(1.5);
 
     /**
      * Fetches the latest exchange rates from the external exchange rate service.
@@ -39,10 +23,7 @@ public class ExchangeRateService {
      * @throws org.springframework.web.client.RestClientException if the external service is
      *         unavailable.
      */
-    public ExchangeRateDto getExchangeRates() {
-        return restTemplate.exchange("/exchange-rate", HttpMethod.GET, null, ExchangeRateDto.class)
-            .getBody();
-    }
+    public abstract ExchangeRateDto getExchangeRates();
 
     /**
      * Converts an amount from one currency to another based on exchange rates.
@@ -68,7 +49,7 @@ public class ExchangeRateService {
      */
     public BigDecimal convertCurrency(BigDecimal amount, CurrencyCode from, CurrencyCode to) {
         ExchangeRateDto exchangeRateDto = getExchangeRates();
-        Map<CurrencyCode, ExchangeRate> exchangeRates = exchangeRateDto.exchanges();
+        final var exchangeRates = exchangeRateDto.exchanges();
 
         if (from.equals(CurrencyCode.RSD)) {
             return amount.divide(

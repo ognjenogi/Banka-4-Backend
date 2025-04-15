@@ -15,8 +15,8 @@ import rs.banka4.bank_service.domain.transaction.dtos.CreateTransactionDto;
 import rs.banka4.bank_service.generator.TransactionObjectMother;
 import rs.banka4.bank_service.repositories.AccountRepository;
 import rs.banka4.bank_service.repositories.TransactionRepository;
+import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
 import rs.banka4.bank_service.service.impl.BankAccountServiceImpl;
-import rs.banka4.bank_service.service.impl.ExchangeRateService;
 import rs.banka4.bank_service.service.impl.TransactionServiceImpl;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
