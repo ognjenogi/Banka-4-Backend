@@ -53,6 +53,7 @@ class OrderServiceTest {
 
     private UUID assetId = TestDataFactory.ASSET_ID;
     private UUID accountId = TestDataFactory.ACCOUNT_ID;
+    private String accountNumber = TestDataFactory.ACCOUNT_NUMBER;
     private UUID employeeId = UUID.fromString("e9eb41cc-1989-11f0-9256-d85ed35e4427");
     private final UUID userUuid = UUID.fromString("6f72db23-afc8-4d71-b392-eb9e626ed9af");
 
@@ -91,7 +92,7 @@ class OrderServiceTest {
                 null,
                 false,
                 false,
-                accountId
+                accountNumber
             );
 
         OrderDto response =

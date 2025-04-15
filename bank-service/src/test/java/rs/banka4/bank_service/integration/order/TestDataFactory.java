@@ -25,6 +25,7 @@ public class TestDataFactory {
     public static final UUID ACCOUNT_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
     public static final UUID LISTING_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
     public static final UUID ORDER_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
+    public static final String ACCOUNT_NUMBER = "4440001000000000220";
 
     public static Stock buildAsset() {
         return Stock.builder()
