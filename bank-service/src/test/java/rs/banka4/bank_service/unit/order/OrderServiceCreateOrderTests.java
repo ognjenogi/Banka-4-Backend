@@ -36,6 +36,8 @@ import rs.banka4.bank_service.generator.OrderObjectMother;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
 import rs.banka4.bank_service.repositories.AssetRepository;
 import rs.banka4.bank_service.repositories.OrderRepository;
+import rs.banka4.bank_service.repositories.UserRepository;
+import rs.banka4.bank_service.service.abstraction.AccountService;
 import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.impl.OrderServiceImpl;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
@@ -55,16 +57,20 @@ public class OrderServiceCreateOrderTests {
     private ListingService listingService;
     @Mock
     private OrderMapper orderMapper;
-
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private AccountService accountService;
     @InjectMocks
     private OrderServiceImpl orderService;
+
 
     private UUID userId;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userId = UUID.randomUUID();
+        userId = UUID.fromString("35bc1ef6-f6d0-4405-bcdb-7dc0686b7b87");
     }
 
     static Stream<Arguments> orderParameters() {
@@ -105,6 +111,7 @@ public class OrderServiceCreateOrderTests {
         ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo(employee);
         Order order = OrderObjectMother.generateBasicOrder(employee, null);
 
+        when(userRepository.findById(userId)).thenReturn(Optional.of(employee));
         when(assetRepository.findById(dto.assetId())).thenReturn(Optional.of(asset));
         when(actuaryRepository.findByUserId(userId)).thenReturn(Optional.of(actuaryInfo));
         when(listingService.findActiveListingByAsset(asset.getId())).thenReturn(
@@ -218,6 +225,8 @@ public class OrderServiceCreateOrderTests {
         ActuaryInfo actuaryInfo = ActuaryObjectMother.generateBasicActuaryInfo(employee);
         Order order = OrderObjectMother.generateBasicOrder(employee, null);
 
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(employee));
         when(assetRepository.findById(dto.assetId())).thenReturn(Optional.of(asset));
         when(actuaryRepository.findByUserId(userId)).thenReturn(Optional.of(actuaryInfo));
         when(listingService.findActiveListingByAsset(asset.getId())).thenReturn(
