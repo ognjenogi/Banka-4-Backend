@@ -1,7 +1,11 @@
 package rs.banka4.bank_service.service.impl;
 
+
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -18,19 +23,36 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
+import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.bank_service.domain.auth.dtos.LoginDto;
 import rs.banka4.bank_service.domain.auth.dtos.LoginResponseDto;
+import rs.banka4.bank_service.domain.response.ActuaryInfoDto;
+import rs.banka4.bank_service.domain.response.CombinedResponse;
+import rs.banka4.bank_service.domain.response.LimitPayload;
 import rs.banka4.bank_service.domain.user.PrivilegesDto;
+import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.bank_service.domain.user.employee.db.Employee;
-import rs.banka4.bank_service.domain.user.employee.dtos.*;
+import rs.banka4.bank_service.domain.user.employee.dtos.CreateEmployeeDto;
+import rs.banka4.bank_service.domain.user.employee.dtos.EmployeeDto;
+import rs.banka4.bank_service.domain.user.employee.dtos.UpdateEmployeeDto;
 import rs.banka4.bank_service.domain.user.employee.mapper.EmployeeMapper;
-import rs.banka4.bank_service.exceptions.user.*;
+import rs.banka4.bank_service.exceptions.ActuaryNotFoundException;
+import rs.banka4.bank_service.exceptions.CannotUpdateActuaryException;
+import rs.banka4.bank_service.exceptions.NegativeLimitException;
+import rs.banka4.bank_service.exceptions.user.DuplicateEmail;
+import rs.banka4.bank_service.exceptions.user.DuplicateUsername;
+import rs.banka4.bank_service.exceptions.user.IncorrectCredentials;
+import rs.banka4.bank_service.exceptions.user.InvalidPhoneNumber;
+import rs.banka4.bank_service.exceptions.user.NotAuthenticated;
+import rs.banka4.bank_service.exceptions.user.UserNotFound;
 import rs.banka4.bank_service.exceptions.user.client.NotActivated;
+import rs.banka4.bank_service.repositories.ActuaryRepository;
 import rs.banka4.bank_service.repositories.EmployeeRepository;
+import rs.banka4.bank_service.repositories.UserRepository;
 import rs.banka4.bank_service.security.PreAuthBankUserAuthentication;
 import rs.banka4.bank_service.security.UnauthenticatedBankUserPrincipal;
-import rs.banka4.bank_service.service.abstraction.ActuaryService;
 import rs.banka4.bank_service.service.abstraction.EmployeeService;
 import rs.banka4.bank_service.service.abstraction.JwtService;
 import rs.banka4.bank_service.utils.specification.EmployeeSpecification;
@@ -47,13 +69,13 @@ import rs.banka4.rafeisen.common.utils.specification.SpecificationCombinator;
 public class EmployeeServiceImpl implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServiceImpl.class);
 
+    private final ActuaryRepository actuaryRepository;
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final EmployeeRepository employeeRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    private final ActuaryService actuaryService;
-
 
     @Override
     public LoginResponseDto login(LoginDto loginDto) {
@@ -107,6 +129,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return ResponseEntity.ok(new PrivilegesDto(privileges));
     }
 
+    @Override
     public void createEmployee(CreateEmployeeDto dto) {
         if (userService.existsByEmail(dto.email())) {
             throw new DuplicateEmail(dto.email());
@@ -144,12 +167,13 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
 
         if (actuaryPayloadDto != null) {
-            actuaryService.createNewActuary(actuaryPayloadDto);
+            createNewActuary(actuaryPayloadDto);
         }
 
         userService.sendVerificationEmail(employee.getFirstName(), employee.getEmail());
     }
 
+    @Override
     public ResponseEntity<Page<EmployeeDto>> getAll(
         String firstName,
         String lastName,
@@ -194,6 +218,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return ResponseEntity.ok(dtos);
     }
 
+    @Override
     public Page<Employee> getAllActuaries(
         String firstName,
         String lastName,
@@ -232,6 +257,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findAll(combinator.build(), pageRequest);
     }
 
+    @Override
     public Optional<Employee> findEmployeeByEmail(String email) {
         return employeeRepository.findByEmail(email);
     }
@@ -249,6 +275,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.save(employee);
     }
 
+    @Override
     public void updateEmployee(UUID id, UpdateEmployeeDto updateEmployeeDto) {
         Employee employee =
             employeeRepository.findById(id)
@@ -307,7 +334,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 }
 
             if (actuaryPayloadDto != null) {
-                actuaryService.createNewActuary(actuaryPayloadDto);
+                createNewActuary(actuaryPayloadDto);
             }
         }
         // Agent <-> Supervisor or Actuary -> Employee
@@ -330,7 +357,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     actuaryPayloadDto = agentPayload(employee.getId());
                 }
 
-            actuaryService.changeActuaryDetails(pathId, actuaryPayloadDto);
+            changeActuaryDetails(pathId, actuaryPayloadDto);
         }
     }
 
@@ -361,5 +388,149 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private ActuaryPayloadDto supervisorPayload(UUID id) {
         return new ActuaryPayloadDto(false, null, CurrencyCode.RSD, id);
+    }
+
+    private void createNewActuary(ActuaryPayloadDto dto) {
+        if (
+            dto.limitAmount() != null
+                && dto.limitAmount()
+                    .compareTo(BigDecimal.ZERO)
+                    < 0
+        ) {
+            throw new NegativeLimitException(
+                dto.actuaryId()
+                    .toString()
+            );
+        }
+        Optional<User> user = userRepository.findById(dto.actuaryId());
+        if (user.isEmpty()) {
+            throw new UserNotFound(
+                dto.actuaryId()
+                    .toString()
+            );
+        }
+        ActuaryInfo actuaryInfo = new ActuaryInfo();
+        actuaryInfo.setUserId(
+            user.get()
+                .getId()
+        );
+        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
+        actuaryInfo.setUsedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD));
+        actuaryInfo.setNeedApproval(dto.needsApproval());
+        actuaryRepository.save(actuaryInfo);
+    }
+
+    @Override
+    public void changeActuaryDetails(UUID actuaryId, ActuaryPayloadDto dto) {
+
+        if (!actuaryId.equals(dto.actuaryId())) {
+            // case when we send the admin id as the path parameter also when all the securities
+            // should be transfered to the admin actuaryId is admins id
+        }
+
+
+        if (
+            dto.limitAmount() != null
+                && dto.limitAmount()
+                    .compareTo(BigDecimal.ZERO)
+                    < 0
+        ) {
+            throw new NegativeLimitException(actuaryId.toString());
+        }
+
+
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(dto.actuaryId())
+                .orElseThrow(() -> new ActuaryNotFoundException(dto.actuaryId()));
+
+        actuaryInfo.setNeedApproval(dto.needsApproval());
+        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), CurrencyCode.RSD));
+        actuaryRepository.save(actuaryInfo);
+    }
+
+    @Override
+    public Page<CombinedResponse> search(
+        AuthenticatedBankUserAuthentication auth,
+        String firstName,
+        String lastName,
+        String email,
+        String position,
+        int page,
+        int size
+    ) {
+        return getAllActuaries(
+            firstName,
+            lastName,
+            email,
+            position,
+            PageRequest.of(page, size, Sort.by("id"))
+        ).map(this::toCombinedResponse);
+    }
+
+    private CombinedResponse toCombinedResponse(Employee employee) {
+        return actuaryRepository.findById(employee.getId())
+            .map(actuaryInfo -> {
+                ActuaryInfoDto dto =
+                    new ActuaryInfoDto(
+                        actuaryInfo.isNeedApproval(),
+                        actuaryInfo.getLimit()
+                            .getAmount(),
+                        actuaryInfo.getUsedLimit() != null
+                            ? actuaryInfo.getUsedLimit()
+                                .getAmount()
+                            : null,
+                        actuaryInfo.getLimit()
+                            .getCurrency()
+                    );
+                return new CombinedResponse(EmployeeMapper.INSTANCE.toResponseDto(employee), dto);
+            })
+            .orElseThrow(() -> {
+                return new IllegalStateException(
+                    "Missing ActuaryInfo for employee %s".formatted(employee)
+                );
+            });
+    }
+
+    @Override
+    public void updateLimit(UUID actuaryId, LimitPayload dto) {
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(actuaryId)
+                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId));
+
+        // Supervisors limit cannot be changed
+        if (!actuaryInfo.isNeedApproval()) {
+            throw new CannotUpdateActuaryException(actuaryId.toString());
+        }
+        if (
+            dto.limitAmount()
+                .compareTo(BigDecimal.ZERO)
+                < 0
+        ) {
+            throw new NegativeLimitException(actuaryId.toString());
+        }
+
+        actuaryInfo.setLimit(new MonetaryAmount(dto.limitAmount(), dto.limitCurrencyCode()));
+        actuaryRepository.save(actuaryInfo);
+    }
+
+    @Override
+    public void resetUsedLimit(UUID actuaryId) {
+        ActuaryInfo actuaryInfo =
+            actuaryRepository.findById(actuaryId)
+                .orElseThrow(() -> new ActuaryNotFoundException(actuaryId));
+        actuaryInfo.setUsedLimit(
+            resetLimit(
+                actuaryInfo.getUsedLimit()
+                    .getCurrency()
+            )
+        );
+        actuaryRepository.save(actuaryInfo);
+    }
+
+    public static MonetaryAmount resetLimit(CurrencyCode currencyCode) {
+        MonetaryAmount monetaryAmount = new MonetaryAmount();
+        monetaryAmount.setAmount(BigDecimal.valueOf(0));
+        monetaryAmount.setCurrency(currencyCode);
+        return monetaryAmount;
     }
 }

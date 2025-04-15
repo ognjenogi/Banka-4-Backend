@@ -18,32 +18,6 @@ import rs.banka4.bank_service.domain.response.CombinedResponse;
 public interface ActuaryApiDocumentation {
 
     @Operation(
-        summary = "Register new actuary",
-        description = "Upon creation of a new employee with actuary status, this creates a new actuary,"
-            + "which shares its ID with the ID of the employee",
-        security = @SecurityRequirement(name = "bearerAuth"),
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successfully added actuary",
-                content = @Content(
-                    // mediaType = "application/json", schema = @Schema(implementation = )
-                )
-            ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "Invalid request parameters"
-            ),
-            @ApiResponse(
-                responseCode = "403",
-                description = "Forbidden"
-            )
-        }
-    )
-    ResponseEntity<?> register(@RequestBody @Valid ActuaryPayloadDto dto);
-
-
-    @Operation(
         summary = "Update actuary",
         description = "Upon update of an employee with actuary status, this updates the actuaries contents "
             + "i.e. the limits and needed approval",

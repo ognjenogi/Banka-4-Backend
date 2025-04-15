@@ -7,12 +7,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
-import rs.banka4.bank_service.service.impl.ActuaryServiceImpl;
+import rs.banka4.bank_service.service.impl.EmployeeServiceImpl;
 
 @Component
 @RequiredArgsConstructor
 public class LimitResetScheduler {
-
     private final ActuaryRepository actuaryInfoRepository;
 
     /**
@@ -32,7 +31,7 @@ public class LimitResetScheduler {
         for (ActuaryInfo info : toReset) {
             if (info.getUsedLimit() == null) continue;
             info.setUsedLimit(
-                ActuaryServiceImpl.resetLimit(
+                EmployeeServiceImpl.resetLimit(
                     info.getUsedLimit()
                         .getCurrency()
                 )

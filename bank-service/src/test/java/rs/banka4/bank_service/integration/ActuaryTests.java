@@ -83,30 +83,6 @@ public class ActuaryTests {
         );
     }
 
-
-    @Test
-    void shouldFailRegisterActuaryBecauseOfJwt() throws Exception {
-        jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
-        String payload = """
-            {
-                "needsApproval": false,
-                "limitAmount": 10000,
-                "limitCurrencyCode": "RSD",
-                "actuaryId": "%s"
-            }
-            """.formatted(ActuaryGenerator.FOR_NEWLY_CREATED_ACTUARY_3_UUID);
-
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/stock/actuaries/register")
-                .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload)
-        )
-            .andExpect(status().isForbidden());
-
-        Assertions.assertEquals(2, actuaryRepository.count());
-    }
-
     @Test
     void shouldFailUpdateActuaryBecauseOfJwt() throws Exception {
         jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;

@@ -12,21 +12,14 @@ import rs.banka4.bank_service.controller.docs.ActuaryApiDocumentation;
 import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.bank_service.domain.response.CombinedResponse;
 import rs.banka4.bank_service.domain.response.LimitPayload;
-import rs.banka4.bank_service.service.impl.ActuaryServiceImpl;
+import rs.banka4.bank_service.service.abstraction.EmployeeService;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 
 @RestController
 @RequestMapping("/stock/actuaries")
 @RequiredArgsConstructor
 public class ActuaryController implements ActuaryApiDocumentation {
-    private final ActuaryServiceImpl actuaryService;
-
-    @Override
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid ActuaryPayloadDto dto) {
-        actuaryService.createNewActuary(dto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .build();
-    }
+    private final EmployeeService actuaryService;
 
     @Override
     @PutMapping("/update/{id}")
@@ -51,7 +44,15 @@ public class ActuaryController implements ActuaryApiDocumentation {
         Authentication auth
     ) {
 
-        return actuaryService.search(auth, firstName, lastName, email, position, page, size);
+        return actuaryService.search(
+            (AuthenticatedBankUserAuthentication) auth,
+            firstName,
+            lastName,
+            email,
+            position,
+            page,
+            size
+        );
     }
 
     @PutMapping("/limit/{actuaryId}")
