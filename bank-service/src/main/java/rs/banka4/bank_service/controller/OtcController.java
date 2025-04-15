@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.bank_service.controller.docs.OtcApiDocumentation;
+import rs.banka4.bank_service.domain.trading.db.OtcMapper;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestCreateDto;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestDto;
 import rs.banka4.bank_service.domain.trading.db.dtos.OtcRequestUpdateDto;
+import rs.banka4.bank_service.service.abstraction.ForeignBankService;
 import rs.banka4.bank_service.service.abstraction.OtcRequestService;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 
@@ -19,7 +21,9 @@ import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 @RequestMapping("/stock/otc")
 @RequiredArgsConstructor
 public class OtcController implements OtcApiDocumentation {
+    private final OtcMapper otcMapper;
     private final OtcRequestService otcRequestService;
+    private final ForeignBankService foreignBankService;
 
     @Override
     @GetMapping("/me")
@@ -96,7 +100,19 @@ public class OtcController implements OtcApiDocumentation {
                 : otcRequestService.getMyRequests(PageRequest.of(page, size), myId);
 
         Page<OtcRequestDto> dtoPage = requests.map(it -> {
-            throw new IllegalStateException("TODO: not implemented");
+            /*
+             * TODO(arsen): when establishing code to handle talking to other banks, add username
+             * resolution here.
+             */
+            return otcMapper.toOtcRequestDto(
+                it,
+                foreignBankService.getUsernameFor(it.getMadeBy())
+                    .orElseGet(it.getMadeBy()::toString),
+                foreignBankService.getUsernameFor(it.getMadeFor())
+                    .orElseGet(it.getMadeFor()::toString),
+                foreignBankService.getUsernameFor(it.getModifiedBy())
+                    .orElseGet(it.getModifiedBy()::toString)
+            );
         });
 
         return ResponseEntity.ok(dtoPage);

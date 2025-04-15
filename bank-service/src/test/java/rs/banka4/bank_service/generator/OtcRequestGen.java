@@ -35,21 +35,9 @@ public class OtcRequestGen {
         momo.setCurrency(CurrencyCode.AUD);
         OtcRequest req = new OtcRequest();
         req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
+        req.setMadeBy(ForeignBankId.our(UUID.randomUUID()));
+        req.setMadeFor(ForeignBankId.our(JwtPlaceholders.CLIENT_ID));
+        req.setModifiedBy(ForeignBankId.our(UUID.randomUUID()));
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
@@ -75,27 +63,9 @@ public class OtcRequestGen {
         momo.setCurrency(CurrencyCode.AUD);
         OtcRequest req = new OtcRequest();
         req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setModifiedBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
+        req.setMadeBy(ForeignBankId.our(UUID.randomUUID()));
+        req.setMadeFor(ForeignBankId.our(UUID.randomUUID()));
+        req.setModifiedBy(ForeignBankId.our(UUID.randomUUID()));
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
@@ -121,21 +91,9 @@ public class OtcRequestGen {
         momo.setCurrency(CurrencyCode.AUD);
         OtcRequest req = new OtcRequest();
         req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
+        req.setMadeBy(ForeignBankId.our(UUID.randomUUID()));
+        req.setMadeFor(ForeignBankId.our(JwtPlaceholders.CLIENT_ID));
+        req.setModifiedBy(ForeignBankId.our(UUID.randomUUID()));
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
@@ -161,15 +119,9 @@ public class OtcRequestGen {
         momo.setCurrency(CurrencyCode.AUD);
         OtcRequest req = new OtcRequest();
         req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
+        req.setMadeBy(ForeignBankId.our(UUID.randomUUID()));
+        req.setMadeFor(ForeignBankId.our(JwtPlaceholders.CLIENT_ID));
+        req.setModifiedBy(ForeignBankId.our(JwtPlaceholders.CLIENT_ID));
         req.setStatus(RequestStatus.ACTIVE);
         req.setPremium(momo);
         req.setPricePerStock(momo);
@@ -196,15 +148,9 @@ public class OtcRequestGen {
         momo.setCurrency(CurrencyCode.AUD);
         OtcRequest req = new OtcRequest();
         req.setStock((Stock) ex1.get());
-        req.setMadeBy(
-            new ForeignBankId(
-                1L,
-                UUID.randomUUID()
-                    .toString()
-            )
-        );
-        req.setMadeFor(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
-        req.setModifiedBy(new ForeignBankId(1L, JwtPlaceholders.CLIENT_ID.toString()));
+        req.setMadeBy(ForeignBankId.our(UUID.randomUUID()));
+        req.setMadeFor(ForeignBankId.our(JwtPlaceholders.CLIENT_ID));
+        req.setModifiedBy(ForeignBankId.our(JwtPlaceholders.CLIENT_ID));
         req.setStatus(RequestStatus.FINISHED);
         req.setPremium(momo);
         req.setPricePerStock(momo);

@@ -92,9 +92,6 @@ public class OtcTests {
                   "pricePerStock": {"amount": 1.00, "currency": "AUD"},
                   "premium": {"amount": 1.00, "currency": "AUD"},
                   "amount": 1,
-                  "madeBy": "test@test.com",
-                  "madeFor": "test@test.com",
-                  "modifiedBy": "test@test.com",
                   "lastModifiedDate": null,
                   "settlementDate": "2025-04-11"
                 },
@@ -168,9 +165,6 @@ public class OtcTests {
                   "pricePerStock": {"amount": 1.00, "currency": "AUD"},
                   "premium": {"amount": 1.00, "currency": "AUD"},
                   "amount": 1,
-                  "madeBy": "test@test.com",
-                  "madeFor": "test@test.com",
-                  "modifiedBy": "test@test.com",
                   "lastModifiedDate": null,
                   "settlementDate": "2025-04-11"
                 }

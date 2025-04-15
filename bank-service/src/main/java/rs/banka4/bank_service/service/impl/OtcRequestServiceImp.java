@@ -21,6 +21,7 @@ import rs.banka4.bank_service.exceptions.RequestFailed;
 import rs.banka4.bank_service.exceptions.StockOwnershipNotFound;
 import rs.banka4.bank_service.repositories.AssetOwnershipRepository;
 import rs.banka4.bank_service.repositories.OtcRequestRepository;
+import rs.banka4.bank_service.service.abstraction.AccountService;
 import rs.banka4.bank_service.service.abstraction.OtcRequestService;
 import rs.banka4.bank_service.service.abstraction.TradingService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -33,6 +34,7 @@ public class OtcRequestServiceImp implements OtcRequestService {
     private final OtcMapper otcMapper;
     private final AssetOwnershipRepository assetOwnershipRepository;
     private final TradingService tradingService;
+    private final AccountService accountService;
 
     @Override
     public Page<OtcRequest> getMyRequests(Pageable pageable, UUID myId) {
@@ -166,6 +168,36 @@ public class OtcRequestServiceImp implements OtcRequestService {
         CurrencyCode currencyCode,
         BigDecimal premium
     ) {
-        throw new RuntimeException("TODO: not implemented");
+        final var accounts = accountService.getAccountsForUser(userId);
+        AccountNumberDto currentAccount = null;
+        AccountNumberDto rightCurrencyAccount = null;
+        for (var account : accounts) {
+            if (
+                account.currency()
+                    .equals(CurrencyCode.RSD)
+            ) currentAccount = account;
+            if (
+                account.currency()
+                    .equals(currencyCode)
+            ) rightCurrencyAccount = account;
+        }
+        if (rightCurrencyAccount != null) {
+            if (
+                premium != null
+                    && rightCurrencyAccount.availableBalance()
+                        .compareTo(premium)
+                        >= 0
+            ) return rightCurrencyAccount;
+            else {
+                // TODO replace with insufficient funds on account exception
+                throw new RequestFailed();
+            }
+        } else if (currentAccount != null) {
+            // TODO use exchange service to determine if there is enough funds
+            return currentAccount;
+        } else {
+            // TODO replace with no right account exception
+            throw new RequestFailed();
+        }
     }
 }
