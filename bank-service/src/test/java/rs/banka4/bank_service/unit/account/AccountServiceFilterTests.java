@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +23,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.account.dtos.AccountDto;
 import rs.banka4.bank_service.domain.account.mapper.AccountMapper;
@@ -30,6 +31,10 @@ import rs.banka4.bank_service.repositories.AccountRepository;
 import rs.banka4.bank_service.repositories.ClientRepository;
 import rs.banka4.bank_service.service.abstraction.JwtService;
 import rs.banka4.bank_service.service.impl.AccountServiceImpl;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
+import rs.banka4.rafeisen.common.security.AuthenticatedBankUserPrincipal;
+import rs.banka4.rafeisen.common.security.Privilege;
+import rs.banka4.rafeisen.common.security.UserType;
 
 public class AccountServiceFilterTests {
 
@@ -63,8 +68,15 @@ public class AccountServiceFilterTests {
     @MethodSource("provideFilters")
     void testGetAll(String firstName, String lastName, String accountNumber, int expectedSize) {
         // Arrange
-        String token = "mocked-token";
-        String role = "client";
+        final var authentication =
+            new AuthenticatedBankUserAuthentication(
+                new AuthenticatedBankUserPrincipal(
+                    UserType.CLIENT,
+                    UUID.fromString("06e373d2-a4f2-4364-b6e8-694f3743dff9")
+                ),
+                "",
+                EnumSet.noneOf(Privilege.class)
+            );
         Account account1 = AccountObjectMother.generateBasicFromAccount();
         Account account2 = AccountObjectMother.generateBasicToAccount();
         Account account3 = AccountObjectMother.generateBasicFromAccount();
@@ -72,7 +84,7 @@ public class AccountServiceFilterTests {
 
         PageRequest pageRequest = PageRequest.of(0, 10);
 
-        when(jwtService.extractUserId(token)).thenReturn(
+        when(jwtService.extractUserId(any())).thenReturn(
             account1.getClient()
                 .getId()
         );
@@ -82,7 +94,7 @@ public class AccountServiceFilterTests {
                     .getId()
             )
         ).thenReturn(Optional.ofNullable(account1.getClient()));
-        when(jwtService.extractRole(token)).thenReturn(role);
+        when(jwtService.extractRole(any())).thenReturn("client");
 
         ArgumentCaptor<Specification<Account>> specCaptor =
             ArgumentCaptor.forClass(Specification.class);
@@ -127,9 +139,6 @@ public class AccountServiceFilterTests {
         when(accountMapper.toDto(account3)).thenReturn(
             AccountObjectMother.generateBasicAccountDto()
         );
-
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getCredentials()).thenReturn(token);
 
         // Act
         ResponseEntity<Page<AccountDto>> responseEntity =
