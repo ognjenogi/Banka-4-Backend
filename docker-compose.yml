@@ -36,6 +36,8 @@ services:
     post_start:
       - command: "chown -R service: /home/service/.gradle"
         user: root
+    environment:
+      ALPHAVANTAGE_APY_KEY: ${ALPHAVANTAGE_API_KEY:?alphavantage api key missing}
     develop:
       watch:
         - action: sync+restart
