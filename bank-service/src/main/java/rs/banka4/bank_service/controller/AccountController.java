@@ -2,6 +2,7 @@ package rs.banka4.bank_service.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +14,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.banka4.bank_service.controller.docs.AccountApiDocumentation;
 import rs.banka4.bank_service.domain.account.dtos.AccountDto;
+import rs.banka4.bank_service.domain.account.dtos.BankAccountDto;
 import rs.banka4.bank_service.domain.account.dtos.CreateAccountDto;
 import rs.banka4.bank_service.domain.account.dtos.SetAccountLimitsDto;
 import rs.banka4.bank_service.exceptions.authenticator.NotValidTotpException;
 import rs.banka4.bank_service.service.abstraction.AccountService;
+import rs.banka4.bank_service.service.abstraction.BankAccountService;
 import rs.banka4.bank_service.service.abstraction.TotpService;
 import rs.banka4.rafeisen.common.dto.AccountNumberDto;
 
@@ -27,6 +30,7 @@ public class AccountController implements AccountApiDocumentation {
 
     private final AccountService accountService;
     private final TotpService totpService;
+    private final BankAccountService bankAccountService;
 
     @Override
     @GetMapping("/search")
@@ -105,4 +109,9 @@ public class AccountController implements AccountApiDocumentation {
         }
     }
 
+    @Override
+    @GetMapping("/bank-accounts")
+    public ResponseEntity<List<BankAccountDto>> getBankAccounts() {
+        return ResponseEntity.ok(bankAccountService.getAllBankAccountWithCurrency());
+    }
 }

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import rs.banka4.bank_service.domain.account.dtos.AccountDto;
+import rs.banka4.bank_service.domain.account.dtos.BankAccountDto;
 import rs.banka4.bank_service.domain.account.dtos.CreateAccountDto;
 import rs.banka4.bank_service.domain.account.dtos.SetAccountLimitsDto;
 import rs.banka4.bank_service.exceptions.company.CompanyNotFound;
@@ -201,4 +203,28 @@ public interface AccountApiDocumentation {
         @NotBlank @PathVariable("accountNumber") String accountNumber,
         @RequestBody @Valid SetAccountLimitsDto dto
     );
+
+    @Operation(
+        summary = "Get bank accounts",
+        description = "Returns information about the bank account(s). Requires valid employee authentication.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Bank account(s) retrieved successfully",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = BankAccountDto.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Unauthorized access - user is not authenticated"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Bank account(s) not found for the authenticated user"
+            )
+        }
+    )
+    ResponseEntity<List<BankAccountDto>> getBankAccounts();
 }

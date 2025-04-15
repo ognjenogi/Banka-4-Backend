@@ -61,6 +61,8 @@ public class SecurityConfig {
                     .hasAuthority("EMPLOYEE")
                     .requestMatchers(HttpMethod.GET, "/employee/{id}")
                     .hasAuthority("EMPLOYEE")
+                    .requestMatchers(HttpMethod.GET, "/account/bank-accounts")
+                    .hasAuthority("EMPLOYEE")
                     /* Previously stock service. */
                     .requestMatchers(HttpMethod.GET, "/stock/listings/**")
                     .authenticated()
