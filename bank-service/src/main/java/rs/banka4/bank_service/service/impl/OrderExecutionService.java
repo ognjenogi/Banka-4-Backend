@@ -65,6 +65,7 @@ public class OrderExecutionService {
         order.setRemainingPortions(0);
         order.setDone(true);
         order.setUsed(true);
+        orderRepository.save(order);
 
         // TODO: Make transaction between order's client and matchedOrder's client
 
@@ -202,6 +203,8 @@ public class OrderExecutionService {
                 lockedOrder.setDone(true);
                 lockedOrder.setUsed(true);
             }
+
+            orderRepository.save(lockedOrder);
 
             return CompletableFuture.completedFuture(true);
 
