@@ -18,17 +18,6 @@ repositories {
 	mavenCentral()
 }
 
-configurations {
-	/* Prevent accidentally using JUnit 4 (dependency of Testcontainers).  */
-	testCompileClasspath {
-		exclude(group = "junit", module = "junit")
-		exclude(
-			group = "org.junit.vintage",
-			module = "junit-vintage-engine"
-		)
-	}
-}
-
 dependencyManagement {
 	imports {
 		mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)

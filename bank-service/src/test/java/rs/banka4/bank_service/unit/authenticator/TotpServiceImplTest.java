@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rs.banka4.bank_service.domain.authenticator.db.UserTotpSecret;
@@ -62,7 +61,6 @@ public class TotpServiceImplTest {
 
     // ------------------------- verifyNewAuthenticator Tests -------------------------
     @Test
-    @Ignore
     void verifyNewAuthenticator_validCode_activatesAndSaves() throws Exception {
         // Arrange
         final var auth = makeAuthentication(UserType.CLIENT);
@@ -86,7 +84,6 @@ public class TotpServiceImplTest {
     }
 
     @Test
-    @Ignore
     void verifyNewAuthenticator_invalidCode_throwsException() {
         // Arrange
         final var auth = makeAuthentication(UserType.CLIENT);
