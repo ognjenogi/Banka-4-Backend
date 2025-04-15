@@ -9,7 +9,8 @@ import rs.banka4.bank_service.domain.orders.db.Status;
 
 public record OrderDto(
     UUID id,
-    UUID userId,
+    String firstName,
+    String lastName,
     String assetTicker,
     OrderType orderType,
     Direction direction,

@@ -20,8 +20,12 @@ public interface OrderMapper {
         target = "assetTicker"
     )
     @Mapping(
-        target = "userId",
-        source = "user.id"
+        target = "firstName",
+        source = "user.firstName"
+    )
+    @Mapping(
+        target = "lastName",
+        source = "user.lastName"
     )
     OrderDto toDto(Order order);
 }

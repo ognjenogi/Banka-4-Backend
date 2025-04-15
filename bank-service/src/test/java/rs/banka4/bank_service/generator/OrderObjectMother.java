@@ -114,7 +114,8 @@ public class OrderObjectMother {
     public static OrderDto generateBasicOrderDto(OrderType orderType) {
         return new OrderDto(
             UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
-            UUID.fromString("987e6543-e21b-45d3-b456-426614174111"),
+            "Mehmedalija",
+            "Mehmedic",
             "TEST_ASSET",
             orderType,
             Direction.BUY,
