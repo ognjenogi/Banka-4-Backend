@@ -162,22 +162,7 @@ public class AccountServiceImpl implements AccountService {
         String accountNumber,
         PageRequest pageRequest
     ) {
-        UUID clientId =
-            jwtService.extractUserId(
-                auth.getCredentials()
-                    .toString()
-            );
-        Optional<Client> client = clientRepository.findById(clientId);
-        if (client.isEmpty()) {
-            throw new ClientNotFound(clientId.toString());
-        }
-
-        String role =
-            jwtService.extractRole(
-                auth.getCredentials()
-                    .toString()
-            );
-
+        final var we = ((AuthenticatedBankUserAuthentication) auth).getPrincipal();
         SpecificationCombinator<Account> combinator = new SpecificationCombinator<>();
 
         if (firstName != null && !firstName.isEmpty()) {
@@ -189,13 +174,11 @@ public class AccountServiceImpl implements AccountService {
         if (accountNumber != null && !accountNumber.isEmpty()) {
             combinator.and(AccountSpecification.hasAccountNumber(accountNumber));
         }
-        if (role.equalsIgnoreCase("client")) {
-            combinator.and(
-                AccountSpecification.hasEmail(
-                    client.get()
-                        .getEmail()
-                )
-            );
+        if (
+            we.userType()
+                .equals(UserType.CLIENT)
+        ) {
+            combinator.and(AccountSpecification.isOwnedBy(we.userId()));
         }
 
         Page<Account> accounts = accountRepository.findAll(combinator.build(), pageRequest);

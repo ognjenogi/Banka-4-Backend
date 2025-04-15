@@ -2,8 +2,11 @@ package rs.banka4.bank_service.utils.specification;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import rs.banka4.bank_service.domain.account.db.Account;
+import rs.banka4.bank_service.domain.account.db.Account_;
+import rs.banka4.bank_service.domain.user.User_;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 
 public class AccountSpecification {
@@ -45,6 +48,14 @@ public class AccountSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
             criteriaBuilder.lower(root.get("accountNumber")),
             "%" + accountNumber.toLowerCase() + "%"
+        );
+    }
+
+    public static Specification<Account> isOwnedBy(UUID userId) {
+        return (root, q, cb) -> cb.equal(
+            root.get(Account_.client)
+                .get(User_.id),
+            userId
         );
     }
 }
