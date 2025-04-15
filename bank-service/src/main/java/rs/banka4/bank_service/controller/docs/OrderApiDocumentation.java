@@ -187,4 +187,79 @@ public interface OrderApiDocumentation {
             example = "d290f1ee-6c54-4b01-90e6-d701748f0851"
         ) @PathVariable UUID id
     );
+
+    @Operation(
+        summary = "Accept an order",
+        description = """
+            Approves the specified order.
+            This action is typically performed by a supervisor or authorized personnel.
+            """
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Order successfully accepted",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Order not found",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content
+        )
+    })
+    ResponseEntity<Void> acceptOrder(
+        @Parameter(
+            description = "UUID of the order to accept",
+            required = true,
+            example = "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        ) @PathVariable String orderId
+    );
+
+    @Operation(
+        summary = "Decline an order",
+        description = """
+            Rejects the specified order.
+            This action is typically performed by a supervisor or authorized personnel.
+            """
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Order successfully declined",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Order not found",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content = @Content
+        )
+    })
+    ResponseEntity<Void> declineOrder(
+        @Parameter(
+            description = "UUID of the order to decline",
+            required = true,
+            example = "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        ) @PathVariable String orderId
+    );
+
 }
