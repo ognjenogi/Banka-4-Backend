@@ -88,6 +88,7 @@ public class OrderControllerTest {
                     .email("blabla@gmail.com")
             );
         a.setId(TestDataFactory.ACCOUNT_ID);
+        a.setAccountNumber(TestDataFactory.ACCOUNT_NUMBER);
         a.setClient(client);
         a.setEmployee(e);
         accountRepo.save(a);
@@ -103,9 +104,9 @@ public class OrderControllerTest {
               "stopValue": null,
               "allOrNothing": false,
               "margin": false,
-              "accountId": "%s"
+              "accountNumber": "%s"
             }
-            """.formatted(AssetGenerator.STOCK_EX1_UUID, TestDataFactory.ACCOUNT_ID.toString());
+            """.formatted(AssetGenerator.STOCK_EX1_UUID, TestDataFactory.ACCOUNT_NUMBER);
 
         mvc.post()
             .uri("/stock/orders")
