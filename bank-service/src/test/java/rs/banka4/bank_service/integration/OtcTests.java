@@ -6,22 +6,17 @@ import static rs.banka4.bank_service.generator.OtcRequestGen.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
-import retrofit2.Response;
-import rs.banka4.bank_service.config.clients.UserServiceClient;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnership;
 import rs.banka4.bank_service.domain.trading.db.ForeignBankId;
@@ -35,7 +30,6 @@ import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.service.impl.OtcRequestExpiryService;
 import rs.banka4.bank_service.utils.AssetGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
-import rs.banka4.rafeisen.common.dto.UserResponseDto;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
 
@@ -73,28 +67,6 @@ public class OtcTests {
 
     @Autowired
     private AssetOwnershipRepository assetOwnershipRepository;
-
-    /**
-     * Sets up stubs for the UserServiceClient using Retrofit.
-     *
-     * <p>
-     * Before each test, this method creates a dummy UserResponseDto and stubs the Retrofit client
-     * to always return it for any getUserInfo request.
-     *
-     * @throws IOException if there is an error during stub setup.
-     */
-    @BeforeEach
-    public void setup() throws IOException {
-        UserServiceClient userServiceClientMock = Mockito.mock(UserServiceClient.class);
-        @SuppressWarnings("unchecked")
-        retrofit2.Call<UserResponseDto> dummyCall = Mockito.mock(retrofit2.Call.class);
-        UserResponseDto dummyUserDto = new UserResponseDto("sd", "sdasd", "test@test.com");
-        Response<UserResponseDto> dummyResponse = Response.success(dummyUserDto);
-        Mockito.when(dummyCall.execute())
-            .thenReturn(dummyResponse);
-        Mockito.when(userServiceClientMock.getUserInfo(Mockito.any(), Mockito.anyString()))
-            .thenReturn(dummyCall);
-    }
 
     /**
      * Tests that the /otc/me endpoint returns a list of OTC requests for the authenticated user.
