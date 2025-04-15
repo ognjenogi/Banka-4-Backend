@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.account.db.Account;
+import rs.banka4.bank_service.domain.account.dtos.BankAccountDto;
 import rs.banka4.bank_service.domain.company.db.Company;
 import rs.banka4.bank_service.domain.transaction.db.Transaction;
 import rs.banka4.bank_service.domain.transaction.dtos.TransactionDto;
@@ -43,6 +44,19 @@ public class BankAccountServiceImpl implements BankAccountService {
                 .orElseThrow(() -> new CompanyNotFound(BANK_COMPANY_NAME));
 
         return accountRepository.findAllByCompany(bank);
+    }
+
+    public List<BankAccountDto> getAllBankAccountWithCurrency() {
+        return getBankAccounts().stream()
+            .map(
+                account -> new BankAccountDto(
+                    account.getAccountNumber(),
+                    account.getCurrency(),
+                    account.getBalance(),
+                    account.getAvailableBalance()
+                )
+            )
+            .toList();
     }
 
     public Account getBankAccountForCurrency(CurrencyCode currency) {
