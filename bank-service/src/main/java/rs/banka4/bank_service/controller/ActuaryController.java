@@ -41,7 +41,7 @@ public class ActuaryController implements ActuaryApiDocumentation {
 
     @Override
     @GetMapping("/search")
-    public ResponseEntity<Page<CombinedResponse>> search(
+    public Page<CombinedResponse> search(
         @RequestParam(required = false) String firstName,
         @RequestParam(required = false) String lastName,
         @RequestParam(required = false) String email,

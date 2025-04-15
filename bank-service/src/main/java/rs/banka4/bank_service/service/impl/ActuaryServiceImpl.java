@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.bank_service.domain.response.*;
 import rs.banka4.bank_service.domain.user.User;
+import rs.banka4.bank_service.domain.user.employee.db.Employee;
+import rs.banka4.bank_service.domain.user.employee.mapper.EmployeeMapper;
 import rs.banka4.bank_service.exceptions.ActuaryNotFoundException;
 import rs.banka4.bank_service.exceptions.CannotUpdateActuaryException;
 import rs.banka4.bank_service.exceptions.NegativeLimitException;
@@ -22,8 +26,8 @@ import rs.banka4.bank_service.exceptions.user.UserNotFound;
 import rs.banka4.bank_service.repositories.ActuaryRepository;
 import rs.banka4.bank_service.repositories.UserRepository;
 import rs.banka4.bank_service.service.abstraction.ActuaryService;
+import rs.banka4.bank_service.service.abstraction.EmployeeService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
-import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class ActuaryServiceImpl implements ActuaryService {
     private final ActuaryRepository actuaryRepository;
     private static final Logger logger = LoggerFactory.getLogger(ActuaryServiceImpl.class);
     private final UserRepository userRepository;
+    private final EmployeeService employeeService;
 
 
     @Override
@@ -94,7 +99,7 @@ public class ActuaryServiceImpl implements ActuaryService {
     }
 
     @Override
-    public ResponseEntity<Page<CombinedResponse>> search(
+    public Page<CombinedResponse> search(
         Authentication auth,
         String firstName,
         String lastName,
@@ -103,11 +108,18 @@ public class ActuaryServiceImpl implements ActuaryService {
         int page,
         int size
     ) {
-        throw new RuntimeException("TODO: not implemented");
+        return employeeService.getAllActuaries(
+            firstName,
+            lastName,
+            email,
+            position,
+            PageRequest.of(page, size, Sort.by("id"))
+        )
+            .map(this::toCombinedResponse);
     }
 
-    private CombinedResponse toCombinedResponse(EmployeeResponseDto employee) {
-        return actuaryRepository.findById(employee.id())
+    private CombinedResponse toCombinedResponse(Employee employee) {
+        return actuaryRepository.findById(employee.getId())
             .map(actuaryInfo -> {
                 ActuaryInfoDto dto =
                     new ActuaryInfoDto(
@@ -121,15 +133,11 @@ public class ActuaryServiceImpl implements ActuaryService {
                         actuaryInfo.getLimit()
                             .getCurrency()
                     );
-                return new CombinedResponse(employee, dto);
+                return new CombinedResponse(EmployeeMapper.INSTANCE.toResponseDto(employee), dto);
             })
             .orElseThrow(() -> {
-                logger.error(
-                    "ActuaryInfo not found for employee ID {} — this indicates inconsistent data.",
-                    employee.id()
-                );
                 return new IllegalStateException(
-                    "Missing ActuaryInfo for employee ID: " + employee.id()
+                    "Missing ActuaryInfo for employee %s".formatted(employee)
                 );
             });
     }

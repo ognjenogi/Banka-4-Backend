@@ -2,7 +2,6 @@ package rs.banka4.bank_service.service.abstraction;
 
 import java.util.UUID;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import rs.banka4.bank_service.domain.actuaries.db.dto.ActuaryPayloadDto;
 import rs.banka4.bank_service.domain.response.CombinedResponse;
@@ -15,7 +14,7 @@ public interface ActuaryService {
 
     void updateLimit(UUID actuaryId, LimitPayload dto);
 
-    ResponseEntity<Page<CombinedResponse>> search(
+    Page<CombinedResponse> search(
         Authentication auth,
         String firstName,
         String lastName,

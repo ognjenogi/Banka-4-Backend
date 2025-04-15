@@ -102,7 +102,7 @@ public interface ActuaryApiDocumentation {
         }
     )
     @GetMapping("/search")
-    ResponseEntity<Page<CombinedResponse>> search(
+    Page<CombinedResponse> search(
         @RequestParam(required = false) String firstName,
         @RequestParam(required = false) String lastName,
         @RequestParam(required = false) String email,
