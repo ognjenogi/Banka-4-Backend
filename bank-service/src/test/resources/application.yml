@@ -21,8 +21,3 @@ logging:
   level:
     # Enable logs useful for tests.
     rs.banka4: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: DEBUG
-    org.hibernate.type.descriptor.sql: DEBUG
-    org.hibernate.type: TRACE
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
