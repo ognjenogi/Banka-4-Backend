@@ -1,0 +1,44 @@
+# Run tests and integration tests on the bank-service
+presubmits:
+  - name: pull-banka-4-backend-bank-service-test
+    run_if_changed: "^(.*kts$|(common|testlib|buildSrc|bank-service)/|\\.prow/)"
+    decorate: true
+    spec:
+      containers:
+        - image: harbor.k8s.elab.rs/base-images/base:gradle-21-node-22-docker
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -eux
+              start-docker.sh
+
+              fail=
+              gradle clean || fail=yes
+              gradle :bank-service:generateAllTestReports || fail=yes
+
+              # Collect test reports.
+              (
+                cp -r bank-service/build/reports /logs/artifacts/bank-service-reports
+                cp -r build/reports /logs/artifacts/toplevel-reports
+                set +x
+                for reportDir in \
+                  reports/tests/{integrationTest,test} \
+                  reports/jacoco{,Integration}Test; do
+                    if [[ ! -d bank-service/build/"${reportDir}" ]]; then
+                      echo >&2 "Report directory ${reportDir} doesn't exist, skipping..."
+                      continue
+                    fi
+                    echo "${GCSWEB_URL}/prow-logs/pr-logs/pull/${REPO_OWNER}_${REPO_NAME}/${PULL_NUMBER}/${JOB_NAME}/${BUILD_NUMBER}/artifacts/bank-service/${reportDir}/index.html"
+                done
+                if [[ -f build/reports/problems/problems-report.html ]]; then
+                  echo "${GCSWEB_URL}/prow-logs/pr-logs/pull/${REPO_OWNER}_${REPO_NAME}/${PULL_NUMBER}/${JOB_NAME}/${BUILD_NUMBER}/artifacts/toplevel-reports/problems/problems-report.html"
+                fi
+              ) > /logs/artifacts/links.txt
+
+              if [[ ${fail} ]]; then
+                exit 1
+              fi
+          securityContext:
+            privileged: true
+          imagePullPolicy: Always

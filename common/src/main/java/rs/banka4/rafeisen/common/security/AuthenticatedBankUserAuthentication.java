@@ -17,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 public class AuthenticatedBankUserAuthentication extends AbstractAuthenticationToken {
     private final AuthenticatedBankUserPrincipal principal;
     private final String token;
+    private final EnumSet<Privilege> privileges;
 
     /**
      * @param principal Principal of the authenticated user.
@@ -31,6 +32,7 @@ public class AuthenticatedBankUserAuthentication extends AbstractAuthenticationT
     ) {
         super(calculatePrivilegesAndRole(principal, privileges));
         super.setAuthenticated(true);
+        this.privileges = privileges;
         this.principal = principal;
         this.token = token;
     }
@@ -68,5 +70,9 @@ public class AuthenticatedBankUserAuthentication extends AbstractAuthenticationT
                 "Changing the authenticated status to true seems suspect"
             );
         super.setAuthenticated(false);
+    }
+
+    public boolean hasPrivilege(Privilege privilege) {
+        return privileges.contains(privilege);
     }
 }

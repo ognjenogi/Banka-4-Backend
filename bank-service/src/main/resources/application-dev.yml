@@ -1,0 +1,67 @@
+# Development profile.  Used by the devcontainer and development Compose
+# environment.
+# Copyright (C) 2025  Arsen Arsenović <aarsenovic8422rn@raf.rs>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+spring:
+  datasource:
+    url: 'jdbc:postgresql://bank_service_db/bank-service?user=bank-service&password=lmaolmao123'
+  rabbitmq:
+    # Default credentials used in the dev Compose file.
+    username: guest
+    password: guest
+    host: broker
+
+  # Generate DDL in create-ddl output
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+      javax:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            scripts:
+              action: create
+              create-target: /dev/stderr
+
+logging:
+  level:
+    org.springframework: INFO
+    rs.banka4: TRACE
+
+
+springdoc:
+  api-docs:
+    path: /docs/api
+  swagger-ui:
+    path: /docs/ui
+
+jwt:
+  secret:
+    key: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
+  expiration: 604800000
+
+alphavantage:
+  api-key: ${ALPHAVANTAGE_APY_KEY}
+
+listings:
+  refetch-min: 20000000
+  # 2 for testing, 15 for PM, 20000000 for others
+
+services:
+  exchange: 'http://exchange_office:8000/'

@@ -1,5 +1,10 @@
 package rs.banka4.rafeisen.common.currency;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum CurrencyCode {
     RSD,
     EUR,
@@ -8,16 +13,5 @@ public enum CurrencyCode {
     JPY,
     AUD,
     CAD,
-    GBP;
-
-    public enum Code {
-        RSD,
-        EUR,
-        USD,
-        CHF,
-        JPY,
-        AUD,
-        CAD,
-        GBP;
-    }
+    GBP
 }
