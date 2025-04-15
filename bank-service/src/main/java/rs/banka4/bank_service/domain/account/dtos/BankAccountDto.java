@@ -8,7 +8,7 @@ import rs.banka4.rafeisen.common.currency.CurrencyCode;
 public record BankAccountDto(
     @Schema(
         description = "Account number",
-        example = "1234567890"
+        example = "4440001000000000220"
     ) String accountNumber,
     @NotNull(message = "Currency ID cannot be null")
 
