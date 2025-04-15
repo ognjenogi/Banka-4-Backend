@@ -18,7 +18,7 @@ public interface AccountService {
 
     Set<AccountNumberDto> getAccountsForUser(UUID userId);
 
-    AccountDto getAccount(String token, String id);
+    AccountDto getAccount(String token, String accountNumber);
 
     Account getAccountByAccountNumber(String accountNumber);
 
