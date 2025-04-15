@@ -164,8 +164,7 @@ services:
     image: docker.swagger.io/swaggerapi/swagger-ui
     environment:
       URLS: |
-        [ { url: "/docs/api", "name": "User service" }
-        , { url: "/stock/docs/api", "name": "Stock service" }
+        [ { url: "/docs/api", "name": "Bank service" }
         , { url: "/exchange/openapi.yml", "name": "Exchange office" }
         ]
       BASE_URL: /docs/ui
@@ -179,10 +178,9 @@ services:
     ports:
       - 8080:80
     depends_on:
-      - user_service
+      - bank_service
       - exchange_office
       - swagger_ui
-      - stock_service
     develop:
       watch:
         - action: restart
@@ -190,7 +188,8 @@ services:
 
 
 volumes:
-  user_service_gradle:
+  # user_service_gradle:
+  bank_service_gradle:
   notification_service_gradle:
   stock_service_gradle:
   # Database storage persistence.
