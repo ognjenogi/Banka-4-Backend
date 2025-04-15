@@ -15,6 +15,7 @@ import rs.banka4.bank_service.domain.user.PrivilegesDto;
 import rs.banka4.bank_service.domain.user.employee.dtos.CreateEmployeeDto;
 import rs.banka4.bank_service.domain.user.employee.dtos.EmployeeDto;
 import rs.banka4.bank_service.domain.user.employee.dtos.UpdateEmployeeDto;
+import rs.banka4.bank_service.domain.user.employee.mapper.EmployeeMapper;
 import rs.banka4.bank_service.service.abstraction.EmployeeService;
 import rs.banka4.rafeisen.common.dto.EmployeeResponseDto;
 
@@ -73,7 +74,7 @@ public class EmployeeController implements EmployeeApiDocumentation {
     }
 
     @GetMapping("/search/actuary-only")
-    public ResponseEntity<Page<EmployeeDto>> getActuaryEmployees(
+    public Page<EmployeeDto> getActuaryEmployees(
         @RequestParam(required = false) String firstName,
         @RequestParam(required = false) String lastName,
         @RequestParam(required = false) String email,
@@ -87,7 +88,8 @@ public class EmployeeController implements EmployeeApiDocumentation {
             email,
             position,
             PageRequest.of(page, size, Sort.by("id"))
-        );
+        )
+            .map(EmployeeMapper.INSTANCE::toDto);
     }
 
     @Override

@@ -235,7 +235,7 @@ public interface EmployeeApiDocumentation {
             )
         }
     )
-    ResponseEntity<Page<EmployeeDto>> getActuaryEmployees(
+    Page<EmployeeDto> getActuaryEmployees(
         @Parameter(description = "First name of the employee") String firstName,
         @Parameter(description = "Last name of the employee") String lastName,
         @Parameter(description = "Email of the employee") String email,

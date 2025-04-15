@@ -41,7 +41,7 @@ public interface EmployeeService {
 
     EmployeeResponseDto getEmployeeById(UUID id);
 
-    ResponseEntity<Page<EmployeeDto>> getAllActuaries(
+    Page<Employee> getAllActuaries(
         String firstName,
         String lastName,
         String email,

@@ -194,7 +194,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return ResponseEntity.ok(dtos);
     }
 
-    public ResponseEntity<Page<EmployeeDto>> getAllActuaries(
+    public Page<Employee> getAllActuaries(
         String firstName,
         String lastName,
         String email,
@@ -229,26 +229,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             combinator.and(EmployeeSpecification.hasPrivilege(Privilege.AGENT));
         }
 
-        Page<Employee> employees = employeeRepository.findAll(combinator.build(), pageRequest);
-        Page<EmployeeDto> dtos =
-            employees.map(
-                employee -> new EmployeeDto(
-                    employee.getId(),
-                    employee.getFirstName(),
-                    employee.getLastName(),
-                    employee.getDateOfBirth(),
-                    employee.getGender(),
-                    employee.getEmail(),
-                    employee.getPhone(),
-                    employee.getAddress(),
-                    employee.getUsername(),
-                    employee.getPosition(),
-                    employee.getDepartment(),
-                    employee.isActive()
-                )
-            );
-
-        return ResponseEntity.ok(dtos);
+        return employeeRepository.findAll(combinator.build(), pageRequest);
     }
 
     public Optional<Employee> findEmployeeByEmail(String email) {
