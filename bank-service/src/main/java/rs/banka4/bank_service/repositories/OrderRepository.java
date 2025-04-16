@@ -58,14 +58,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
              SELECT o FROM Order o
              WHERE o.user.id = :userId
              AND o.asset = :asset
-             AND o.direction = :direction
              AND o.isDone = :isDone
              ORDER BY o.lastModified DESC
         """)
-    Order findNewestOrder(
+    Optional<Order> findNewestOrder(
         @Param("userId") UUID userId,
         @Param("asset") Asset asset,
-        @Param("direction") Direction direction,
         @Param("isDone") boolean isDone
     );
 

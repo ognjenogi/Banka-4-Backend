@@ -8,9 +8,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.RequestParam;
+import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.security.SecurityDto;
 import rs.banka4.bank_service.domain.security.forex.dtos.ForexPairDto;
 import rs.banka4.bank_service.domain.security.future.dtos.FutureDto;
+import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.domain.security.stock.dtos.StockDto;
 
 public interface SecuritiesApiDocumentation {
@@ -48,4 +52,61 @@ public interface SecuritiesApiDocumentation {
         @Parameter(description = "Number of securities per page") int size
     );
 
+    @Operation(
+        summary = "Get My Profit",
+        description = "Retrieves the total (unrealized) profit for the authenticated user based on their current holdings. "
+            + "Only users with valid bearer tokens can access this endpoint.",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved user's profit",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = MonetaryAmount.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
+        }
+    )
+    ResponseEntity<MonetaryAmount> getMyProfit(Authentication auth);
+
+    @Operation(
+        summary = "Get My Portfolio",
+        description = "Retrieves a paginated list of the user's current holdings, including profit information "
+            + "calculated from buy orders and the current listing price. Only accessible by authenticated users.",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved user's portfolio holdings",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = SecurityHoldingDto.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
+        }
+    )
+    ResponseEntity<Page<SecurityHoldingDto>> getMyPortfolio(
+        Authentication auth,
+        @Parameter(description = "Page number (defaults to 0)")
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Number of holdings per page (defaults to 10)")
+        @RequestParam(defaultValue = "10") int size
+    );
 }
