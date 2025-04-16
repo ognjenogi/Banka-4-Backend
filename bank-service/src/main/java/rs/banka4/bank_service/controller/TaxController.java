@@ -19,18 +19,20 @@ public class TaxController implements TaxControllerDocumentation {
     @PostMapping("/trigger-monthly")
     @Override
     public ResponseEntity<Void> triggerMonthlyTax() {
-        return null;
+        taxService.taxMonthly();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/collect/{userId}")
     @Override
     public ResponseEntity<Void> collectTaxForUser(@PathVariable UUID userId) {
-        return null;
+        taxService.taxUser(userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/summary")
     @Override
-    public ResponseEntity<Page<TaxableUserDto>> getTaxSummary(@RequestParam String firstName, @RequestParam String lastName, @RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<TaxableUserDto>> getTaxSummary(@RequestParam(required = false) String firstName, @RequestParam(required = false) String lastName, @RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "10") int size) {
         var res = taxService.getTaxSummary(firstName,lastName, PageRequest.of(page,size));
         return ResponseEntity.ok(res);
