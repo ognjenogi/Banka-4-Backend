@@ -16,8 +16,6 @@ import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.service.abstraction.SecuritiesService;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/stock/securities")
 @RequiredArgsConstructor
@@ -37,15 +35,19 @@ public class SecuritiesController implements SecuritiesApiDocumentation {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Page<SecurityHoldingDto>> getMyPortfolio(Authentication auth, @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<SecurityHoldingDto>> getMyPortfolio(
+        Authentication auth,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId =
             ourAuth.getPrincipal()
                 .userId();
-        var holdings = securityService.getMyPortfolio(myId,PageRequest.of(page, size));
+        var holdings = securityService.getMyPortfolio(myId, PageRequest.of(page, size));
         return ResponseEntity.ok(holdings);
     }
+
     @GetMapping("/profit")
     public ResponseEntity<MonetaryAmount> getMyProfit(Authentication auth) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;

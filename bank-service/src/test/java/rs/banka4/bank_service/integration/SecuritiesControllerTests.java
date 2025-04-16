@@ -1,39 +1,30 @@
 package rs.banka4.bank_service.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnership;
 import rs.banka4.bank_service.domain.assets.db.AssetOwnershipId;
-import rs.banka4.bank_service.domain.exchanges.db.Exchange;
-import rs.banka4.bank_service.domain.listing.db.Listing;
 import rs.banka4.bank_service.domain.options.db.Asset;
 import rs.banka4.bank_service.domain.orders.db.Direction;
 import rs.banka4.bank_service.domain.orders.db.Order;
 import rs.banka4.bank_service.domain.orders.db.OrderType;
 import rs.banka4.bank_service.domain.orders.db.Status;
-import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
 import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.generator.AccountObjectMother;
-import rs.banka4.bank_service.generator.EmployeeObjectMother;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.utils.AssetGenerator;
@@ -42,7 +33,6 @@ import rs.banka4.bank_service.utils.ListingGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @SpringBootTest
 @DbEnabledTest
@@ -79,16 +69,13 @@ public class SecuritiesControllerTests {
     @Autowired
     private UserRepository userRepository;
 
-    private void createDummyAssetOwnership(User userId, Asset asset, int privateAmt, int publicAmt, int reservedAmt) {
-        AssetOwnershipId ownershipId = new AssetOwnershipId(userId, asset);
-        AssetOwnership ownership = new AssetOwnership();
-        ownership.setId(ownershipId);
-        ownership.setPrivateAmount(privateAmt);
-        ownership.setPublicAmount(publicAmt);
-        ownership.setReservedAmount(reservedAmt);
-        assetOwnershipRepository.save(ownership);
-    }
-    private void createDummyAssetOwnership2(User userId, Asset asset, int privateAmt, int publicAmt, int reservedAmt) {
+    private void createDummyAssetOwnership(
+        User userId,
+        Asset asset,
+        int privateAmt,
+        int publicAmt,
+        int reservedAmt
+    ) {
         AssetOwnershipId ownershipId = new AssetOwnershipId(userId, asset);
         AssetOwnership ownership = new AssetOwnership();
         ownership.setId(ownershipId);
@@ -98,129 +85,185 @@ public class SecuritiesControllerTests {
         assetOwnershipRepository.save(ownership);
     }
 
-    private void createDummyBuyOrder(Client userId, Asset asset, int quantity, BigDecimal priceValue, CurrencyCode currency) {
+    private void createDummyAssetOwnership2(
+        User userId,
+        Asset asset,
+        int privateAmt,
+        int publicAmt,
+        int reservedAmt
+    ) {
+        AssetOwnershipId ownershipId = new AssetOwnershipId(userId, asset);
+        AssetOwnership ownership = new AssetOwnership();
+        ownership.setId(ownershipId);
+        ownership.setPrivateAmount(privateAmt);
+        ownership.setPublicAmount(publicAmt);
+        ownership.setReservedAmount(reservedAmt);
+        assetOwnershipRepository.save(ownership);
+    }
+
+    private void createDummyBuyOrder(
+        Client userId,
+        Asset asset,
+        int quantity,
+        BigDecimal priceValue,
+        CurrencyCode currency
+    ) {
         var account = AccountObjectMother.generateBasicToAccount();
         account.setClient(userId);
         userRepository.save(account.getEmployee());
         accountRepository.save(account);
-        Order buyOrder = Order.builder()
-            .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-            .user(userId)
-            .asset(asset)
-            .orderType(OrderType.MARKET)
-            .quantity(quantity)
-            .contractSize(1)
-            .pricePerUnit(new MonetaryAmount(priceValue, currency))
-            .direction(Direction.BUY)
-            .status(Status.APPROVED)
-            .approvedBy(null)
-            .isDone(true)
-            .lastModified(OffsetDateTime.now())
-            .createdAt(OffsetDateTime.now())
-            .remainingPortions(100)
-            .afterHours(false)
-            .limitValue(null)
-            .stopValue(null)
-            .allOrNothing(false)
-            .margin(false)
-            .account(account)
-            .used(false)
-            .build();
+        Order buyOrder =
+            Order.builder()
+                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .user(userId)
+                .asset(asset)
+                .orderType(OrderType.MARKET)
+                .quantity(quantity)
+                .contractSize(1)
+                .pricePerUnit(new MonetaryAmount(priceValue, currency))
+                .direction(Direction.BUY)
+                .status(Status.APPROVED)
+                .approvedBy(null)
+                .isDone(true)
+                .lastModified(OffsetDateTime.now())
+                .createdAt(OffsetDateTime.now())
+                .remainingPortions(100)
+                .afterHours(false)
+                .limitValue(null)
+                .stopValue(null)
+                .allOrNothing(false)
+                .margin(false)
+                .account(account)
+                .used(false)
+                .build();
         orderRepository.save(buyOrder);
     }
-    private void createDummyBuyOrder2(Client userId, Asset asset, int quantity, BigDecimal priceValue, CurrencyCode currency) {
+
+    private void createDummyBuyOrder2(
+        Client userId,
+        Asset asset,
+        int quantity,
+        BigDecimal priceValue,
+        CurrencyCode currency
+    ) {
         var account = AccountObjectMother.generateBasicFromAccount();
         account.setClient(userId);
         userRepository.save(account.getEmployee());
         accountRepository.save(account);
-        Order buyOrder = Order.builder()
-            .user(userId)
-            .asset(asset)
-            .orderType(OrderType.MARKET)
-            .quantity(quantity)
-            .contractSize(1)
-            .pricePerUnit(new MonetaryAmount(priceValue, currency))
-            .direction(Direction.BUY)
-            .status(Status.APPROVED)
-            .approvedBy(null)
-            .isDone(true)
-            .lastModified(OffsetDateTime.now())
-            .createdAt(OffsetDateTime.now())
-            .remainingPortions(100)
-            .afterHours(false)
-            .limitValue(null)
-            .stopValue(null)
-            .allOrNothing(false)
-            .margin(false)
-            .account(account)
-            .used(false)
-            .build();
+        Order buyOrder =
+            Order.builder()
+                .user(userId)
+                .asset(asset)
+                .orderType(OrderType.MARKET)
+                .quantity(quantity)
+                .contractSize(1)
+                .pricePerUnit(new MonetaryAmount(priceValue, currency))
+                .direction(Direction.BUY)
+                .status(Status.APPROVED)
+                .approvedBy(null)
+                .isDone(true)
+                .lastModified(OffsetDateTime.now())
+                .createdAt(OffsetDateTime.now())
+                .remainingPortions(100)
+                .afterHours(false)
+                .limitValue(null)
+                .stopValue(null)
+                .allOrNothing(false)
+                .margin(false)
+                .account(account)
+                .used(false)
+                .build();
         orderRepository.save(buyOrder);
     }
-    private void createDummyBuyOrderSTOP(Client userId, Asset asset, int quantity, BigDecimal priceValue, CurrencyCode currency) {
+
+    private void createDummyBuyOrderSTOP(
+        Client userId,
+        Asset asset,
+        int quantity,
+        BigDecimal priceValue,
+        CurrencyCode currency
+    ) {
         var account = AccountObjectMother.generateBasicToAccount();
         account.setClient(userId);
         userRepository.save(account.getEmployee());
         accountRepository.save(account);
-        Order buyOrder = Order.builder()
-            .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-            .user(userId)
-            .asset(asset)
-            .orderType(OrderType.STOP)
-            .quantity(quantity)
-            .contractSize(1)
-            .pricePerUnit(new MonetaryAmount(priceValue, currency))
-            .direction(Direction.BUY)
-            .status(Status.APPROVED)
-            .approvedBy(null)
-            .isDone(true)
-            .lastModified(OffsetDateTime.now())
-            .createdAt(OffsetDateTime.now())
-            .remainingPortions(100)
-            .afterHours(false)
-            .limitValue(null)
-            .stopValue(null)
-            .allOrNothing(false)
-            .margin(false)
-            .account(account)
-            .used(false)
-            .build();
+        Order buyOrder =
+            Order.builder()
+                .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .user(userId)
+                .asset(asset)
+                .orderType(OrderType.STOP)
+                .quantity(quantity)
+                .contractSize(1)
+                .pricePerUnit(new MonetaryAmount(priceValue, currency))
+                .direction(Direction.BUY)
+                .status(Status.APPROVED)
+                .approvedBy(null)
+                .isDone(true)
+                .lastModified(OffsetDateTime.now())
+                .createdAt(OffsetDateTime.now())
+                .remainingPortions(100)
+                .afterHours(false)
+                .limitValue(null)
+                .stopValue(null)
+                .allOrNothing(false)
+                .margin(false)
+                .account(account)
+                .used(false)
+                .build();
         orderRepository.save(buyOrder);
     }
-    private void createDummySellOrder(Client userId, Asset asset, int quantity, BigDecimal priceValue, CurrencyCode currency) {
+
+    private void createDummySellOrder(
+        Client userId,
+        Asset asset,
+        int quantity,
+        BigDecimal priceValue,
+        CurrencyCode currency
+    ) {
         var account = AccountObjectMother.generateBasicEURFromAccount();
         account.setClient(userId);
-        account.setAccountNumber(UUID.randomUUID().toString());
+        account.setAccountNumber(
+            UUID.randomUUID()
+                .toString()
+        );
         userRepository.save(account.getEmployee());
         accountRepository.save(account);
-        Order buyOrder = Order.builder()
-            .user(userId)
-            .asset(asset)
-            .orderType(OrderType.MARKET)
-            .quantity(quantity)
-            .contractSize(1)
-            .pricePerUnit(new MonetaryAmount(priceValue, currency))
-            .direction(Direction.SELL)
-            .status(Status.APPROVED)
-            .approvedBy(null)
-            .isDone(true)
-            .lastModified(OffsetDateTime.now())
-            .createdAt(OffsetDateTime.now())
-            .remainingPortions(100)
-            .afterHours(false)
-            .limitValue(null)
-            .stopValue(null)
-            .allOrNothing(false)
-            .margin(false)
-            .account(account)
-            .used(false)
-            .build();
+        Order buyOrder =
+            Order.builder()
+                .user(userId)
+                .asset(asset)
+                .orderType(OrderType.MARKET)
+                .quantity(quantity)
+                .contractSize(1)
+                .pricePerUnit(new MonetaryAmount(priceValue, currency))
+                .direction(Direction.SELL)
+                .status(Status.APPROVED)
+                .approvedBy(null)
+                .isDone(true)
+                .lastModified(OffsetDateTime.now())
+                .createdAt(OffsetDateTime.now())
+                .remainingPortions(100)
+                .afterHours(false)
+                .limitValue(null)
+                .stopValue(null)
+                .allOrNothing(false)
+                .margin(false)
+                .account(account)
+                .used(false)
+                .build();
         orderRepository.save(buyOrder);
     }
+
     private Client createTestClient() {
-        final var assetOwner = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID).email("johndqoe@example.com"));
+        final var assetOwner =
+            userGen.createClient(
+                x -> x.id(JwtPlaceholders.CLIENT_ID)
+                    .email("johndqoe@example.com")
+            );
         return userRepository.save(assetOwner);
     }
+
     @Test
     public void testGetMyPortfolioWithStock() throws Exception {
         final var ber1 = ExchangeGenerator.makeBer1();
@@ -236,28 +279,34 @@ public class SecuritiesControllerTests {
             listingHistoryRepo
         );
         final var assetOwner = createTestClient();
-        createDummyBuyOrder(assetOwner,(Stock) stock.get(),100,BigDecimal.valueOf(1),CurrencyCode.USD);
+        createDummyBuyOrder(
+            assetOwner,
+            (Stock) stock.get(),
+            100,
+            BigDecimal.valueOf(1),
+            CurrencyCode.USD
+        );
         createDummyAssetOwnership(assetOwner, (Stock) stock.get(), 100, 0, 0);
 
         String expectedJson = """
-        {
-          "content": [
             {
-              "ticker": "EX1",
-              "amount": 100,
-              "price": {"amount": 75.14, "currency": "USD"},
-              "profit": {"amount": 7407.0, "currency": "USD"},
-              "publicAmount": 0
+              "content": [
+                {
+                  "ticker": "EX1",
+                  "amount": 100,
+                  "price": {"amount": 75.14, "currency": "USD"},
+                  "profit": {"amount": 7407.0, "currency": "USD"},
+                  "publicAmount": 0
+                }
+              ],
+              "page": {
+                "size": 10,
+                "number": 0,
+                "totalElements": 1,
+                "totalPages": 1
+              }
             }
-          ],
-          "page": {
-            "size": 10,
-            "number": 0,
-            "totalElements": 1,
-            "totalPages": 1
-          }
-        }
-        """;
+            """;
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
             .uri("/stock/securities/me")
@@ -270,6 +319,7 @@ public class SecuritiesControllerTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     @Test
     public void testEmptyPortfolio() throws Exception {
         createTestClient();
@@ -314,8 +364,14 @@ public class SecuritiesControllerTests {
             listingRepo,
             listingHistoryRepo
         );
-        createDummyAssetOwnership(client,  stock.get(), 100, 0, 0);
-        createDummyBuyOrderSTOP(client,  stock.get(), 100, BigDecimal.valueOf(75.14), CurrencyCode.USD);
+        createDummyAssetOwnership(client, stock.get(), 100, 0, 0);
+        createDummyBuyOrderSTOP(
+            client,
+            stock.get(),
+            100,
+            BigDecimal.valueOf(75.14),
+            CurrencyCode.USD
+        );
 
         String expectedJson = """
             {
@@ -351,7 +407,7 @@ public class SecuritiesControllerTests {
     }
 
     @Test
-    public void testStockInProfit(){
+    public void testStockInProfit() {
         Client client = createTestClient();
 
         final var ber1 = ExchangeGenerator.makeBer1();
@@ -456,7 +512,7 @@ public class SecuritiesControllerTests {
     }
 
     @Test
-    public void testOptionInMoney()  {
+    public void testOptionInMoney() {
         Client client = createTestClient();
         final var ber1 = ExchangeGenerator.makeBer1();
         exchangeRepo.save(ber1);
@@ -662,7 +718,7 @@ public class SecuritiesControllerTests {
     }
 
     @Test
-    public void testMultipleHoldings(){
+    public void testMultipleHoldings() {
         Client client = createTestClient();
 
         final var ber1 = ExchangeGenerator.makeBer1();
@@ -677,7 +733,13 @@ public class SecuritiesControllerTests {
             listingHistoryRepo
         );
         createDummyAssetOwnership(client, stockA.orElseThrow(), 100, 0, 0);
-        createDummyBuyOrderSTOP(client, stockA.get(), 100, BigDecimal.valueOf(40), CurrencyCode.USD);
+        createDummyBuyOrderSTOP(
+            client,
+            stockA.get(),
+            100,
+            BigDecimal.valueOf(40),
+            CurrencyCode.USD
+        );
 
         var stockB = securityRepository.findById(AssetGenerator.STOCK_EX2_UUID);
         ListingGenerator.makeExampleListings(
@@ -687,7 +749,13 @@ public class SecuritiesControllerTests {
             listingHistoryRepo
         );
         createDummyAssetOwnership2(client, stockB.get(), 10, 0, 0);
-        createDummyBuyOrder2(client, stockB.orElseThrow(), 10, BigDecimal.valueOf(10), CurrencyCode.USD);
+        createDummyBuyOrder2(
+            client,
+            stockB.orElseThrow(),
+            10,
+            BigDecimal.valueOf(10),
+            CurrencyCode.USD
+        );
 
         String expectedJson = """
             {
@@ -779,6 +847,7 @@ public class SecuritiesControllerTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     @Test
     public void testTotalProfitCalculation() {
         Client client = createTestClient();
@@ -826,4 +895,3 @@ public class SecuritiesControllerTests {
             .isLenientlyEqualTo(expectedJson);
     }
 }
-

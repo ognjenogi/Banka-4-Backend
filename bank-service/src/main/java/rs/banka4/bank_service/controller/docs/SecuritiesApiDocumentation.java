@@ -51,6 +51,7 @@ public interface SecuritiesApiDocumentation {
         @Parameter(description = "Page number") int page,
         @Parameter(description = "Number of securities per page") int size
     );
+
     @Operation(
         summary = "Get My Profit",
         description = "Retrieves the total (unrealized) profit for the authenticated user based on their current holdings. "
@@ -103,7 +104,9 @@ public interface SecuritiesApiDocumentation {
     )
     ResponseEntity<Page<SecurityHoldingDto>> getMyPortfolio(
         Authentication auth,
-        @Parameter(description = "Page number (defaults to 0)") @RequestParam(defaultValue = "0") int page,
-        @Parameter(description = "Number of holdings per page (defaults to 10)") @RequestParam(defaultValue = "10") int size
+        @Parameter(description = "Page number (defaults to 0)")
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Number of holdings per page (defaults to 10)")
+        @RequestParam(defaultValue = "10") int size
     );
 }
