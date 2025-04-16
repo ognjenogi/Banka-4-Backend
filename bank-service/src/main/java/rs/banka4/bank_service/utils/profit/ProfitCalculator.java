@@ -2,7 +2,11 @@ package rs.banka4.bank_service.utils.profit;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
@@ -18,10 +22,7 @@ import rs.banka4.bank_service.repositories.OrderRepository;
 
 /**
  * A unified calculator that, for any asset type (Stock, Future, ForexPair, Option), determines
- * profit using the same overall steps: 1) Gather buy orders -> compute weighted-average cost basis
- * 3) Subtract to find unsold (open) quantity 4) Retrieve current market price from Listing 5)
- * Multiply by a "multiplier" if needed (futures contract size, option contract size) 6) Returns
- * unrealized profit
+ * profit using Fifo method for profit calculation Returns unrealized profit
  */
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,10 @@ public class ProfitCalculator {
      * Calculates total profit (unrealized) for the given user and asset.
      */
     public MonetaryAmount calculateProfit(UUID userId, Asset asset, MonetaryAmount currentPrice) {
+        if (asset instanceof Option option) {
+            return calculateOptionProfit(currentPrice, option);
+        }
+
         var buyOrders =
             orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
                 userId,
@@ -47,44 +52,71 @@ public class ProfitCalculator {
                 true
             );
 
-        var totalBuyQty = BigDecimal.ZERO;
-        var totalBuyCost = BigDecimal.ZERO;
+        buyOrders.sort(Comparator.comparing(Order::getCreatedAt));
+        sellOrders.sort(Comparator.comparing(Order::getCreatedAt));
 
-        if (asset instanceof Option option) {
-            return calculateOptionProfit(currentPrice, option);
-        }
-        for (var buy : buyOrders) {
+        var lots = new LinkedList<Lot>();
+        for (Order buy : buyOrders) {
             var qty = BigDecimal.valueOf(buy.getQuantity());
-            var cost =
+            var baseCost =
                 buy.getPricePerUnit()
                     .getAmount()
                     .multiply(qty);
-            BigDecimal fee = computeFee(buy, cost);
-            totalBuyQty = totalBuyQty.add(qty);
-            totalBuyCost =
-                totalBuyCost.add(cost)
-                    .add(fee);
-        }
-        var avgBuyPrice =
-            totalBuyQty.compareTo(BigDecimal.ZERO) > 0
-                ? totalBuyCost.divide(totalBuyQty, 4, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+            var fee = computeFee(buy, baseCost);
 
-        var totalSellQty =
-            sellOrders.stream()
-                .map(o -> BigDecimal.valueOf(o.getQuantity()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        var unsoldQty = totalBuyQty.subtract(totalSellQty);
+            BigDecimal totalCost = baseCost.add(fee);
+
+            lots.add(new Lot(qty, totalCost));
+        }
+
+        for (Order sell : sellOrders) {
+            var sellQty = BigDecimal.valueOf(sell.getQuantity());
+
+            while (sellQty.compareTo(BigDecimal.ZERO) > 0 && !lots.isEmpty()) {
+                var firstLot = lots.getFirst();
+                int cmp = firstLot.quantity.compareTo(sellQty);
+                if (cmp > 0) {
+                    var fraction = sellQty.divide(firstLot.quantity, 4, RoundingMode.HALF_UP);
+                    var costForThisSell = firstLot.cost.multiply(fraction);
+
+                    firstLot.cost = firstLot.cost.subtract(costForThisSell);
+                    firstLot.quantity = firstLot.quantity.subtract(sellQty);
+                    sellQty = BigDecimal.ZERO;
+                } else if (cmp == 0) {
+                    firstLot.quantity = BigDecimal.ZERO;
+                    lots.removeFirst();
+                    sellQty = BigDecimal.ZERO;
+                } else {
+                    sellQty = sellQty.subtract(firstLot.quantity);
+                    firstLot.quantity = BigDecimal.ZERO;
+                    lots.removeFirst();
+                }
+            }
+        }
+
+        var leftoverQty = BigDecimal.ZERO;
+        var leftoverCost = BigDecimal.ZERO;
+
+        for (Lot lot : lots) {
+            leftoverQty = leftoverQty.add(lot.quantity);
+            leftoverCost = leftoverCost.add(lot.cost);
+        }
+
+        if (leftoverQty.compareTo(BigDecimal.ZERO) <= 0) {
+            return new MonetaryAmount(BigDecimal.ZERO, currentPrice.getCurrency());
+        }
+
+        var avgBuyPrice = leftoverCost.divide(leftoverQty, 4, RoundingMode.HALF_UP);
 
         var multiplier = getMultiplier(asset);
 
-        var unrealizedProfit =
+        var unrealized =
             currentPrice.getAmount()
                 .subtract(avgBuyPrice)
-                .multiply(unsoldQty)
+                .multiply(leftoverQty)
                 .multiply(multiplier);
 
-        return new MonetaryAmount(unrealizedProfit, currentPrice.getCurrency());
+        return new MonetaryAmount(unrealized, currentPrice.getCurrency());
     }
 
     private BigDecimal computeFee(Order order, BigDecimal baseCost) {
@@ -154,5 +186,12 @@ public class ProfitCalculator {
             return BigDecimal.ONE;
         }
         return BigDecimal.ONE;
+    }
+
+    @AllArgsConstructor
+    @Data
+    private static class Lot {
+        private BigDecimal quantity;
+        private BigDecimal cost;
     }
 }
