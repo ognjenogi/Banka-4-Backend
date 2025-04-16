@@ -2,6 +2,7 @@ package rs.banka4.bank_service.domain.taxes.db.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 @Schema(description = "Tax information for the user's account")
 public record UserTaxInfoDto(
@@ -16,6 +17,6 @@ public record UserTaxInfoDto(
     @Schema(
         description = "Currency of the amounts",
         example = "RSD"
-    ) String currency
+    ) CurrencyCode currency
 ) {
 }

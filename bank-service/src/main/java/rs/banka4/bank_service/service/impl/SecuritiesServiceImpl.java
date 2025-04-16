@@ -188,7 +188,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
                 .map(UserTaxDebts::getYearlyDebtAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new UserTaxInfoDto(totalYearly, totalUnpaid, "RSD");
+        return new UserTaxInfoDto(totalYearly, totalUnpaid, CurrencyCode.RSD);
     }
 
 
