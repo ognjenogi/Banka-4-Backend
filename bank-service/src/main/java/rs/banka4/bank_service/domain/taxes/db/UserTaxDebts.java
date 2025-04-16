@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import rs.banka4.bank_service.domain.user.User;
+import rs.banka4.bank_service.domain.account.db.Account;
 
 @Entity
 @Table(name = "user_tax_debts")
@@ -24,7 +24,9 @@ public class UserTaxDebts {
     UUID id = UUID.randomUUID();
 
     @OneToOne(optional = false)
-    User user;
+    Account account;
 
     BigDecimal debtAmount;
+
+    BigDecimal yearlyDebtAmount;
 }
