@@ -21,7 +21,6 @@ import rs.banka4.bank_service.domain.security.future.db.Future;
 import rs.banka4.bank_service.domain.security.responses.AssetTypeDto;
 import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
-import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
 import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
 import rs.banka4.bank_service.exceptions.AssetNotFound;
 import rs.banka4.bank_service.repositories.AssetOwnershipRepository;

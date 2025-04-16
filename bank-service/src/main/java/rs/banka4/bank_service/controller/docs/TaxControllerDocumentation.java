@@ -7,15 +7,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import rs.banka4.bank_service.domain.taxes.db.dto.TaxableUserDto;
-
-import java.util.UUID;
 
 public interface TaxControllerDocumentation {
     @Operation(
@@ -24,8 +21,14 @@ public interface TaxControllerDocumentation {
             + "Used by supervisors to initiate end‐of‐month tax deductions manually.",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
-            @ApiResponse(responseCode = "200", description = "Successfully triggered monthly tax for all users"),
-            @ApiResponse(responseCode = "403", description = "Forbidden – insufficient permissions")
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully triggered monthly tax for all users"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden – insufficient permissions"
+            )
         }
     )
     ResponseEntity<Void> triggerMonthlyTax();
@@ -36,14 +39,26 @@ public interface TaxControllerDocumentation {
             + "Used in edge cases where individual tax processing is needed (e.g. recovery, correction).",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
-            @ApiResponse(responseCode = "200", description = "Successfully collected tax for the user"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "403", description = "Forbidden – insufficient permissions")
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully collected tax for the user"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "User not found"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden – insufficient permissions"
+            )
         }
     )
     ResponseEntity<Void> collectTaxForUser(
-        @Parameter(in = ParameterIn.PATH, description = "ID of the user to collect tax for", required = true)
-        @PathVariable UUID userId
+        @Parameter(
+            in = ParameterIn.PATH,
+            description = "ID of the user to collect tax for",
+            required = true
+        ) @PathVariable UUID userId
     );
 
     @Operation(
@@ -61,14 +76,22 @@ public interface TaxControllerDocumentation {
                     schema = @Schema(implementation = TaxableUserDto.class)
                 )
             ),
-            @ApiResponse(responseCode = "403", description = "Forbidden")
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
         }
     )
     ResponseEntity<Page<TaxableUserDto>> getTaxSummary(
-        @Parameter(in = ParameterIn.QUERY, description = "Filter by first name (partial match)")
-        @RequestParam(required = false) String firstName,
-        @Parameter(in = ParameterIn.QUERY, description = "Filter by last name (partial match)")
-        @RequestParam(required = false) String lastName
-        , int page, int size
+        @Parameter(
+            in = ParameterIn.QUERY,
+            description = "Filter by first name (partial match)"
+        ) @RequestParam(required = false) String firstName,
+        @Parameter(
+            in = ParameterIn.QUERY,
+            description = "Filter by last name (partial match)"
+        ) @RequestParam(required = false) String lastName,
+        int page,
+        int size
     );
 }

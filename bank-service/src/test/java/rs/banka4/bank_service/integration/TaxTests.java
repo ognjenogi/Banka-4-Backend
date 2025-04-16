@@ -1,5 +1,10 @@
 package rs.banka4.bank_service.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.generator.AccountObjectMother;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
@@ -17,18 +21,10 @@ import rs.banka4.bank_service.integration.generator.UserTaxGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.runners.TestDataRunner;
 import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
-import rs.banka4.bank_service.service.abstraction.TaxService;
 import rs.banka4.bank_service.service.impl.TaxServiceImp;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.UUID;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @DbEnabledTest
@@ -61,11 +57,14 @@ public class TaxTests {
     private Client createTestClient2() {
         final var assetOwner =
             userGen.createClient(
-                x -> x.id(UUID.randomUUID()).firstName("Michael").lastName("Smith")
+                x -> x.id(UUID.randomUUID())
+                    .firstName("Michael")
+                    .lastName("Smith")
                     .email("johndqoeads@example.com")
             );
         return userRepository.save(assetOwner);
     }
+
     private Account createStateAccount(Client client) {
         var account = AccountObjectMother.generateBasicToAccount();
         account.setClient(client);
@@ -73,6 +72,7 @@ public class TaxTests {
         userRepository.save(account.getEmployee());
         return accountRepository.save(account);
     }
+
     private Client createTestClient3() {
         final var assetOwner =
             userGen.createClient(
@@ -81,16 +81,27 @@ public class TaxTests {
             );
         return userRepository.save(assetOwner);
     }
+
     /**
-     * Verifies that the tax summary endpoint returns the correct unpaid tax total
-     * (converted to RSD) for a single client who has debts in RSD and EUR.
+     * Verifies that the tax summary endpoint returns the correct unpaid tax total (converted to
+     * RSD) for a single client who has debts in RSD and EUR.
      */
     @Test
     public void testTaxSummary() {
         Client client = createTestClient();
 
-        UserTaxGenerator.createDummyTax(client, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createDummyTaxEur(client, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createDummyTax(
+            client,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createDummyTaxEur(
+            client,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String expectedJson = """
             {
@@ -123,17 +134,30 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     /**
-     * Ensures that when multiple clients each have multiple accounts with debts,
-     * the summary endpoint returns an entry for each client,
-     * with correct aggregation of unpaid tax across all their accounts.
+     * Ensures that when multiple clients each have multiple accounts with debts, the summary
+     * endpoint returns an entry for each client, with correct aggregation of unpaid tax across all
+     * their accounts.
      */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsers() {
         Client client1 = createTestClient();
         Client client2 = createTestClient2();
-        UserTaxGenerator.createMultipleDebts(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebts(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createMultipleDebts(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String expectedJson = """
             {
@@ -172,16 +196,29 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     /**
-     * Verifies that the summary endpoint filters by first name (partial match)
-     * and only returns clients whose first name contains the given substring.
+     * Verifies that the summary endpoint filters by first name (partial match) and only returns
+     * clients whose first name contains the given substring.
      */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsersSearchByName() {
         Client client1 = createTestClient();
         Client client2 = createTestClient2();
-        UserTaxGenerator.createMultipleDebts(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebts(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createMultipleDebts(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String expectedJson = """
             {
@@ -206,7 +243,7 @@ public class TaxTests {
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
-            .param("firstName","Joh")
+            .param("firstName", "Joh")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
@@ -214,16 +251,29 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     /**
-     * Verifies that the summary endpoint filters by last name (partial match)
-     * and only returns clients whose last name contains the given substring.
+     * Verifies that the summary endpoint filters by last name (partial match) and only returns
+     * clients whose last name contains the given substring.
      */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsersSearchByLastName() {
         Client client1 = createTestClient();
         Client client2 = createTestClient2();
-        UserTaxGenerator.createMultipleDebts(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebts(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createMultipleDebts(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String expectedJson = """
             {
@@ -248,7 +298,7 @@ public class TaxTests {
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
-            .param("lastName","Smit")
+            .param("lastName", "Smit")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
@@ -256,16 +306,29 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     /**
-     * Verifies that applying both firstName and lastName filters together
-     * returns only the clients matching both criteria.
+     * Verifies that applying both firstName and lastName filters together returns only the clients
+     * matching both criteria.
      */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsersSearchByFullName() {
         Client client1 = createTestClient();
         Client client2 = createTestClient2();
-        UserTaxGenerator.createMultipleDebts(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebts(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createMultipleDebts(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String expectedJson = """
             {
@@ -290,8 +353,8 @@ public class TaxTests {
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
-            .param("lastName","Smi")
-            .param("firstName","Micha")
+            .param("lastName", "Smi")
+            .param("firstName", "Micha")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
@@ -299,9 +362,10 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     /**
-     * Tests that collecting tax for a specific client zeros out all their debts
-     * and credits exactly the same amount (in the correct currency) to the state account.
+     * Tests that collecting tax for a specific client zeros out all their debts and credits exactly
+     * the same amount (in the correct currency) to the state account.
      */
     @Test
     public void testTaxSpecificClient() {
@@ -310,26 +374,51 @@ public class TaxTests {
         Client client3 = createTestClient3();
         var stateAcc = createStateAccount(client3);
         var stateBalance = stateAcc.getAvailableBalance();
-        var debt = UserTaxGenerator.createMultipleDebtsRSD(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebts(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        var debt =
+            UserTaxGenerator.createMultipleDebtsRSD(
+                client1,
+                2,
+                userRepository,
+                accountRepository,
+                userTaxDebtsRepository
+            );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.post()
-            .uri("/stock/tax/collect/"+client1.getId())
+            .uri("/stock/tax/collect/" + client1.getId())
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
             .hasStatusOk();
         var userDebts = userTaxDebtsRepository.findByAccount_Client_Id(client1.getId());
         userDebts.forEach(userDebt -> {
-            assertEquals(BigDecimal.ZERO, userDebt.getDebtAmount().stripTrailingZeros());
+            assertEquals(
+                BigDecimal.ZERO,
+                userDebt.getDebtAmount()
+                    .stripTrailingZeros()
+            );
         });
-        var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
-        assertEquals(stateBalance.add(debt).stripTrailingZeros(), stateBalanceAfter.stripTrailingZeros());
+        var stateBalanceAfter =
+            accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER)
+                .orElseThrow()
+                .getAvailableBalance();
+        assertEquals(
+            stateBalance.add(debt)
+                .stripTrailingZeros(),
+            stateBalanceAfter.stripTrailingZeros()
+        );
     }
+
     /**
-     * Tests tax collection for a client whose debts are denominated in EUR.
-     * Verifies that the EUR amount is converted to RSD before crediting the state account.
+     * Tests tax collection for a client whose debts are denominated in EUR. Verifies that the EUR
+     * amount is converted to RSD before crediting the state account.
      */
     @Test
     public void testTaxSpecificClientNotRSD() {
@@ -337,26 +426,46 @@ public class TaxTests {
         Client client3 = createTestClient3();
         var stateAcc = createStateAccount(client3);
         var stateBalance = stateAcc.getAvailableBalance();
-        var debt = UserTaxGenerator.createDummyTaxEur(client1, userRepository, accountRepository, userTaxDebtsRepository);
+        var debt =
+            UserTaxGenerator.createDummyTaxEur(
+                client1,
+                userRepository,
+                accountRepository,
+                userTaxDebtsRepository
+            );
 
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.post()
-            .uri("/stock/tax/collect/"+client1.getId())
+            .uri("/stock/tax/collect/" + client1.getId())
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
             .hasStatusOk();
         var userDebts = userTaxDebtsRepository.findByAccount_Client_Id(client1.getId());
         userDebts.forEach(userDebt -> {
-            assertEquals(BigDecimal.ZERO, userDebt.getDebtAmount().stripTrailingZeros());
+            assertEquals(
+                BigDecimal.ZERO,
+                userDebt.getDebtAmount()
+                    .stripTrailingZeros()
+            );
         });
-        var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
-        debt = exchangeRateService.convertCurrency(debt, CurrencyCode.EUR,CurrencyCode.RSD);
-        assertEquals(stateBalance.add(debt).stripTrailingZeros().round(MathContext.DECIMAL32), stateBalanceAfter.stripTrailingZeros().round(MathContext.DECIMAL32));
+        var stateBalanceAfter =
+            accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER)
+                .orElseThrow()
+                .getAvailableBalance();
+        debt = exchangeRateService.convertCurrency(debt, CurrencyCode.EUR, CurrencyCode.RSD);
+        assertEquals(
+            stateBalance.add(debt)
+                .stripTrailingZeros()
+                .round(MathContext.DECIMAL32),
+            stateBalanceAfter.stripTrailingZeros()
+                .round(MathContext.DECIMAL32)
+        );
     }
+
     /**
-     * Ensures that attempting to collect tax for a client with insufficient funds
-     * results in a FORBIDDEN (HTTP 403) response and leaves their debts unchanged.
+     * Ensures that attempting to collect tax for a client with insufficient funds results in a
+     * FORBIDDEN (HTTP 403) response and leaves their debts unchanged.
      */
     @Test
     public void testTaxSpecificClientInsufficientFunds() {
@@ -364,20 +473,34 @@ public class TaxTests {
         Client client2 = createTestClient2();
         Client client3 = createTestClient3();
         var stateAcc = createStateAccount(client3);
-        UserTaxGenerator.createMultipleDebtsInsufficientFunds(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebts(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createMultipleDebtsInsufficientFunds(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.post()
-            .uri("/stock/tax/collect/"+client1.getId())
+            .uri("/stock/tax/collect/" + client1.getId())
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
-            .assertThat().hasStatus(HttpStatus.FORBIDDEN);
+            .assertThat()
+            .hasStatus(HttpStatus.FORBIDDEN);
     }
+
     /**
      * Tests the "trigger-monthly" endpoint: it should collect and clear debts for all clients,
-     * crediting the sum of all their debts to the state account,
-     * including proper conversion for non‑RSD debts.
+     * crediting the sum of all their debts to the state account, including proper conversion for
+     * non‑RSD debts.
      */
     @Test
     public void testTaxAllClients() {
@@ -386,8 +509,22 @@ public class TaxTests {
         Client client3 = createTestClient3();
         var stateAcc = createStateAccount(client3);
         var stateBalance = stateAcc.getAvailableBalance();
-        var debt = UserTaxGenerator.createMultipleDebtsRSD(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        var debt2 =UserTaxGenerator.createMultipleDebtsEUR(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        var debt =
+            UserTaxGenerator.createMultipleDebtsRSD(
+                client1,
+                2,
+                userRepository,
+                accountRepository,
+                userTaxDebtsRepository
+            );
+        var debt2 =
+            UserTaxGenerator.createMultipleDebtsEUR(
+                client2,
+                2,
+                userRepository,
+                accountRepository,
+                userTaxDebtsRepository
+            );
 
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.post()
@@ -398,16 +535,31 @@ public class TaxTests {
             .hasStatusOk();
         var allDebts = userTaxDebtsRepository.findAll();
         allDebts.forEach(userDebt -> {
-            assertEquals(BigDecimal.ZERO, userDebt.getDebtAmount().stripTrailingZeros());
+            assertEquals(
+                BigDecimal.ZERO,
+                userDebt.getDebtAmount()
+                    .stripTrailingZeros()
+            );
         });
-        debt2 = exchangeRateService.convertCurrency(debt2, CurrencyCode.EUR,CurrencyCode.RSD);
-        var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
-        assertEquals(stateBalance.add(debt).add(debt2).stripTrailingZeros().round(MathContext.DECIMAL32), stateBalanceAfter.stripTrailingZeros().round(MathContext.DECIMAL32));
+        debt2 = exchangeRateService.convertCurrency(debt2, CurrencyCode.EUR, CurrencyCode.RSD);
+        var stateBalanceAfter =
+            accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER)
+                .orElseThrow()
+                .getAvailableBalance();
+        assertEquals(
+            stateBalance.add(debt)
+                .add(debt2)
+                .stripTrailingZeros()
+                .round(MathContext.DECIMAL32),
+            stateBalanceAfter.stripTrailingZeros()
+                .round(MathContext.DECIMAL32)
+        );
     }
+
     /**
-     * Verifies that the "trigger-monthly" job will still collect from clients
-     * who have sufficient funds, even if one of the clients has insufficient funds.
-     * Only the solvable debts are collected.
+     * Verifies that the "trigger-monthly" job will still collect from clients who have sufficient
+     * funds, even if one of the clients has insufficient funds. Only the solvable debts are
+     * collected.
      */
     @Test
     public void testTaxAllClientsOneInsufficientFunds() {
@@ -416,8 +568,21 @@ public class TaxTests {
         Client client3 = createTestClient3();
         var stateAcc = createStateAccount(client3);
         var stateBalance = stateAcc.getAvailableBalance();
-        var debt = UserTaxGenerator.createMultipleDebtsRSD(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebtsInsufficientFunds(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        var debt =
+            UserTaxGenerator.createMultipleDebtsRSD(
+                client1,
+                2,
+                userRepository,
+                accountRepository,
+                userTaxDebtsRepository
+            );
+        UserTaxGenerator.createMultipleDebtsInsufficientFunds(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.post()
@@ -426,12 +591,22 @@ public class TaxTests {
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
             .hasStatusOk();
-        var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
-        assertEquals(stateBalance.add(debt).stripTrailingZeros().round(MathContext.DECIMAL32), stateBalanceAfter.stripTrailingZeros().round(MathContext.DECIMAL32));
+        var stateBalanceAfter =
+            accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER)
+                .orElseThrow()
+                .getAvailableBalance();
+        assertEquals(
+            stateBalance.add(debt)
+                .stripTrailingZeros()
+                .round(MathContext.DECIMAL32),
+            stateBalanceAfter.stripTrailingZeros()
+                .round(MathContext.DECIMAL32)
+        );
     }
+
     /**
-     * Tests the yearly cleanup operation, which should reset all clients' yearlyDebtAmount
-     * back to zero without touching the monthly debt amounts.
+     * Tests the yearly cleanup operation, which should reset all clients' yearlyDebtAmount back to
+     * zero without touching the monthly debt amounts.
      */
     @Test
     public void testTaxYearlyClean() {
@@ -439,14 +614,30 @@ public class TaxTests {
         Client client2 = createTestClient2();
         Client client3 = createTestClient3();
         createStateAccount(client3);
-        UserTaxGenerator.createMultipleDebtsRSD(client1, 2, userRepository, accountRepository, userTaxDebtsRepository);
-        UserTaxGenerator.createMultipleDebtsEUR(client2, 2, userRepository, accountRepository, userTaxDebtsRepository);
+        UserTaxGenerator.createMultipleDebtsRSD(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebtsEUR(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
 
         taxService.cleanYearlyDebt();
 
         var allDebts = userTaxDebtsRepository.findAll();
         allDebts.forEach(userDebt -> {
-            assertEquals(BigDecimal.ZERO, userDebt.getYearlyDebtAmount().stripTrailingZeros());
+            assertEquals(
+                BigDecimal.ZERO,
+                userDebt.getYearlyDebtAmount()
+                    .stripTrailingZeros()
+            );
         });
     }
 }
