@@ -32,6 +32,7 @@ import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
 import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.abstraction.SecuritiesService;
 import rs.banka4.bank_service.utils.profit.ProfitCalculator;
+import rs.banka4.bank_service.utils.tax.TaxCalculationUtill;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 @Service
@@ -165,30 +166,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
     @Override
     public UserTaxInfoDto calculateTax(UUID myId) {
         var debts = userTaxDebtsRepository.findByAccount_Client_Id(myId);
-
-        var totalUnpaid =
-            debts.stream()
-                .map(debt -> {
-                    CurrencyCode accountCurrency =
-                        debt.getAccount()
-                            .getCurrency();
-                    if (!accountCurrency.equals(CurrencyCode.RSD)) {
-                        return exchangeRateService.convertCurrency(
-                            debt.getDebtAmount(),
-                            accountCurrency,
-                            CurrencyCode.RSD
-                        );
-                    }
-                    return debt.getDebtAmount();
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        var totalYearly =
-            debts.stream()
-                .map(UserTaxDebts::getYearlyDebtAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return new UserTaxInfoDto(totalYearly, totalUnpaid, CurrencyCode.RSD);
+        return TaxCalculationUtill.calculateTax(debts, exchangeRateService);
     }
 
 
