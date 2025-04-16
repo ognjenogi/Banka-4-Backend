@@ -953,6 +953,29 @@ public class SecuritiesControllerTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+    @Test
+    public void testMyTaxCalculationNoTax() {
+        Client client = createTestClient();
+
+        String expectedJson = """
+                {
+                "paidTaxThisYear":0,
+                "unpaidTaxThisMonth":0,
+                "currency":"RSD"
+                }
+            """;
+
+        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        mvc.get()
+                .uri("/stock/securities/tax")
+                .header(HttpHeaders.AUTHORIZATION, jwtToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .assertThat()
+                .hasStatusOk()
+                .bodyJson()
+                .isLenientlyEqualTo(expectedJson);
+    }
+
 
 
 }
