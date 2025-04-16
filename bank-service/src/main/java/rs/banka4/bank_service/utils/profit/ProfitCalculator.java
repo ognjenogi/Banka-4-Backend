@@ -77,18 +77,7 @@ public class ProfitCalculator {
         var unsoldQty = totalBuyQty.subtract(totalSellQty);
 
         var multiplier = getMultiplier(asset);
-        System.out.println(
-            "Multiplier: "
-                + multiplier
-                + " totalByQunt "
-                + totalBuyQty
-                + " totalByPric "
-                + totalBuyCost
-                + " totalSelQunt "
-                + totalSellQty
-                + " currentPrice "
-                + currentPrice.getAmount()
-        );
+
         var unrealizedProfit =
             currentPrice.getAmount()
                 .subtract(avgBuyPrice)
