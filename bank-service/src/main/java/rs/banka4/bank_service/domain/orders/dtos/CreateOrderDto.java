@@ -37,8 +37,8 @@ public record CreateOrderDto(
         example = "true"
     ) boolean margin,
     @Schema(
-        description = "Account ID",
-        example = "1de54a3a-d879-4154-aa3a-e40598186f93"
-    ) UUID accountId
+        description = "Account Number",
+        example = "4440001000000000220"
+    ) String accountNumber
 ) {
 }

@@ -154,7 +154,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new UserNotFound(createFeeTransactionDto.userId()));
 
         Account found =
-            accountRepository.findById(UUID.fromString(createFeeTransactionDto.fromAccount()))
+            accountRepository.findAccountByAccountNumber(createFeeTransactionDto.fromAccount())
                 .orElseThrow(() -> new AccountNotFound(createFeeTransactionDto.fromAccount()));
 
         Account bankAccount =

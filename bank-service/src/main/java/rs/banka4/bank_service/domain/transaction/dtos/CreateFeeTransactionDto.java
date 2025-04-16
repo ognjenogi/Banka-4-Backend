@@ -11,7 +11,7 @@ public record CreateFeeTransactionDto(
     ) String userId,
     @Schema(
         description = "From account number",
-        example = "11111111-2222-3333-4444-555555555555"
+        example = "4440001000000000220"
     ) String fromAccount,
     @Schema(
         description = "From amount",

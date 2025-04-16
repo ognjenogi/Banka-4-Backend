@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAllOrNothing(dto.allOrNothing());
         order.setAfterHours(afterHours);
         order.setUsed(false);
-        order.setAccount(accountService.getAccount(auth, dto.accountId()));
+        order.setAccount(accountService.getAccountByAccountNumber(dto.accountNumber()));
 
         Order savedOrder = orderRepository.saveAndFlush(order);
         return OrderMapper.INSTANCE.toDto(savedOrder);

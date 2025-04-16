@@ -65,7 +65,7 @@ public class OrderObjectMother {
             null,
             false,
             false,
-            UUID.fromString("456e7890-e12b-34d3-c456-426614174222")
+            "4440001000000000220"
         );
     }
 
@@ -83,7 +83,7 @@ public class OrderObjectMother {
             null,
             false,
             false,
-            UUID.fromString("456e7890-e12b-34d3-c456-426614174222")
+            "4440001000000000220"
         );
     }
 
@@ -101,7 +101,7 @@ public class OrderObjectMother {
             new MonetaryAmount(BigDecimal.valueOf(1000.0), CurrencyCode.RSD),
             false,
             false,
-            UUID.fromString("456e7890-e12b-34d3-c456-426614174222")
+            "4440001000000000220"
         );
     }
 

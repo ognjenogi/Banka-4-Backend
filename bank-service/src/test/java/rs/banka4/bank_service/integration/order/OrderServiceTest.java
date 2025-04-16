@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
 import rs.banka4.bank_service.domain.options.db.Asset;
@@ -53,6 +54,7 @@ class OrderServiceTest {
 
     private UUID assetId = TestDataFactory.ASSET_ID;
     private UUID accountId = TestDataFactory.ACCOUNT_ID;
+    private String accountNumber = TestDataFactory.ACCOUNT_NUMBER;
     private UUID employeeId = UUID.fromString("e9eb41cc-1989-11f0-9256-d85ed35e4427");
     private final UUID userUuid = UUID.fromString("6f72db23-afc8-4d71-b392-eb9e626ed9af");
 
@@ -68,11 +70,12 @@ class OrderServiceTest {
                 x -> x.id(employeeId)
                     .email("release.me@hotmail.rs")
             );
-        var xd = AccountObjectMother.generateBasicFromAccount();
-        xd.setId(accountId);
-        xd.setClient(user);
-        xd.setEmployee(employee);
-        final var account = accountRepo.saveAndFlush(xd);
+        Account mockAccount = AccountObjectMother.generateBasicFromAccount();
+        mockAccount.setId(accountId);
+        mockAccount.setAccountNumber(accountNumber);
+        mockAccount.setClient(user);
+        mockAccount.setEmployee(employee);
+        final var account = accountRepo.saveAndFlush(mockAccount);
         Exchange exchange = exchangeRepository.save(TestDataFactory.buildExchange());
         Asset asset = assetRepository.save(TestDataFactory.buildAsset());
         actuaryRepository.save(TestDataFactory.buildActuaryInfo(user));
@@ -91,7 +94,7 @@ class OrderServiceTest {
                 null,
                 false,
                 false,
-                accountId
+                accountNumber
             );
 
         OrderDto response =
