@@ -2,9 +2,12 @@ package rs.banka4.bank_service.service.impl;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -21,10 +24,13 @@ import rs.banka4.bank_service.domain.security.future.db.Future;
 import rs.banka4.bank_service.domain.security.responses.AssetTypeDto;
 import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
+import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
 import rs.banka4.bank_service.exceptions.AssetNotFound;
 import rs.banka4.bank_service.repositories.AssetOwnershipRepository;
 import rs.banka4.bank_service.repositories.ListingRepository;
 import rs.banka4.bank_service.repositories.OrderRepository;
+import rs.banka4.bank_service.repositories.UserTaxDebtsRepository;
 import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
 import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.abstraction.SecuritiesService;
@@ -41,6 +47,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
     private final ListingRepository listingRepository;
     private final ProfitCalculator profitCalculator;
     private final ExchangeRateService exchangeRateService;
+    private final UserTaxDebtsRepository userTaxDebtsRepository;
 
     @Override
     public ResponseEntity<Page<SecurityDto>> getSecurities(
@@ -157,6 +164,28 @@ public class SecuritiesServiceImpl implements SecuritiesService {
                 );
             });
     }
+
+    @Override
+    public UserTaxInfoDto calculateTax(UUID myId) {
+        var debts = userTaxDebtsRepository.findByAccount_Client_Id(myId);
+
+        var totalUnpaid = debts.stream()
+            .map(debt -> {
+                CurrencyCode accountCurrency = debt.getAccount().getCurrency();
+                if (!accountCurrency.equals(CurrencyCode.RSD)) {
+                    return exchangeRateService.convertCurrency(debt.getDebtAmount(), accountCurrency, CurrencyCode.RSD);
+                }
+                return debt.getDebtAmount();
+            })
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        var totalYearly = debts.stream()
+            .map(UserTaxDebts::getYearlyDebtAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new UserTaxInfoDto(totalYearly, totalUnpaid, "RSD");
+    }
+
 
     private AssetTypeDto mapToAssetTypeDto(Asset asset) {
         if (asset instanceof Stock) {
