@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.security.SecurityDto;
 import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
+import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
 
 
 public interface SecuritiesService {
@@ -20,4 +21,6 @@ public interface SecuritiesService {
     Page<SecurityHoldingDto> getMyPortfolio(UUID myId, Pageable pageable);
 
     MonetaryAmount calculateTotalProfit(UUID myId);
+
+    UserTaxInfoDto calculateTax(UUID myId);
 }

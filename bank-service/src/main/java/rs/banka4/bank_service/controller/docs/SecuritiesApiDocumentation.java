@@ -16,6 +16,7 @@ import rs.banka4.bank_service.domain.security.forex.dtos.ForexPairDto;
 import rs.banka4.bank_service.domain.security.future.dtos.FutureDto;
 import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.domain.security.stock.dtos.StockDto;
+import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
 
 public interface SecuritiesApiDocumentation {
 
@@ -109,4 +110,31 @@ public interface SecuritiesApiDocumentation {
         @Parameter(description = "Number of holdings per page (defaults to 10)")
         @RequestParam(defaultValue = "10") int size
     );
+
+    @Operation(
+        summary = "Get My Tax",
+        description = "Retrieves the user's tax information for their account in RSD. "
+            + "This includes the total tax paid for the current year and the outstanding tax for the current month. "
+            + "Accessible only by authenticated users.",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved user's tax information",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserTaxInfoDto.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
+        }
+    )
+    public ResponseEntity<UserTaxInfoDto> getMyTax(Authentication auth);
 }
