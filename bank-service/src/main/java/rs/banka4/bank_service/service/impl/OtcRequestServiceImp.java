@@ -109,7 +109,7 @@ public class OtcRequestServiceImp implements OtcRequestService {
     }
 
     @Override
-    public OtcRequest acceptOtc(UUID requestId, UUID userId) {
+    public void acceptOtc(UUID requestId, UUID userId) {
         Optional<OtcRequest> otcRequest = otcRequestRepository.findById(requestId);
         if (otcRequest.isEmpty()) throw new OtcNotFoundException(requestId);
         OtcRequest otc = otcRequest.get();
@@ -160,7 +160,6 @@ public class OtcRequestServiceImp implements OtcRequestService {
         } else {
             throw new CantAcceptThisOffer("You are not in this offer", userId);
         }
-        return null;
     }
 
     public AccountNumberDto getRequiredAccount(

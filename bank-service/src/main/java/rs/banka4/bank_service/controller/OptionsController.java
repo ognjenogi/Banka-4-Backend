@@ -4,6 +4,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import rs.banka4.bank_service.controller.docs.OptionsApiDocumentation;
 import rs.banka4.bank_service.domain.options.dtos.BuyOptionRequestDto;
 import rs.banka4.bank_service.domain.options.dtos.UseOptionRequest;
 import rs.banka4.bank_service.service.abstraction.OptionService;
@@ -12,7 +13,7 @@ import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 @RestController
 @RequestMapping("/stock/options")
 @RequiredArgsConstructor
-public class OptionsController {
+public class OptionsController implements OptionsApiDocumentation {
     private final OptionService optionService;
 
     @GetMapping("/buy")
