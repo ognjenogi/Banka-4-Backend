@@ -565,7 +565,6 @@ public class SecuritiesControllerTests {
               "content": [
                 {
                   "assetType": OPTION,
-                  "ticker": "EX12704106P00170000",
                   "amount": 1,
                   "price": {"amount":75.14 , "currency": "USD"},
                   "profit": {"amount": -150.0, "currency": "USD"},
@@ -615,7 +614,6 @@ public class SecuritiesControllerTests {
             {
               "content": [
                 {
-                  "ticker": "EX12704106C00170000",
                   "amount": 1,
                   "price": {"amount": 75.14, "currency": "USD"},
                   "profit": {"amount": 9336.0, "currency": "USD"},
