@@ -18,7 +18,7 @@ public class ActuaryInfo {
     @Column(nullable = false)
     private boolean needApproval;
 
-    @Column(nullable = false)
+    @Column()
     private MonetaryAmount limit;
 
     @Column(nullable = false)
