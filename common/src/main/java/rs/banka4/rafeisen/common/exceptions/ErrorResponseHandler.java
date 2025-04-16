@@ -54,7 +54,7 @@ public class ErrorResponseHandler {
     public ResponseEntity<Map<String, ?>> handleNotImplementedResponse(NotImplementedException ex) {
         log.debug("TODO detected", ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-            .body(formatErrorBody(ex.getClass(), null));
+            .body(formatErrorBody("NotImplemented", null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
