@@ -110,6 +110,7 @@ public interface SecuritiesApiDocumentation {
         @Parameter(description = "Number of holdings per page (defaults to 10)")
         @RequestParam(defaultValue = "10") int size
     );
+
     @Operation(
         summary = "Get My Tax",
         description = "Retrieves the user's tax information for their account in RSD. "
@@ -125,8 +126,14 @@ public interface SecuritiesApiDocumentation {
                     schema = @Schema(implementation = UserTaxInfoDto.class)
                 )
             ),
-            @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
-            @ApiResponse(responseCode = "403", description = "Forbidden")
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            )
         }
     )
     public ResponseEntity<UserTaxInfoDto> getMyTax(Authentication auth);

@@ -2,12 +2,9 @@ package rs.banka4.bank_service.service.impl;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -169,19 +166,27 @@ public class SecuritiesServiceImpl implements SecuritiesService {
     public UserTaxInfoDto calculateTax(UUID myId) {
         var debts = userTaxDebtsRepository.findByAccount_Client_Id(myId);
 
-        var totalUnpaid = debts.stream()
-            .map(debt -> {
-                CurrencyCode accountCurrency = debt.getAccount().getCurrency();
-                if (!accountCurrency.equals(CurrencyCode.RSD)) {
-                    return exchangeRateService.convertCurrency(debt.getDebtAmount(), accountCurrency, CurrencyCode.RSD);
-                }
-                return debt.getDebtAmount();
-            })
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        var totalUnpaid =
+            debts.stream()
+                .map(debt -> {
+                    CurrencyCode accountCurrency =
+                        debt.getAccount()
+                            .getCurrency();
+                    if (!accountCurrency.equals(CurrencyCode.RSD)) {
+                        return exchangeRateService.convertCurrency(
+                            debt.getDebtAmount(),
+                            accountCurrency,
+                            CurrencyCode.RSD
+                        );
+                    }
+                    return debt.getDebtAmount();
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        var totalYearly = debts.stream()
-            .map(UserTaxDebts::getYearlyDebtAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        var totalYearly =
+            debts.stream()
+                .map(UserTaxDebts::getYearlyDebtAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new UserTaxInfoDto(totalYearly, totalUnpaid, "RSD");
     }

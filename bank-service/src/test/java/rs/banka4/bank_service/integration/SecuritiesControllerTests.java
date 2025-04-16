@@ -71,22 +71,35 @@ public class SecuritiesControllerTests {
     private UserRepository userRepository;
     @Autowired
     private UserTaxDebtsRepository userTaxDebtsRepository;
+
     private void createDummyTax(Client client) {
         var account = AccountObjectMother.generateBasicToAccount();
         account.setClient(client);
         userRepository.save(account.getEmployee());
         accountRepository.save(account);
-        var dept = UserTaxDebts.builder().debtAmount(BigDecimal.valueOf(100)).yearlyDebtAmount(BigDecimal.valueOf(1000)).account(account).build();
+        var dept =
+            UserTaxDebts.builder()
+                .debtAmount(BigDecimal.valueOf(100))
+                .yearlyDebtAmount(BigDecimal.valueOf(1000))
+                .account(account)
+                .build();
         userTaxDebtsRepository.save(dept);
     }
+
     private void createDummyTaxEur(Client client) {
         var account = AccountObjectMother.generateBasicEURFromAccount();
         account.setClient(client);
         userRepository.save(account.getEmployee());
         accountRepository.save(account);
-        var dept = UserTaxDebts.builder().debtAmount(BigDecimal.valueOf(50)).yearlyDebtAmount(BigDecimal.valueOf(200)).account(account).build();
+        var dept =
+            UserTaxDebts.builder()
+                .debtAmount(BigDecimal.valueOf(50))
+                .yearlyDebtAmount(BigDecimal.valueOf(200))
+                .account(account)
+                .build();
         userTaxDebtsRepository.save(dept);
     }
+
     private void createDummyAssetOwnership(
         User userId,
         Asset asset,
@@ -914,6 +927,7 @@ public class SecuritiesControllerTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+
     @Test
     public void testMyTaxCalculation() {
         Client client = createTestClient();
