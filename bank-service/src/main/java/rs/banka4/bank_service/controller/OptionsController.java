@@ -16,7 +16,7 @@ import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 public class OptionsController implements OptionsApiDocumentation {
     private final OptionService optionService;
 
-    @GetMapping("/buy")
+    @PostMapping("/buy")
     public void buyOption(
         @RequestBody BuyOptionRequestDto buyOptionRequestDto,
         Authentication auth
@@ -32,7 +32,7 @@ public class OptionsController implements OptionsApiDocumentation {
         );
     }
 
-    @GetMapping("/use")
+    @PostMapping("/use")
     public void useOption(@RequestBody UseOptionRequest useOptionRequest, Authentication auth) {
         UUID userId =
             ((AuthenticatedBankUserAuthentication) auth).getPrincipal()

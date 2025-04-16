@@ -85,6 +85,7 @@ public class OtcController implements OtcApiDocumentation {
     }
 
     @Override
+    @PostMapping("/accept")
     public ResponseEntity<Void> acceptOtcRequest(UUID id, Authentication auth) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId =
