@@ -118,9 +118,8 @@ public class OrderControllerTest {
             .bodyJson()
             .satisfies(json -> {
                 assertThat(json.toString()).contains("\"id\":");
-                assertThat(json.toString()).contains(
-                    "\"userId\":\"a4bf370e-2129-4116-9243-0c4ead0fe43e\""
-                );
+                assertThat(json.toString()).contains("\"firstName\":\"John\"");
+                assertThat(json.toString()).contains("\"lastName\":\"Doe\"");
                 assertThat(json.toString()).contains("\"assetTicker\":\"EX1\"");
                 assertThat(json.toString()).contains("\"orderType\":\"MARKET\"");
                 assertThat(json.toString()).contains("\"direction\":\"BUY\"");
