@@ -265,7 +265,7 @@ public class SecuritiesControllerTests {
     }
 
     @Test
-    public void testGetMyPortfolioWithStock() throws Exception {
+    public void testGetMyPortfolioWithStock() {
         final var ber1 = ExchangeGenerator.makeBer1();
         exchangeRepo.save(ber1);
         AssetGenerator.makeExampleAssets()
@@ -292,6 +292,7 @@ public class SecuritiesControllerTests {
             {
               "content": [
                 {
+                   "assetType": STOCK,
                   "ticker": "EX1",
                   "amount": 100,
                   "price": {"amount": 75.14, "currency": "USD"},
@@ -321,7 +322,7 @@ public class SecuritiesControllerTests {
     }
 
     @Test
-    public void testEmptyPortfolio() throws Exception {
+    public void testEmptyPortfolio() {
         createTestClient();
 
         String expectedJson = """
@@ -350,7 +351,7 @@ public class SecuritiesControllerTests {
     }
 
     @Test
-    public void testStockZeroProfit() throws Exception {
+    public void testStockZeroProfit() {
         Client client = createTestClient();
         final var ber1 = ExchangeGenerator.makeBer1();
         exchangeRepo.save(ber1);
@@ -532,6 +533,7 @@ public class SecuritiesControllerTests {
             {
               "content": [
                 {
+                  "assetType": OPTION,
                   "ticker": "EX12704106P00170000",
                   "amount": 1,
                   "price": {"amount":75.14 , "currency": "USD"},
@@ -636,6 +638,7 @@ public class SecuritiesControllerTests {
             {
               "content": [
                 {
+                  "assetType": FUTURE,
                   "ticker": "FUT",
                   "amount": 2,
                   "price": {"amount": 80.48, "currency": "USD"},
@@ -688,6 +691,7 @@ public class SecuritiesControllerTests {
             {
               "content": [
                 {
+                "assetType": FOREX_PAIR,
                   "ticker": "USD/EUR",
                   "amount": 1000,
                   "price": {"amount": 83.95, "currency": "USD"},

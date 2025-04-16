@@ -13,8 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.listing.db.Listing;
+import rs.banka4.bank_service.domain.options.db.Asset;
 import rs.banka4.bank_service.domain.options.db.Option;
 import rs.banka4.bank_service.domain.security.SecurityDto;
+import rs.banka4.bank_service.domain.security.forex.db.ForexPair;
+import rs.banka4.bank_service.domain.security.future.db.Future;
+import rs.banka4.bank_service.domain.security.responses.AssetTypeDto;
 import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
 import rs.banka4.bank_service.exceptions.AssetNotFound;
@@ -82,6 +86,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
 
 //            var lastModified=orderRepository.findNewestOrder(myId,asset,true);
             return new SecurityHoldingDto(
+                mapToAssetTypeDto(asset),
                 ticker,
                 totalAmount,
                 currentPrice,
@@ -152,4 +157,20 @@ public class SecuritiesServiceImpl implements SecuritiesService {
             });
     }
 
+    private AssetTypeDto mapToAssetTypeDto(Asset asset) {
+        if (asset instanceof Stock) {
+            return AssetTypeDto.STOCK;
+        } else if (asset instanceof Future) {
+            return AssetTypeDto.FUTURE;
+        } else if (asset instanceof ForexPair) {
+            return AssetTypeDto.FOREX_PAIR;
+        } else if (asset instanceof Option) {
+            return AssetTypeDto.OPTION;
+        }
+        throw new IllegalArgumentException(
+            "Unsupported asset type: "
+                + asset.getClass()
+                    .getName()
+        );
+    }
 }

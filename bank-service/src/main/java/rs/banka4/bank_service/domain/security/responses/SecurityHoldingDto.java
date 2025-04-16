@@ -6,6 +6,7 @@ import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 
 
 public record SecurityHoldingDto(
+    AssetTypeDto assetType,
     @Schema(
         description = "Ticker symbol of the security.",
         example = "AAPL"
