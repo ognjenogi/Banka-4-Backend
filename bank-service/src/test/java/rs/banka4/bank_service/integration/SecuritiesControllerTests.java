@@ -22,6 +22,7 @@ import rs.banka4.bank_service.domain.orders.db.Order;
 import rs.banka4.bank_service.domain.orders.db.OrderType;
 import rs.banka4.bank_service.domain.orders.db.Status;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
 import rs.banka4.bank_service.domain.user.User;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.generator.AccountObjectMother;
@@ -68,7 +69,24 @@ public class SecuritiesControllerTests {
     private ClientRepository clientRepo;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private UserTaxDebtsRepository userTaxDebtsRepository;
+    private void createDummyTax(Client client) {
+        var account = AccountObjectMother.generateBasicToAccount();
+        account.setClient(client);
+        userRepository.save(account.getEmployee());
+        accountRepository.save(account);
+        var dept = UserTaxDebts.builder().debtAmount(BigDecimal.valueOf(100)).yearlyDebtAmount(BigDecimal.valueOf(1000)).account(account).build();
+        userTaxDebtsRepository.save(dept);
+    }
+    private void createDummyTaxEur(Client client) {
+        var account = AccountObjectMother.generateBasicEURFromAccount();
+        account.setClient(client);
+        userRepository.save(account.getEmployee());
+        accountRepository.save(account);
+        var dept = UserTaxDebts.builder().debtAmount(BigDecimal.valueOf(50)).yearlyDebtAmount(BigDecimal.valueOf(200)).account(account).build();
+        userTaxDebtsRepository.save(dept);
+    }
     private void createDummyAssetOwnership(
         User userId,
         Asset asset,
@@ -889,8 +907,6 @@ public class SecuritiesControllerTests {
         String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
         mvc.get()
             .uri("/stock/securities/profit")
-            .param("page", "0")
-            .param("size", "10")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat()
@@ -898,4 +914,31 @@ public class SecuritiesControllerTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+    @Test
+    public void testMyTaxCalculation() {
+        Client client = createTestClient();
+
+        createDummyTax(client);
+        createDummyTaxEur(client);
+
+        String expectedJson = """
+                {
+                "paidTaxThisYear":1200.0,
+                "unpaidTaxThisMonth":6020.281359906214,
+                "currency":"RSD"
+                }
+            """;
+
+        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        mvc.get()
+            .uri("/stock/securities/tax")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .assertThat()
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo(expectedJson);
+    }
+
+
 }
