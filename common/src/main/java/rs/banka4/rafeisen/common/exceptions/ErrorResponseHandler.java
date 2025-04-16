@@ -50,7 +50,7 @@ public class ErrorResponseHandler {
             .body(formatErrorBody(ex.getClass(), ex.getExtra()));
     }
 
-    @ExceptionHandler(BaseApiException.class)
+    @ExceptionHandler(NotImplementedException.class)
     public ResponseEntity<Map<String, ?>> handleNotImplementedResponse(NotImplementedException ex) {
         log.debug("TODO detected", ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
