@@ -21,7 +21,7 @@ public interface OtcRequestService {
 
     void createOtc(OtcRequestCreateDto otcRequestCreateDto, UUID idMy);
 
-    OtcRequest acceptOtc(UUID requestId, UUID userId);
+    void acceptOtc(UUID requestId, UUID userId);
 
     AccountNumberDto getRequiredAccount(UUID userId, CurrencyCode currencyCode, BigDecimal premium);
 }

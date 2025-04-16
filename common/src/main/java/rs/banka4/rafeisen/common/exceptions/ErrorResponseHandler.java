@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,13 @@ public class ErrorResponseHandler {
         log.debug("Reporting API error in API call", ex);
         return ResponseEntity.status(ex.getStatus())
             .body(formatErrorBody(ex.getClass(), ex.getExtra()));
+    }
+
+    @ExceptionHandler(BaseApiException.class)
+    public ResponseEntity<Map<String, ?>> handleNotImplementedResponse(NotImplementedException ex) {
+        log.debug("Transaction service is not finished yet", ex);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(formatErrorBody(ex.getClass(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

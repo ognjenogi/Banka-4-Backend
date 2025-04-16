@@ -84,6 +84,17 @@ public class OtcController implements OtcApiDocumentation {
             .build();
     }
 
+    @Override
+    public ResponseEntity<Void> acceptOtcRequest(UUID id, Authentication auth) {
+        final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
+        var myId =
+            ourAuth.getPrincipal()
+                .userId();
+        otcRequestService.acceptOtc(id, myId);
+        return ResponseEntity.ok()
+            .build();
+    }
+
     private ResponseEntity<Page<OtcRequestDto>> getRequestHelper(
         int page,
         int size,
