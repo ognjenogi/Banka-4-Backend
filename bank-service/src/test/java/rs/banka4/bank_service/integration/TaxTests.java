@@ -37,26 +37,9 @@ public class TaxTests {
     @Autowired
     private MockMvcTester mvc;
     @Autowired
-    private AssetOwnershipRepository assetOwnershipRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
     private UserGenerator userGen;
     @Autowired
     private AccountRepository accountRepository;
-    @Autowired
-    private AssetRepository assetRepository;
-    @Autowired
-    private SecurityRepository securityRepository;
-    @Autowired
-    private ListingRepository listingRepo;
-    @Autowired
-    private ExchangeRepository exchangeRepo;
-    @Autowired
-    private ListingDailyPriceInfoRepository listingHistoryRepo;
-    @Autowired
-    private ClientRepository clientRepo;
     @Autowired
     private TaxServiceImp taxService;
     @Autowired
@@ -98,7 +81,10 @@ public class TaxTests {
             );
         return userRepository.save(assetOwner);
     }
-
+    /**
+     * Verifies that the tax summary endpoint returns the correct unpaid tax total
+     * (converted to RSD) for a single client who has debts in RSD and EUR.
+     */
     @Test
     public void testTaxSummary() {
         Client client = createTestClient();
@@ -137,7 +123,11 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
-
+    /**
+     * Ensures that when multiple clients each have multiple accounts with debts,
+     * the summary endpoint returns an entry for each client,
+     * with correct aggregation of unpaid tax across all their accounts.
+     */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsers() {
         Client client1 = createTestClient();
@@ -182,6 +172,10 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+    /**
+     * Verifies that the summary endpoint filters by first name (partial match)
+     * and only returns clients whose first name contains the given substring.
+     */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsersSearchByName() {
         Client client1 = createTestClient();
@@ -220,6 +214,10 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+    /**
+     * Verifies that the summary endpoint filters by last name (partial match)
+     * and only returns clients whose last name contains the given substring.
+     */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsersSearchByLastName() {
         Client client1 = createTestClient();
@@ -258,6 +256,10 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+    /**
+     * Verifies that applying both firstName and lastName filters together
+     * returns only the clients matching both criteria.
+     */
     @Test
     public void testTaxSummaryMultipleAccountsMultipleUsersSearchByFullName() {
         Client client1 = createTestClient();
@@ -297,6 +299,10 @@ public class TaxTests {
             .bodyJson()
             .isLenientlyEqualTo(expectedJson);
     }
+    /**
+     * Tests that collecting tax for a specific client zeros out all their debts
+     * and credits exactly the same amount (in the correct currency) to the state account.
+     */
     @Test
     public void testTaxSpecificClient() {
         Client client1 = createTestClient();
@@ -321,6 +327,10 @@ public class TaxTests {
         var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
         assertEquals(stateBalance.add(debt).stripTrailingZeros(), stateBalanceAfter.stripTrailingZeros());
     }
+    /**
+     * Tests tax collection for a client whose debts are denominated in EUR.
+     * Verifies that the EUR amount is converted to RSD before crediting the state account.
+     */
     @Test
     public void testTaxSpecificClientNotRSD() {
         Client client1 = createTestClient();
@@ -344,6 +354,10 @@ public class TaxTests {
         debt = exchangeRateService.convertCurrency(debt, CurrencyCode.EUR,CurrencyCode.RSD);
         assertEquals(stateBalance.add(debt).stripTrailingZeros().round(MathContext.DECIMAL32), stateBalanceAfter.stripTrailingZeros().round(MathContext.DECIMAL32));
     }
+    /**
+     * Ensures that attempting to collect tax for a client with insufficient funds
+     * results in a FORBIDDEN (HTTP 403) response and leaves their debts unchanged.
+     */
     @Test
     public void testTaxSpecificClientInsufficientFunds() {
         Client client1 = createTestClient();
@@ -360,6 +374,11 @@ public class TaxTests {
             .contentType(MediaType.APPLICATION_JSON)
             .assertThat().hasStatus(HttpStatus.FORBIDDEN);
     }
+    /**
+     * Tests the "trigger-monthly" endpoint: it should collect and clear debts for all clients,
+     * crediting the sum of all their debts to the state account,
+     * including proper conversion for non‑RSD debts.
+     */
     @Test
     public void testTaxAllClients() {
         Client client1 = createTestClient();
@@ -385,6 +404,11 @@ public class TaxTests {
         var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
         assertEquals(stateBalance.add(debt).add(debt2).stripTrailingZeros().round(MathContext.DECIMAL32), stateBalanceAfter.stripTrailingZeros().round(MathContext.DECIMAL32));
     }
+    /**
+     * Verifies that the "trigger-monthly" job will still collect from clients
+     * who have sufficient funds, even if one of the clients has insufficient funds.
+     * Only the solvable debts are collected.
+     */
     @Test
     public void testTaxAllClientsOneInsufficientFunds() {
         Client client1 = createTestClient();
@@ -405,6 +429,10 @@ public class TaxTests {
         var stateBalanceAfter = accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER).orElseThrow().getAvailableBalance();
         assertEquals(stateBalance.add(debt).stripTrailingZeros().round(MathContext.DECIMAL32), stateBalanceAfter.stripTrailingZeros().round(MathContext.DECIMAL32));
     }
+    /**
+     * Tests the yearly cleanup operation, which should reset all clients' yearlyDebtAmount
+     * back to zero without touching the monthly debt amounts.
+     */
     @Test
     public void testTaxYearlyClean() {
         Client client1 = createTestClient();
