@@ -169,4 +169,35 @@ public interface OtcApiDocumentation {
         ) OtcRequestCreateDto otcRequestCreateDto,
         Authentication auth
     );
+
+    @Operation(
+        summary = "Accept OTC Request",
+        description = "Accepts otc request and makes an option for buyer, seller gets his premium money from buyer in exchange",
+        security = @SecurityRequirement(name = "bearerAuth"),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "OTC request successfully accepted"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "OTC request not found"
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden"
+            ),
+            @ApiResponse(
+                responseCode = "503",
+                description = "Transaction service not implemented yet"
+            )
+        }
+    )
+    ResponseEntity<Void> acceptOtcRequest(
+        @Parameter(
+            description = "Unique identifier of the OTC request that is being accepted",
+            required = true
+        ) @PathVariable UUID id,
+        Authentication auth
+    );
 }
