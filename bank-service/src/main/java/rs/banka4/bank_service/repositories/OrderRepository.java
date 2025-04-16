@@ -15,6 +15,7 @@ import rs.banka4.bank_service.domain.options.db.Asset;
 import rs.banka4.bank_service.domain.orders.db.Direction;
 import rs.banka4.bank_service.domain.orders.db.Order;
 import rs.banka4.bank_service.domain.orders.db.Status;
+import rs.banka4.bank_service.domain.security.stock.db.Stock;
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query(
@@ -58,14 +59,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
              SELECT o FROM Order o
              WHERE o.user.id = :userId
              AND o.asset = :asset
-             AND o.direction = :direction
              AND o.isDone = :isDone
              ORDER BY o.lastModified DESC
         """)
-    Order findNewestOrder(
+    Optional<Order> findNewestOrder(
         @Param("userId") UUID userId,
         @Param("asset") Asset asset,
-        @Param("direction") Direction direction,
         @Param("isDone") boolean isDone
     );
 
