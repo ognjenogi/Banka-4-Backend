@@ -58,7 +58,8 @@ public class SecuritiesServiceImpl implements SecuritiesService {
             var asset =
                 ownership.getId()
                     .getAsset();
-            int totalAmount = ownership.getPrivateAmount() + ownership.getPublicAmount();
+            int publicAmount = asset instanceof Stock ? ownership.getPublicAmount() : 0;
+            int totalAmount = ownership.getPrivateAmount() + publicAmount;
             Optional<Listing> optionalListing;
             if (asset instanceof Option option) {
                 optionalListing =
@@ -91,7 +92,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
                 totalAmount,
                 currentPrice,
                 profit,
-                asset instanceof Stock ? ownership.getPublicAmount() : 0,
+                publicAmount,
                 OffsetDateTime.now()
             );
         });
