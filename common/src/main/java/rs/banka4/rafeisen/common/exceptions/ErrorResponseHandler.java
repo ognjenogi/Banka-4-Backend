@@ -52,7 +52,7 @@ public class ErrorResponseHandler {
 
     @ExceptionHandler(BaseApiException.class)
     public ResponseEntity<Map<String, ?>> handleNotImplementedResponse(NotImplementedException ex) {
-        log.debug("Transaction service is not finished yet", ex);
+        log.debug("TODO detected", ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
             .body(formatErrorBody(ex.getClass(), null));
     }
