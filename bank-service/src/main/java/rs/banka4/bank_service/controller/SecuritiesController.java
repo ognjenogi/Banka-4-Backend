@@ -13,7 +13,6 @@ import rs.banka4.bank_service.controller.docs.SecuritiesApiDocumentation;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.security.SecurityDto;
 import rs.banka4.bank_service.domain.security.responses.SecurityHoldingDto;
-import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
 import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
 import rs.banka4.bank_service.service.abstraction.SecuritiesService;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
@@ -59,6 +58,7 @@ public class SecuritiesController implements SecuritiesApiDocumentation {
         var amount = securityService.calculateTotalProfit(myId);
         return ResponseEntity.ok(amount);
     }
+
     @GetMapping("/tax")
     public ResponseEntity<UserTaxInfoDto> getMyTax(Authentication auth) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
