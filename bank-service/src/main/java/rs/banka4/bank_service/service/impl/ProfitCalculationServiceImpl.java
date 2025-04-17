@@ -1,4 +1,4 @@
-package rs.banka4.bank_service.utils.profit;
+package rs.banka4.bank_service.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.options.db.Asset;
@@ -18,7 +19,10 @@ import rs.banka4.bank_service.domain.orders.db.Order;
 import rs.banka4.bank_service.domain.security.forex.db.ForexPair;
 import rs.banka4.bank_service.domain.security.future.db.Future;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.exceptions.AssetNotFound;
+import rs.banka4.bank_service.repositories.ListingRepository;
 import rs.banka4.bank_service.repositories.OrderRepository;
+import rs.banka4.bank_service.service.abstraction.ProfitCalculationService;
 
 /**
  * A unified calculator that, for any asset type (Stock, Future, ForexPair, Option), determines
@@ -26,8 +30,9 @@ import rs.banka4.bank_service.repositories.OrderRepository;
  */
 @Service
 @RequiredArgsConstructor
-public class ProfitCalculator {
+public class ProfitCalculationServiceImpl implements ProfitCalculationService {
     private final OrderRepository orderRepository;
+    private final ListingRepository listingRepository;
 
     /**
      * Calculates total profit (unrealized) for the given user and asset.
@@ -117,6 +122,28 @@ public class ProfitCalculator {
                 .multiply(multiplier);
 
         return new MonetaryAmount(unrealized, currentPrice.getCurrency());
+    }
+
+    /**
+     * Calculates profit (unrealized/realized) for the given option.
+     */
+    public MonetaryAmount calculateOptionProfit(Option option) {
+        var optionalListing =
+            listingRepository.getLatestListing(
+                option.getStock()
+                    .getId(),
+                Limit.of(1)
+            );
+        var currentPrice =
+            optionalListing.map(
+                listing -> new MonetaryAmount(
+                    listing.getBid(),
+                    listing.getExchange()
+                        .getCurrency()
+                )
+            )
+                .orElseThrow(AssetNotFound::new);
+        return calculateOptionProfit(currentPrice, option);
     }
 
     private BigDecimal computeFee(Order order, BigDecimal baseCost) {
