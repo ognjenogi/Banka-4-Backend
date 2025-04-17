@@ -27,6 +27,7 @@ import rs.banka4.bank_service.repositories.AssetOwnershipRepository;
 import rs.banka4.bank_service.repositories.ListingRepository;
 import rs.banka4.bank_service.repositories.UserTaxDebtsRepository;
 import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
+import rs.banka4.bank_service.service.abstraction.ProfitCalculationService;
 import rs.banka4.bank_service.service.abstraction.SecuritiesService;
 import rs.banka4.bank_service.service.abstraction.TaxCalculationService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -37,7 +38,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
 
     private final AssetOwnershipRepository assetOwnershipRepository;
     private final ListingRepository listingRepository;
-    private final ProfitCalculationServiceImpl profitCalculator;
+    private final ProfitCalculationService profitCalculator;
     private final ExchangeRateService exchangeRateService;
     private final UserTaxDebtsRepository userTaxDebtsRepository;
     private final TaxCalculationService taxCalculationService;

@@ -15,6 +15,7 @@ import rs.banka4.bank_service.domain.orders.db.Status;
 import rs.banka4.bank_service.exceptions.InsufficientVolume;
 import rs.banka4.bank_service.repositories.OrderRepository;
 import rs.banka4.bank_service.service.abstraction.ListingService;
+import rs.banka4.bank_service.service.abstraction.TaxService;
 
 @Slf4j
 @Service
@@ -23,6 +24,7 @@ public class OrderExecutionService {
 
     private final OrderRepository orderRepository;
     private final ListingService listingService;
+    private final TaxService taxService;
 
     /**
      * Processes an order in an all-or-nothing manner. If a matching order is found, it executes the
@@ -68,7 +70,15 @@ public class OrderExecutionService {
         orderRepository.save(order);
 
         // TODO: Make transaction between order's client and matchedOrder's client
-
+        /**
+         * Calculates and records tax for a SELL order. BUY orders are ignored.
+         * <p>
+         * If you persist SELL orders in multiple places, be sure to invoke this method wherever
+         * those saves occur; otherwise, a single call here is sufficient.
+         *
+         * @param order the order just saved; only SELL orders trigger tax processing
+         */
+        taxService.addTaxForOrderToDB(order);
         orderRepository.save(matchedOrder);
 
         log.info(
@@ -151,7 +161,15 @@ public class OrderExecutionService {
                 orderRepository.save(lockedOrder);
 
                 // TODO: Make transaction between order's client and matchedOrder's client
-
+                /**
+                 * Calculates and records tax for a SELL order. BUY orders are ignored.
+                 * <p>
+                 * If you persist SELL orders in multiple places, be sure to invoke this method
+                 * wherever those saves occur; otherwise, a single call here is sufficient.
+                 *
+                 * @param order the order just saved; only SELL orders trigger tax processing
+                 */
+                taxService.addTaxForOrderToDB(order);
                 log.info(
                     "[Partial] After execution: remainingPortions is {} for order {}.",
                     remainingPortions,
