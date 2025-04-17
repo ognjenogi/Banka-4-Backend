@@ -565,7 +565,6 @@ public class SecuritiesControllerTests {
               "content": [
                 {
                   "assetType": OPTION,
-                  "ticker": "EX12704106P00170000",
                   "amount": 1,
                   "price": {"amount":75.14 , "currency": "USD"},
                   "profit": {"amount": -150.0, "currency": "USD"},
@@ -615,7 +614,6 @@ public class SecuritiesControllerTests {
             {
               "content": [
                 {
-                  "ticker": "EX12704106C00170000",
                   "amount": 1,
                   "price": {"amount": 75.14, "currency": "USD"},
                   "profit": {"amount": 9336.0, "currency": "USD"},
@@ -939,6 +937,29 @@ public class SecuritiesControllerTests {
                 {
                 "paidTaxThisYear":1200.0,
                 "unpaidTaxThisMonth":6020.281359906214,
+                "currency":"RSD"
+                }
+            """;
+
+        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        mvc.get()
+            .uri("/stock/securities/tax")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .assertThat()
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo(expectedJson);
+    }
+
+    @Test
+    public void testMyTaxCalculationNoTax() {
+        Client client = createTestClient();
+
+        String expectedJson = """
+                {
+                "paidTaxThisYear":0,
+                "unpaidTaxThisMonth":0,
                 "currency":"RSD"
                 }
             """;

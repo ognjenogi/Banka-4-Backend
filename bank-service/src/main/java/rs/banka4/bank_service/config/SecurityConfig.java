@@ -97,6 +97,27 @@ public class SecurityConfig {
                     .hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/stock/actuaries/update/**")
                     .hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/stock/tax/trigger-monthly")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.POST, "/stock/tax/collect/**")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
+                    .requestMatchers(HttpMethod.GET, "/stock/tax/summary")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("SUPERVISOR"),
+                            AuthorityAuthorizationManager.hasAuthority("ADMIN")
+                        )
+                    )
                     /* Global fallback. */
                     .anyRequest()
                     .authenticated()
