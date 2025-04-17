@@ -25,25 +25,22 @@ import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
 import rs.banka4.bank_service.exceptions.AssetNotFound;
 import rs.banka4.bank_service.repositories.AssetOwnershipRepository;
 import rs.banka4.bank_service.repositories.ListingRepository;
-import rs.banka4.bank_service.repositories.OrderRepository;
 import rs.banka4.bank_service.repositories.UserTaxDebtsRepository;
 import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
-import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.abstraction.SecuritiesService;
-import rs.banka4.bank_service.utils.tax.TaxCalculationUtill;
+import rs.banka4.bank_service.service.abstraction.TaxCalculationService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
 @Service
 @RequiredArgsConstructor
 public class SecuritiesServiceImpl implements SecuritiesService {
 
-    private final OrderRepository orderRepository;
-    private final ListingService listingService;
     private final AssetOwnershipRepository assetOwnershipRepository;
     private final ListingRepository listingRepository;
     private final ProfitCalculationServiceImpl profitCalculator;
     private final ExchangeRateService exchangeRateService;
     private final UserTaxDebtsRepository userTaxDebtsRepository;
+    private final TaxCalculationService taxCalculationService;
 
     @Override
     public ResponseEntity<Page<SecurityDto>> getSecurities(
@@ -164,7 +161,7 @@ public class SecuritiesServiceImpl implements SecuritiesService {
     @Override
     public UserTaxInfoDto calculateTax(UUID myId) {
         var debts = userTaxDebtsRepository.findByAccount_Client_Id(myId);
-        return TaxCalculationUtill.calculateTax(debts, exchangeRateService);
+        return taxCalculationService.calculateTax(debts);
     }
 
 

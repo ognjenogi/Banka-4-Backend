@@ -1,4 +1,4 @@
-package rs.banka4.bank_service.utils.tax;
+package rs.banka4.bank_service.service.impl;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
 import rs.banka4.bank_service.domain.taxes.db.dto.UserTaxInfoDto;
@@ -18,38 +18,18 @@ import rs.banka4.bank_service.repositories.AccountRepository;
 import rs.banka4.bank_service.repositories.TransactionRepository;
 import rs.banka4.bank_service.repositories.UserTaxDebtsRepository;
 import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
-import rs.banka4.bank_service.service.abstraction.TransactionService;
+import rs.banka4.bank_service.service.abstraction.TaxCalculationService;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class TaxCalculationUtill {
-    private final TransactionService transactionService;
+public class TaxCalculationServiceImpl implements TaxCalculationService {
     private final TransactionRepository transactionRepository;
     private final ExchangeRateService exchangeRateService;
     private final UserTaxDebtsRepository userTaxDebtsRepository;
     private final AccountRepository accountRepository;
 
-    /**
-     * Aggregates a list of {@link UserTaxDebts} into a single {@link UserTaxInfoDto}.
-     * <p>
-     * Converts any debt amounts not in RSD into RSD using the provided {@link ExchangeRateService},
-     * sums up all unpaid and yearly debts, and returns them in a DTO.
-     *
-     * @param debts the list of debt entries for a single user
-     * @param exchangeRateService the service to use for currency conversion
-     * @return a {@link UserTaxInfoDto} containing:
-     *         <ul>
-     *         <li><b>yearlyDebtAmount</b>: total of {@link UserTaxDebts#getYearlyDebtAmount()}</li>
-     *         <li><b>unpaidTaxThisMonth</b>: sum of {@link UserTaxDebts#getDebtAmount()}, all
-     *         converted to RSD</li>
-     *         <li><b>currency</b>: always {@link CurrencyCode#RSD}</li>
-     *         </ul>
-     */
-    public static UserTaxInfoDto calculateTax(
-        List<UserTaxDebts> debts,
-        ExchangeRateService exchangeRateService
-    ) {
+    public UserTaxInfoDto calculateTax(List<UserTaxDebts> debts) {
         var totalUnpaid =
             debts.stream()
                 .map(debt -> {
@@ -75,19 +55,6 @@ public class TaxCalculationUtill {
         return new UserTaxInfoDto(totalYearly, totalUnpaid, CurrencyCode.RSD);
     }
 
-    /**
-     * Performs a tax payment by debiting the user's account and crediting the state account.
-     * <p>
-     * Looks up the user's outstanding debt in {@link UserTaxDebts}, ensures sufficient funds,
-     * performs the currency conversion if needed, updates both account balances, zeroes out the
-     * user's debt, and logs a {@link Transaction}.
-     *
-     * @param accountFrom the user's account from which the tax will be deducted; must match an
-     *        existing {@link UserTaxDebts#getAccount()}
-     * @param accountTo the state account to which the tax (in RSD) will be credited
-     * @throws InsufficientFunds if the user's available balance is less than the debt amount
-     * @throws IllegalArgumentException if no debt entry exists for {@code accountFrom}
-     */
     @Transactional
     public void chargeTax(Account accountFrom, Account accountTo) {
         /// This will never throw because we call this function for acc from UserTaxDebt table

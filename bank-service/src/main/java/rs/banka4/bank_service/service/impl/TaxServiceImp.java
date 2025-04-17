@@ -13,16 +13,14 @@ import rs.banka4.bank_service.exceptions.transaction.InsufficientFunds;
 import rs.banka4.bank_service.repositories.AccountRepository;
 import rs.banka4.bank_service.repositories.UserTaxDebtsRepository;
 import rs.banka4.bank_service.runners.TestDataRunner;
-import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
+import rs.banka4.bank_service.service.abstraction.TaxCalculationService;
 import rs.banka4.bank_service.service.abstraction.TaxService;
-import rs.banka4.bank_service.utils.tax.TaxCalculationUtill;
 
 @Service
 @RequiredArgsConstructor
 public class TaxServiceImp implements TaxService {
     private final UserTaxDebtsRepository userTaxDebtsRepository;
-    private final ExchangeRateService exchangeRateService;
-    private final TaxCalculationUtill taxCalculationUtill;
+    private final TaxCalculationService taxCalculationService;
     private final AccountRepository accountRepository;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TaxServiceImp.class);
 
@@ -31,7 +29,7 @@ public class TaxServiceImp implements TaxService {
         return userTaxDebtsRepository.findClientsWithDebt(firstName, lastName, of)
             .map(user -> {
                 var debts = userTaxDebtsRepository.findByAccount_Client_Id(user.getId());
-                var debtTotal = TaxCalculationUtill.calculateTax(debts, exchangeRateService);
+                var debtTotal = taxCalculationService.calculateTax(debts);
                 return new TaxableUserDto(
                     user.getId(),
                     user.getFirstName(),
@@ -49,7 +47,7 @@ public class TaxServiceImp implements TaxService {
         var stateAcc =
             accountRepository.findAccountByAccountNumber(TestDataRunner.STATE_ACCOUNT_NUMBER)
                 .orElseThrow(() -> new IllegalArgumentException("State account not found"));
-        debts.forEach(debt -> taxCalculationUtill.chargeTax(debt.getAccount(), stateAcc));
+        debts.forEach(debt -> taxCalculationService.chargeTax(debt.getAccount(), stateAcc));
     }
 
     @Scheduled(cron = "0 0 0 1 * *")
@@ -61,7 +59,7 @@ public class TaxServiceImp implements TaxService {
         userTaxDebtsRepository.findAll()
             .forEach(debt -> {
                 try {
-                    taxCalculationUtill.chargeTax(debt.getAccount(), stateAcc);
+                    taxCalculationService.chargeTax(debt.getAccount(), stateAcc);
                 } catch (InsufficientFunds e) {
                     logger.error("Insufficient funds in account " + debt.getAccount());
                 }
