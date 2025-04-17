@@ -137,6 +137,88 @@ public class ProfitCalculationServiceImpl implements ProfitCalculationService {
     }
 
     /**
+     * Calculate realized profit (P&L) for exactly one sell order, using FIFO matching against prior
+     * buys (including partial fills), and accounting for both buy- and sell-side fees.
+     *
+     * @param sellOrder the SELL {@link Order} for which we want realized profit
+     * @return a {@link MonetaryAmount} in the sell order’s currency
+     */
+    public MonetaryAmount calculateRealizedProfitForSell(Order sellOrder) {
+        var userId =
+            sellOrder.getUser()
+                .getId();
+        var asset = sellOrder.getAsset();
+        var sellQty =
+            BigDecimal.valueOf(sellOrder.getQuantity() - (sellOrder.getRemainingPortions()));
+        var sellGross =
+            sellOrder.getPricePerUnit()
+                .getAmount()
+                .multiply(sellQty);
+        var sellFee = computeFee(sellOrder, sellGross);
+        var sellNet = sellGross.subtract(sellFee);
+
+        var buyOrders =
+            orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
+                userId,
+                asset,
+                Direction.BUY,
+                true
+            )
+                .stream()
+                .filter(
+                    o -> !o.getLastModified()
+                        .isAfter(sellOrder.getLastModified())
+                )
+                .sorted(Comparator.comparing(Order::getCreatedAt))
+                .toList();
+
+        var lots = new ArrayDeque<>();
+        for (var buy : buyOrders) {
+            var qty = BigDecimal.valueOf(buy.getQuantity());
+            var grossCost =
+                buy.getPricePerUnit()
+                    .getAmount()
+                    .multiply(qty);
+            var fee = computeFee(buy, grossCost);
+            lots.addLast(new Lot(qty, grossCost.add(fee)));
+        }
+
+        var remainingToMatch = sellQty;
+        var consumedCost = BigDecimal.ZERO;
+
+        while (remainingToMatch.compareTo(BigDecimal.ZERO) > 0 && !lots.isEmpty()) {
+            Lot head = (Lot) lots.peekFirst();
+            int cmp = head.quantity.compareTo(remainingToMatch);
+
+            if (cmp > 0) {
+                var fraction = remainingToMatch.divide(head.quantity, 8, RoundingMode.HALF_UP);
+                var costForPortion = head.cost.multiply(fraction);
+                consumedCost = consumedCost.add(costForPortion);
+
+                head.cost = head.cost.subtract(costForPortion);
+                head.quantity = head.quantity.subtract(remainingToMatch);
+                remainingToMatch = BigDecimal.ZERO;
+
+            } else {
+                consumedCost = consumedCost.add(head.cost);
+                remainingToMatch = remainingToMatch.subtract(head.quantity);
+                lots.removeFirst();
+            }
+        }
+        /// This will never throw
+        if (remainingToMatch.compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalStateException("You are trying to sell more then you have");
+        }
+
+        var profit = sellNet.subtract(consumedCost);
+        return new MonetaryAmount(
+            profit,
+            sellOrder.getPricePerUnit()
+                .getCurrency()
+        );
+    }
+
+    /**
      * Calculates profit (unrealized/realized) for the given option.
      */
     public MonetaryAmount calculateOptionProfit(Option option) {

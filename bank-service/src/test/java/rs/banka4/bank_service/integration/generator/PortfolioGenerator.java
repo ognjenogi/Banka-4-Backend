@@ -96,7 +96,7 @@ public class PortfolioGenerator {
         assetOwnershipRepository.save(ownership);
     }
 
-    public void createDummyBuyOrder(
+    public Order createDummyBuyOrder(
         Client userId,
         Asset asset,
         int quantity,
@@ -131,10 +131,10 @@ public class PortfolioGenerator {
                 .account(account)
                 .used(false)
                 .build();
-        orderRepository.save(buyOrder);
+        return orderRepository.save(buyOrder);
     }
 
-    public void createDummyBuyOrder2(
+    public Order createDummyBuyOrder2(
         Client userId,
         Asset asset,
         int quantity,
@@ -168,7 +168,7 @@ public class PortfolioGenerator {
                 .account(account)
                 .used(false)
                 .build();
-        orderRepository.save(buyOrder);
+        return orderRepository.save(buyOrder);
     }
 
     public void createDummyBuyOrderSTOP(
@@ -209,7 +209,7 @@ public class PortfolioGenerator {
         orderRepository.save(buyOrder);
     }
 
-    public void createDummySellOrder(
+    public Order createDummySellOrder(
         Client userId,
         Asset asset,
         int quantity,
@@ -247,7 +247,7 @@ public class PortfolioGenerator {
                 .account(account)
                 .used(false)
                 .build();
-        orderRepository.save(buyOrder);
+        return orderRepository.save(buyOrder);
     }
 
     public Client createTestClient() {
