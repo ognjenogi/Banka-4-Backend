@@ -35,7 +35,7 @@ EXCHANGERATE_API_KEY=776879617265796f7572656164696e6774686973
 
 Use one of these two commands:
 ```
-docker compose exec user_service_db psql -U user-service user-service
+docker compose exec bank_service_db psql -U bank-service bank-service
 docker compose exec notification_service_db psql -U notification-service notification-service
 ```
 
