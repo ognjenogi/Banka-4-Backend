@@ -39,6 +39,8 @@ public class SecuritiesControllerTests {
     private ListingDailyPriceInfoRepository listingHistoryRepo;
     @Autowired
     private PortfolioGenerator portfolioGenerator;
+    @Autowired
+    private OrderRepository orderRepository;
 
 
     @Test
@@ -638,6 +640,72 @@ public class SecuritiesControllerTests {
                   "amount": 150,
                   "price": {"amount": 75.14, "currency": "USD"},
                   "profit": {"amount": 8265.75, "currency": "USD"},
+                  "publicAmount": 0
+                }
+              ],
+              "page": {
+                "size": 10,
+                "number": 0,
+                "totalElements": 1,
+                "totalPages": 1
+              }
+            }
+            """;
+
+        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        mvc.get()
+            .uri("/stock/securities/me")
+            .param("page", "0")
+            .param("size", "10")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .assertThat()
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo(expectedJson);
+    }
+
+    @Test
+    public void testPartialSellsNotSoldAll() {
+        Client client = portfolioGenerator.createTestClient();
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        var stock = securityRepository.findById(AssetGenerator.STOCK_EX1_UUID);
+        ListingGenerator.makeExampleListings(
+            stock.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        portfolioGenerator.createDummyAssetOwnership(client, stock.get(), 150, 0, 0);
+        portfolioGenerator.createDummyBuyOrder(
+            client,
+            stock.get(),
+            200,
+            BigDecimal.valueOf(20),
+            CurrencyCode.USD
+        );
+        var sellOrder =
+            portfolioGenerator.createDummySellOrder(
+                client,
+                stock.get(),
+                50,
+                BigDecimal.valueOf(25),
+                CurrencyCode.USD
+            );
+        sellOrder.setRemainingPortions(10);
+        sellOrder.setDone(false);
+        orderRepository.save(sellOrder);
+        String expectedJson = """
+            {
+              "content": [
+                {
+                  "ticker": "EX1",
+                  "amount": 150,
+                  "price": {"amount": 75.14, "currency": "USD"},
+                  "profit": {"amount": 8816.8, "currency": "USD"},
                   "publicAmount": 0
                 }
               ],

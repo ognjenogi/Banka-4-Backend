@@ -2,6 +2,7 @@ package rs.banka4.bank_service.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -56,6 +57,17 @@ public class ProfitCalculationServiceImpl implements ProfitCalculationService {
                 Direction.SELL,
                 true
             );
+        sellOrders.addAll(
+            orderRepository.findByUserIdAndAssetAndDirectionAndIsDone(
+                userId,
+                asset,
+                Direction.SELL,
+                false
+            )
+                .stream()
+                .peek(o -> o.setQuantity(o.getQuantity() - o.getRemainingPortions()))
+                .toList()
+        );
 
         buyOrders.sort(Comparator.comparing(Order::getCreatedAt));
         sellOrders.sort(Comparator.comparing(Order::getCreatedAt));
