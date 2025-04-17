@@ -729,7 +729,7 @@ public class TaxTests {
             0,
             first.get()
                 .getDebtAmount()
-                .compareTo(BigDecimal.valueOf(50))
+                .compareTo(BigDecimal.valueOf(7.5))
         );
 
         // add another 20 USD
@@ -743,7 +743,7 @@ public class TaxTests {
         assertEquals(
             0,
             updated.getDebtAmount()
-                .compareTo(BigDecimal.valueOf(70))
+                .compareTo(BigDecimal.valueOf(10.50))
         );
 
         // adding zero or negative should be no‐op
@@ -758,7 +758,7 @@ public class TaxTests {
             userTaxDebtsRepository.findByAccount_AccountNumber(account.getAccountNumber())
                 .get()
                 .getDebtAmount()
-                .compareTo(BigDecimal.valueOf(70))
+                .compareTo(BigDecimal.valueOf(10.50))
         );
     }
 
