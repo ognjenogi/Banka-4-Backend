@@ -124,7 +124,7 @@ public class TaxTests {
             }
             """;
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -186,7 +186,7 @@ public class TaxTests {
             }`
             """;
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -240,7 +240,7 @@ public class TaxTests {
             }`
             """;
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
             .param("firstName", "Joh")
@@ -295,7 +295,7 @@ public class TaxTests {
             }`
             """;
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
             .param("lastName", "Smit")
@@ -350,7 +350,7 @@ public class TaxTests {
             }`
             """;
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.get()
             .uri("/stock/tax/summary")
             .param("lastName", "Smi")
@@ -390,7 +390,7 @@ public class TaxTests {
             userTaxDebtsRepository
         );
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.post()
             .uri("/stock/tax/collect/" + client1.getId())
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -434,7 +434,7 @@ public class TaxTests {
                 userTaxDebtsRepository
             );
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.post()
             .uri("/stock/tax/collect/" + client1.getId())
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -498,6 +498,40 @@ public class TaxTests {
     }
 
     /**
+     * Ensures that attempting to collect tax for a client using clients jwt results in a FORBIDDEN
+     * (HTTP 403) response and leaves their debts unchanged.
+     */
+    @Test
+    public void testTaxSpecificClientUnauthorized() {
+        Client client1 = createTestClient();
+        Client client2 = createTestClient2();
+        Client client3 = createTestClient3();
+        var stateAcc = createStateAccount(client3);
+        UserTaxGenerator.createMultipleDebts(
+            client1,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+        UserTaxGenerator.createMultipleDebts(
+            client2,
+            2,
+            userRepository,
+            accountRepository,
+            userTaxDebtsRepository
+        );
+
+        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        mvc.post()
+            .uri("/stock/tax/collect/" + client1.getId())
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .assertThat()
+            .hasStatus(HttpStatus.FORBIDDEN);
+    }
+
+    /**
      * Tests the "trigger-monthly" endpoint: it should collect and clear debts for all clients,
      * crediting the sum of all their debts to the state account, including proper conversion for
      * non‑RSD debts.
@@ -526,7 +560,7 @@ public class TaxTests {
                 userTaxDebtsRepository
             );
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.post()
             .uri("/stock/tax/trigger-monthly")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
@@ -584,7 +618,8 @@ public class TaxTests {
             userTaxDebtsRepository
         );
 
-        String jwtToken = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
+
+        String jwtToken = "Bearer " + JwtPlaceholders.V3_VALID_ADMIN_EMPLOYEE_TOKEN;
         mvc.post()
             .uri("/stock/tax/trigger-monthly")
             .header(HttpHeaders.AUTHORIZATION, jwtToken)
