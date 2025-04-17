@@ -123,10 +123,11 @@ public class ProfitCalculationServiceImpl implements ProfitCalculationService {
 
         return new MonetaryAmount(unrealized, currentPrice.getCurrency());
     }
+
     /**
      * Calculates profit (unrealized/realized) for the given option.
      */
-    public MonetaryAmount calculateOptionProfit(Option option){
+    public MonetaryAmount calculateOptionProfit(Option option) {
         var optionalListing =
             listingRepository.getLatestListing(
                 option.getStock()
@@ -135,12 +136,12 @@ public class ProfitCalculationServiceImpl implements ProfitCalculationService {
             );
         var currentPrice =
             optionalListing.map(
-                    listing -> new MonetaryAmount(
-                        listing.getBid(),
-                        listing.getExchange()
-                            .getCurrency()
-                    )
+                listing -> new MonetaryAmount(
+                    listing.getBid(),
+                    listing.getExchange()
+                        .getCurrency()
                 )
+            )
                 .orElseThrow(AssetNotFound::new);
         return calculateOptionProfit(currentPrice, option);
     }
