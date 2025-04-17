@@ -1,9 +1,12 @@
 package rs.banka4.bank_service.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static rs.banka4.bank_service.utils.AssetGenerator.STOCK_EX1_UUID;
 
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +17,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import rs.banka4.bank_service.domain.account.db.Account;
+import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
+import rs.banka4.bank_service.domain.options.db.Option;
+import rs.banka4.bank_service.domain.security.stock.db.Stock;
+import rs.banka4.bank_service.domain.taxes.db.UserTaxDebts;
 import rs.banka4.bank_service.domain.user.client.db.Client;
 import rs.banka4.bank_service.generator.AccountObjectMother;
+import rs.banka4.bank_service.integration.generator.PortfolioGenerator;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.integration.generator.UserTaxGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.runners.TestDataRunner;
 import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
 import rs.banka4.bank_service.service.impl.TaxServiceImp;
+import rs.banka4.bank_service.utils.AssetGenerator;
+import rs.banka4.bank_service.utils.ExchangeGenerator;
+import rs.banka4.bank_service.utils.ListingGenerator;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
@@ -44,6 +55,18 @@ public class TaxTests {
     ExchangeRateService exchangeRateService;
     @Autowired
     private UserTaxDebtsRepository userTaxDebtsRepository;
+    @Autowired
+    private PortfolioGenerator portfolioGenerator;
+    @Autowired
+    private AssetRepository assetRepository;
+    @Autowired
+    private SecurityRepository securityRepository;
+    @Autowired
+    private ListingRepository listingRepo;
+    @Autowired
+    private ExchangeRepository exchangeRepo;
+    @Autowired
+    private ListingDailyPriceInfoRepository listingHistoryRepo;
 
     private Client createTestClient() {
         final var assetOwner =
@@ -674,5 +697,236 @@ public class TaxTests {
                     .stripTrailingZeros()
             );
         });
+    }
+
+    @Transactional
+    @Test
+    void addTaxAmountToDB_createsNewDebtAndAccumulates() {
+        var user = portfolioGenerator.createTestClient();
+        var account = AccountObjectMother.generateBasicEURFromAccount();
+        account.setClient(user);
+        account.setAccountNumber(
+            UUID.randomUUID()
+                .toString()
+        );
+        userRepository.save(account.getEmployee());
+        accountRepository.save(account);
+
+        assertTrue(
+            userTaxDebtsRepository.findByAccount_AccountNumber(account.getAccountNumber())
+                .isEmpty()
+        );
+
+        // add 50 USD
+        taxService.addTaxAmountToDB(
+            new MonetaryAmount(BigDecimal.valueOf(50), CurrencyCode.EUR),
+            account
+        );
+        Optional<UserTaxDebts> first =
+            userTaxDebtsRepository.findByAccount_AccountNumber(account.getAccountNumber());
+        assertTrue(first.isPresent());
+        assertEquals(
+            0,
+            first.get()
+                .getDebtAmount()
+                .compareTo(BigDecimal.valueOf(50))
+        );
+
+        // add another 20 USD
+        taxService.addTaxAmountToDB(
+            new MonetaryAmount(BigDecimal.valueOf(20), CurrencyCode.EUR),
+            account
+        );
+        var updated =
+            userTaxDebtsRepository.findByAccount_AccountNumber(account.getAccountNumber())
+                .get();
+        assertEquals(
+            0,
+            updated.getDebtAmount()
+                .compareTo(BigDecimal.valueOf(70))
+        );
+
+        // adding zero or negative should be no‐op
+        taxService.addTaxAmountToDB(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.EUR), account);
+        taxService.addTaxAmountToDB(
+            new MonetaryAmount(BigDecimal.valueOf(-10), CurrencyCode.EUR),
+            account
+        );
+        // unchanged
+        assertEquals(
+            0,
+            userTaxDebtsRepository.findByAccount_AccountNumber(account.getAccountNumber())
+                .get()
+                .getDebtAmount()
+                .compareTo(BigDecimal.valueOf(70))
+        );
+    }
+
+    @Test
+    void addTaxAmountToDB_currencyMismatch_throws() {
+        var user = portfolioGenerator.createTestClient();
+        var account = AccountObjectMother.generateBasicEURFromAccount();
+        account.setClient(user);
+        account.setAccountNumber(
+            UUID.randomUUID()
+                .toString()
+        );
+        userRepository.save(account.getEmployee());
+        accountRepository.save(account);
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> taxService.addTaxAmountToDB(
+                new MonetaryAmount(BigDecimal.TEN, CurrencyCode.USD),
+                account
+            )
+        );
+    }
+
+    @Test
+    @Transactional
+    void addTaxForOrderToDB_stubsProfitAndPersistsDebt() {
+        Client client = portfolioGenerator.createTestClient();
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        var stock = securityRepository.findById(STOCK_EX1_UUID);
+        ListingGenerator.makeExampleListings(
+            stock.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        portfolioGenerator.createDummyBuyOrder(
+            client,
+            stock.get(),
+            100,
+            BigDecimal.valueOf(40),
+            CurrencyCode.EUR
+        );
+        var order =
+            portfolioGenerator.createDummySellOrder(
+                client,
+                stock.get(),
+                200,
+                BigDecimal.valueOf(50),
+                CurrencyCode.EUR
+            );
+
+        taxService.addTaxForOrderToDB(order);
+
+        var debt =
+            userTaxDebtsRepository.findByAccount_AccountNumber(
+                order.getAccount()
+                    .getAccountNumber()
+            )
+                .get();
+        assertEquals(
+            0,
+            debt.getDebtAmount()
+                .compareTo(BigDecimal.valueOf(147.90))
+        );
+    }
+
+    @Test
+    @Transactional
+    void addTaxForOrderToDB_nonSellOrNonStock_noop() {
+        Client client = portfolioGenerator.createTestClient();
+        final var ber1 = ExchangeGenerator.makeBer1();
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        var stock = securityRepository.findById(STOCK_EX1_UUID);
+        ListingGenerator.makeExampleListings(
+            stock.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        var forex = securityRepository.findById(AssetGenerator.FOREX_EUR_USD_UUID);
+        ListingGenerator.makeExampleListings(
+            forex.orElseThrow(),
+            ber1,
+            listingRepo,
+            listingHistoryRepo
+        );
+        var orderBuy =
+            portfolioGenerator.createDummyBuyOrder(
+                client,
+                stock.get(),
+                100,
+                BigDecimal.valueOf(40),
+                CurrencyCode.EUR
+            );
+
+        var order =
+            portfolioGenerator.createDummySellOrder(
+                client,
+                forex.get(),
+                200,
+                BigDecimal.valueOf(50),
+                CurrencyCode.EUR
+            );
+
+
+        taxService.addTaxForOrderToDB(orderBuy);
+        assertTrue(
+            userTaxDebtsRepository.findByAccount_AccountNumber(
+                orderBuy.getAccount()
+                    .getAccountNumber()
+            )
+                .isEmpty()
+        );
+
+        taxService.addTaxForOrderToDB(order);
+        assertTrue(
+            userTaxDebtsRepository.findByAccount_AccountNumber(
+                order.getAccount()
+                    .getAccountNumber()
+            )
+                .isEmpty()
+        );
+    }
+
+    @Test
+    @Transactional
+    void addTaxForOtcToDB_stubsOptionProfitAndPersistsDebt() {
+        Client client = portfolioGenerator.createTestClient();
+        var account = AccountObjectMother.generateBasicEURFromAccount();
+        final var stock1 =
+            Stock.builder()
+                .id(STOCK_EX1_UUID)
+                .name("Example One™")
+                .ticker("EX1")
+                .dividendYield(new BigDecimal("0.052"))
+                .outstandingShares(325_000)
+                .build();
+        final var ber1 = ExchangeGenerator.makeBer1();
+
+        account.setCurrency(CurrencyCode.USD);
+        account.setClient(client);
+        account.setAccountNumber(
+            UUID.randomUUID()
+                .toString()
+        );
+        userRepository.save(account.getEmployee());
+        accountRepository.save(account);
+        exchangeRepo.save(ber1);
+        AssetGenerator.makeExampleAssets()
+            .forEach(assetRepository::saveAndFlush);
+        assetRepository.save(stock1);
+        ListingGenerator.makeExampleListings(stock1, ber1, listingRepo, listingHistoryRepo);
+        var option = assetRepository.findById(AssetGenerator.OPTION_EX1_PUT_UUID);
+
+        taxService.addTaxForOtcToDB((Option) option.get(), account);
+
+        var debt =
+            userTaxDebtsRepository.findByAccount_AccountNumber(account.getAccountNumber())
+                .get();
+        assertEquals(
+            0,
+            debt.getDebtAmount()
+                .compareTo(BigDecimal.valueOf(1400.4000))
+        );
     }
 }
