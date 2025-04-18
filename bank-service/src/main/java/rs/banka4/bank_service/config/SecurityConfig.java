@@ -111,6 +111,13 @@ public class SecurityConfig {
                             AuthorityAuthorizationManager.hasAuthority("ADMIN")
                         )
                     )
+                    .requestMatchers(HttpMethod.POST, "/stock/orders", "/stock/orders/")
+                    .access(
+                        AuthorizationManagers.anyOf(
+                            AuthorityAuthorizationManager.hasAuthority("EMPLOYEE"),
+                            AuthorityAuthorizationManager.hasAuthority("TRADE")
+                        )
+                    )
                     .requestMatchers(HttpMethod.GET, "/stock/tax/summary")
                     .access(
                         AuthorizationManagers.anyOf(
