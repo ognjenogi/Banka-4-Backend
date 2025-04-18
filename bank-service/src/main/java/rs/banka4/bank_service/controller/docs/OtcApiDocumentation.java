@@ -197,7 +197,7 @@ public interface OtcApiDocumentation {
         @Parameter(
             description = "Unique identifier of the OTC request that is being accepted",
             required = true
-        ) @PathVariable UUID id,
+        ) @PathVariable UUID requestId,
         Authentication auth
     );
 }
