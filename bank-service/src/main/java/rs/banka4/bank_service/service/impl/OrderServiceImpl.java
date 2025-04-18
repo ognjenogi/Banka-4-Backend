@@ -35,6 +35,7 @@ import rs.banka4.rafeisen.common.exceptions.jwt.Unauthorized;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.rafeisen.common.security.Privilege;
 import rs.banka4.rafeisen.common.security.SecurityUtils;
+import rs.banka4.rafeisen.common.security.UserType;
 
 @Service
 @Transactional
@@ -59,9 +60,18 @@ public class OrderServiceImpl implements OrderService {
             assetRepository.findById(dto.assetId())
                 .orElseThrow(AssetNotFound::new);
 
-        ActuaryInfo actuaryInfo =
-            actuaryRepository.findByUserId(userId)
-                .orElseThrow(() -> new ActuaryNotFoundException(userId));
+        ActuaryInfo actuaryInfo;
+        if (
+            auth.getPrincipal()
+                .userType()
+                == UserType.CLIENT
+        ) {
+            actuaryInfo = null;
+        } else {
+            actuaryInfo =
+                actuaryRepository.findByUserId(userId)
+                    .orElseThrow(() -> new ActuaryNotFoundException(userId));
+        }
 
         OrderType orderType = determineOrderType(dto.limitValue(), dto.stopValue());
         Exchange exchange = resolveExchangeForAsset(asset);
@@ -85,17 +95,24 @@ public class OrderServiceImpl implements OrderService {
                 getContractSize(asset)
             );
 
-        boolean needsApproval =
-            determineIfApprovalNeeded(
-                actuaryInfo,
-                dto.quantity(),
-                getContractSize(asset),
-                pricePerUnit
-            );
+        boolean needsApproval;
+
+        if (actuaryInfo == null) {
+            needsApproval = false;
+        } else {
+            needsApproval =
+                determineIfApprovalNeeded(
+                    actuaryInfo,
+                    dto.quantity(),
+                    getContractSize(asset),
+                    pricePerUnit
+                );
+        }
+
         Status status = needsApproval ? Status.PENDING : Status.APPROVED;
 
         User user =
-            userRepository.findById(actuaryInfo.getUserId())
+            userRepository.findById(userId)
                 .get();
 
         Order order = OrderMapper.INSTANCE.toEntity(dto);
