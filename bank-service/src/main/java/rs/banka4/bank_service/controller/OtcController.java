@@ -85,13 +85,16 @@ public class OtcController implements OtcApiDocumentation {
     }
 
     @Override
-    @PostMapping("/accept")
-    public ResponseEntity<Void> acceptOtcRequest(UUID id, Authentication auth) {
+    @PatchMapping("/accept/{requestId}")
+    public ResponseEntity<Void> acceptOtcRequest(
+        @PathVariable UUID requestId,
+        Authentication auth
+    ) {
         final var ourAuth = (AuthenticatedBankUserAuthentication) auth;
         var myId =
             ourAuth.getPrincipal()
                 .userId();
-        otcRequestService.acceptOtc(id, myId);
+        otcRequestService.acceptOtc(requestId, myId);
         return ResponseEntity.ok()
             .build();
     }
