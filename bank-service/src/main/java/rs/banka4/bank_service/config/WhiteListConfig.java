@@ -15,7 +15,9 @@ public class WhiteListConfig {
         "/auth/forgot-password/*",
         "/auth/verify",
         "/docs/**",
-        "/account/user/**"
+        "/account/user/**",
+        /* Yeetus deletus route. */
+        "/e2e/redo-data"
     };
 
     private static final List<Pattern> WHITE_LIST_URL_PATTERNS =
