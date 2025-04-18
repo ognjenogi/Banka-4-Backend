@@ -85,7 +85,7 @@ public class OtcController implements OtcApiDocumentation {
     }
 
     @Override
-    @PostMapping("/accept/{requestId}")
+    @PatchMapping("/accept/{requestId}")
     public ResponseEntity<Void> acceptOtcRequest(
         @PathVariable UUID requestId,
         Authentication auth
