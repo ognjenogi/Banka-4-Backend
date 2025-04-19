@@ -1,6 +1,7 @@
 package rs.banka4.bank_service.domain.exchanges.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import rs.banka4.rafeisen.common.currency.CurrencyCode;
@@ -49,6 +50,12 @@ public record ExchangeDto(
     @Schema(
         description = "Currency used in the exchange",
         example = "USD"
-    ) CurrencyCode currency
+    ) CurrencyCode currency,
+
+    @Schema(
+        description = "Creation date",
+        example = "1984-01-13"
+    ) LocalDate createdAt
+
 ) {
 }
