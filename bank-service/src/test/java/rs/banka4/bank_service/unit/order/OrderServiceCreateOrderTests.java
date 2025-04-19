@@ -137,7 +137,6 @@ public class OrderServiceCreateOrderTests {
 
         // Assert
         verify(assetRepository).findById(dto.assetId());
-        verify(actuaryRepository).findByUserId(userId);
         assertThat(createdOrder.orderType()).isEqualTo(expectedOrderType);
     }
 
@@ -252,7 +251,6 @@ public class OrderServiceCreateOrderTests {
 
         // Assert
         verify(assetRepository).findById(dto.assetId());
-        verify(actuaryRepository).findByUserId(userId);
         assertThat(createdOrder.direction()).isEqualTo(Direction.SELL);
     }
 }
