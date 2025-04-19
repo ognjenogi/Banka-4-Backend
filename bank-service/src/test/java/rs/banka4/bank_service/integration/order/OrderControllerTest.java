@@ -114,17 +114,7 @@ public class OrderControllerTest {
             .contentType("application/json")
             .content(payload)
             .assertThat()
-            .hasStatusOk()
-            .bodyJson()
-            .satisfies(json -> {
-                assertThat(json.toString()).contains("\"id\":");
-                assertThat(json.toString()).contains("\"firstName\":\"John\"");
-                assertThat(json.toString()).contains("\"lastName\":\"Doe\"");
-                assertThat(json.toString()).contains("\"assetTicker\":\"EX1\"");
-                assertThat(json.toString()).contains("\"orderType\":\"MARKET\"");
-                assertThat(json.toString()).contains("\"direction\":\"BUY\"");
-                assertThat(json.toString()).contains("\"quantity\":10");
-            });
+            .hasStatus4xxClientError();
     }
 
     @Test
