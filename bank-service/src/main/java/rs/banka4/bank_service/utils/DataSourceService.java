@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.account.db.AccountType;
+import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
+import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.card.db.*;
 import rs.banka4.bank_service.domain.company.db.ActivityCode;
 import rs.banka4.bank_service.domain.company.db.Company;
@@ -155,6 +157,7 @@ public class DataSourceService {
     private final BankMarginRepository bankMarginRepository;
     private final InterestRateRepository interestRateRepository;
     private final CardRepository cardRepository;
+    private final ActuaryRepository actuaryRepository;
 
     public void insertData(boolean devData) {
         /* Production seeders. */
@@ -175,6 +178,7 @@ public class DataSourceService {
             accountSeeder();
             cardSeeder();
             authorizedUserSeeder();
+            actuaryInfoSeeder();
         }
     }
 
@@ -468,10 +472,10 @@ public class DataSourceService {
                 -> employee.setPrivileges(List.of(Privilege.ADMIN));
             case "Compliance Officer",
                 "Risk Manager"
-                -> employee.setPrivileges(List.of());
+                -> employee.setPrivileges(List.of(Privilege.AGENT));
             case "Loan Officer",
                 "Credit Analyst"
-                -> employee.setPrivileges(List.of());
+                -> employee.setPrivileges(List.of(Privilege.SUPERVISOR));
             default -> employee.setPrivileges(List.of());
             }
         });
@@ -1129,4 +1133,40 @@ public class DataSourceService {
 
         accountRepository.saveAllAndFlush(accounts);
     }
+
+    private void actuaryInfoSeeder() {
+        List<ActuaryInfo> actuaries =
+            List.of(
+                ActuaryInfo.builder()
+                    .userId(EMPLOYEE_DANIEL)
+                    .needApproval(false)
+                    .limit(new MonetaryAmount(null, CurrencyCode.RSD))
+                    .usedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD))
+                    .build(),
+
+                ActuaryInfo.builder()
+                    .userId(EMPLOYEE_ALICE)
+                    .needApproval(false)
+                    .limit(new MonetaryAmount(null, CurrencyCode.RSD))
+                    .usedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD))
+                    .build(),
+
+                ActuaryInfo.builder()
+                    .userId(EMPLOYEE_ROBERT)
+                    .needApproval(false)
+                    .limit(new MonetaryAmount(null, CurrencyCode.RSD))
+                    .usedLimit(new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD))
+                    .build(),
+
+                ActuaryInfo.builder()
+                    .userId(EMPLOYEE_MICHAEL)
+                    .needApproval(true)
+                    .limit(new MonetaryAmount(new BigDecimal("100000"), CurrencyCode.USD))
+                    .usedLimit(new MonetaryAmount(new BigDecimal("99990"), CurrencyCode.USD))
+                    .build()
+            );
+
+        actuaryRepository.saveAllAndFlush(actuaries);
+    }
+
 }
