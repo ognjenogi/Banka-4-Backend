@@ -23,6 +23,10 @@ public record CreateOrderPreviewDto(
     @Schema(
         description = "Order direction (BUY or SELL)",
         example = "BUY"
-    ) @NotNull(message = "Direction is required") Direction direction
+    ) @NotNull(message = "Direction is required") Direction direction,
+    @Schema(
+        description = "Account number",
+        example = "4440001000000000220"
+    ) @NotNull(message = "Account number is required") String accountNumber
 ) {
 }

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import rs.banka4.bank_service.domain.account.db.Account;
 import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
 import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
@@ -29,8 +30,10 @@ import rs.banka4.bank_service.repositories.AssetRepository;
 import rs.banka4.bank_service.repositories.OrderRepository;
 import rs.banka4.bank_service.repositories.UserRepository;
 import rs.banka4.bank_service.service.abstraction.AccountService;
+import rs.banka4.bank_service.service.abstraction.ExchangeRateService;
 import rs.banka4.bank_service.service.abstraction.ListingService;
 import rs.banka4.bank_service.service.abstraction.OrderService;
+import rs.banka4.rafeisen.common.currency.CurrencyCode;
 import rs.banka4.rafeisen.common.exceptions.jwt.Unauthorized;
 import rs.banka4.rafeisen.common.security.AuthenticatedBankUserAuthentication;
 import rs.banka4.rafeisen.common.security.Privilege;
@@ -49,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderExecutionService orderExecutionService;
     private final UserRepository userRepository;
     private final AccountService accountService;
+    private final ExchangeRateService exchangeRateService;
 
     @Override
     public OrderDto createOrder(
@@ -160,6 +164,34 @@ public class OrderServiceImpl implements OrderService {
             pricePerUnit.multiply(
                 BigDecimal.valueOf((long) request.quantity() * getContractSize(asset))
             );
+
+        Account account = accountService.getAccountByAccountNumber(request.accountNumber());
+
+        if (
+            account.getCurrency() != CurrencyCode.RSD
+                && listing.getExchange()
+                    .getCurrency()
+                    != CurrencyCode.RSD
+        ) {
+            BigDecimal toRsd =
+                exchangeRateService.convertCurrency(
+                    price,
+                    listing.getExchange()
+                        .getCurrency(),
+                    CurrencyCode.RSD
+                );
+            price =
+                exchangeRateService.convertCurrency(toRsd, CurrencyCode.RSD, account.getCurrency());
+        } else {
+            price =
+                exchangeRateService.convertCurrency(
+                    price,
+                    listing.getExchange()
+                        .getCurrency(),
+                    account.getCurrency()
+                );
+        }
+
 
         return new OrderPreviewDto(typeLabel, price, request.quantity());
     }
