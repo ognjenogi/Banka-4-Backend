@@ -21,7 +21,7 @@ public record OtcRequestUpdateDto(
     @Schema(
         description = "The amount (number) of securities being negotiated",
         example = "10"
-    ) int amount,
+    ) Integer amount,
 
     @Schema(
         description = "The settlement date for the OTC request which determines the expiry date of the optional contract",

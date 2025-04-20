@@ -334,7 +334,7 @@ public class OtcTests {
         var momo = new MonetaryAmount();
         momo.setAmount(BigDecimal.TEN);
         momo.setCurrency(CurrencyCode.CAD);
-        var updateDto = new OtcRequestUpdateDto(null, momo, 10, LocalDate.parse("2025-04-11"));
+        var updateDto = new OtcRequestUpdateDto(null, momo, null, LocalDate.parse("2025-04-11"));
         var body = objMapper.writeValueAsString(updateDto);
         mvc.patch()
             .uri("/stock/otc/update/" + id)
@@ -358,7 +358,7 @@ public class OtcTests {
             otcRejected.getPremium()
                 .getCurrency()
         );
-        assertEquals(10, otcRejected.getAmount());
+        assertEquals(1, otcRejected.getAmount());
         assertEquals(
             JwtPlaceholders.CLIENT_ID.toString(),
             otcRejected.getModifiedBy()
