@@ -2,7 +2,6 @@ package rs.banka4.bank_service.integration.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,18 +10,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
-import rs.banka4.bank_service.domain.account.db.Account;
-import rs.banka4.bank_service.domain.actuaries.db.ActuaryInfo;
-import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
 import rs.banka4.bank_service.domain.listing.db.Listing;
 import rs.banka4.bank_service.domain.security.stock.db.Stock;
-import rs.banka4.bank_service.domain.user.employee.db.Employee;
-import rs.banka4.bank_service.generator.AccountObjectMother;
 import rs.banka4.bank_service.integration.generator.UserGenerator;
 import rs.banka4.bank_service.repositories.*;
 import rs.banka4.bank_service.utils.AssetGenerator;
-import rs.banka4.rafeisen.common.currency.CurrencyCode;
+import rs.banka4.bank_service.utils.DataSourceService;
 import rs.banka4.testlib.integration.DbEnabledTest;
 import rs.banka4.testlib.utils.JwtPlaceholders;
 
@@ -30,6 +24,9 @@ import rs.banka4.testlib.utils.JwtPlaceholders;
 @DbEnabledTest
 @AutoConfigureMockMvc
 public class OrderControllerTest {
+
+    @Autowired
+    private DataSourceService dataSourceService;
 
     @Autowired
     private MockMvcTester mvc;
@@ -49,10 +46,11 @@ public class OrderControllerTest {
 
     private UUID stockId;
 
+    private static final String ACCOUNT_NUMBER = DataSourceService.ACCOUNT_JANE_STANDARD_NUMBER;
+
     @BeforeEach
     void setUp() {
-        assetRepo.deleteAll();
-        listingRepository.deleteAll();
+        dataSourceService.insertData(true);
 
         assetRepo.saveAll(AssetGenerator.makeExampleAssets());
         stockId = AssetGenerator.STOCK_EX1_UUID;
@@ -67,32 +65,10 @@ public class OrderControllerTest {
         Listing listing = TestDataFactory.buildListing(stock, exchange);
         listingRepository.save(listing);
 
-
     }
 
     @Test
     void shouldCreateOrderSuccessfully() {
-        final var client = userGen.createClient(x -> x.id(JwtPlaceholders.CLIENT_ID));
-        actuaryRepository.save(
-            new ActuaryInfo(
-                client.getId(),
-                true,
-                new MonetaryAmount(BigDecimal.valueOf(9999), CurrencyCode.RSD),
-                new MonetaryAmount(BigDecimal.ZERO, CurrencyCode.RSD)
-            )
-        );
-        Account a = AccountObjectMother.generateBasicToAccount();
-        Employee e =
-            userGen.createEmployee(
-                x -> x.id(UUID.randomUUID())
-                    .email("blabla@gmail.com")
-            );
-        a.setId(TestDataFactory.ACCOUNT_ID);
-        a.setAccountNumber(TestDataFactory.ACCOUNT_NUMBER);
-        a.setClient(client);
-        a.setEmployee(e);
-        accountRepo.save(a);
-
         String jwt = "Bearer " + JwtPlaceholders.CLIENT_TOKEN;
 
         String payload = """
@@ -125,9 +101,10 @@ public class OrderControllerTest {
             {
               "assetId": "%s",
               "direction": "BUY",
-              "amount": 10
+              "amount": 10,
+              "accountNumber": "%s"
             }
-            """.formatted(stockId);
+            """.formatted(stockId, ACCOUNT_NUMBER);
 
         mvc.post()
             .uri("/stock/orders/calculate-average-price")
