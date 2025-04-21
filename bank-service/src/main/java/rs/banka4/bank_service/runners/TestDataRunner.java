@@ -3,7 +3,6 @@ package rs.banka4.bank_service.runners;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 import rs.banka4.bank_service.utils.DataSourceService;
 
@@ -15,10 +14,6 @@ public class TestDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (environment.acceptsProfiles(Profiles.of("dev"))) {
-            dataSourceService.insertData(true);
-        }
-
-//        dataSourceService.insertData(environment.matchesProfiles("dev"));
+        dataSourceService.insertData(environment.matchesProfiles("dev"));
     }
 }

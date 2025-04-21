@@ -50,11 +50,6 @@ public class OrderControllerTest {
 
     @BeforeEach
     void setUp() {
-        accountRepo.deleteAll();
-        assetRepo.deleteAll();
-        listingRepository.deleteAll();
-        actuaryRepository.deleteAll();
-
         dataSourceService.insertData(true);
 
         assetRepo.saveAll(AssetGenerator.makeExampleAssets());

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount;
 import rs.banka4.bank_service.domain.exchanges.db.Exchange;
 import rs.banka4.bank_service.domain.options.db.Asset;
 import rs.banka4.bank_service.domain.orders.db.Direction;
@@ -33,7 +33,6 @@ import rs.banka4.rafeisen.common.security.UserType;
 import rs.banka4.testlib.integration.DbEnabledTest;
 
 @SpringBootTest
-@ActiveProfiles("test")
 @DbEnabledTest
 class OrderServiceTest {
 
@@ -109,10 +108,7 @@ class OrderServiceTest {
             new CreateOrderPreviewDto(
                 ASSET_ID,
                 3,
-                new rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount(
-                    BigDecimal.valueOf(900),
-                    CurrencyCode.RSD
-                ),
+                new MonetaryAmount(BigDecimal.valueOf(900), CurrencyCode.RSD),
                 null,
                 false,
                 false,
@@ -134,10 +130,7 @@ class OrderServiceTest {
                 ASSET_ID,
                 Direction.BUY,
                 5,
-                new rs.banka4.bank_service.domain.actuaries.db.MonetaryAmount(
-                    BigDecimal.valueOf(100),
-                    CurrencyCode.RSD
-                ),
+                new MonetaryAmount(BigDecimal.valueOf(100), CurrencyCode.RSD),
                 null,
                 false,
                 false,
